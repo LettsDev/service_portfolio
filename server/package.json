@@ -2,14 +2,14 @@
   "name": "server",
   "version": "1.0.0",
   "description": "",
-  "main": "index.ts",
+  "main": "server.ts",
   "scripts": {
     "test": "jest --coverage --detectOpenHandles",
     "dev": "concurrently \"npm run server\" \"npx tsc --watch\" \"cd ../client && npm run dev \"",
     "server": "nodemon build/server.js"
   },
   "author": "Jared Letts",
-  "license": "ISC",
+  "license": "MIT",
   "devDependencies": {
     "@types/bcryptjs": "^2.4.2",
     "@types/cookie-parser": "^1.4.3",

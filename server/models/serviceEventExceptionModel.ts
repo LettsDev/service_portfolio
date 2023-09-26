@@ -2,7 +2,7 @@ import { Schema, model } from "mongoose";
 import type { IServiceEventException } from "../types";
 
 const ServiceEventExceptionSchema = new Schema<IServiceEventException>({
-  service_schedule: {
+  service: {
     type: Schema.Types.ObjectId,
     ref: "ServiceSchedule",
     required: true,

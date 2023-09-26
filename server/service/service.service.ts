@@ -11,7 +11,7 @@ export async function findService(
   query: FilterQuery<IService>,
   options: QueryOptions = { lean: true }
 ) {
-  return Service.findById(query.id, {}, options);
+  return Service.findById(query.id, {}, options).populate("resource").exec();
 }
 
 export async function updateService(
@@ -19,16 +19,21 @@ export async function updateService(
   update: UpdateQuery<IService>,
   options: QueryOptions = { lean: true, new: true }
 ) {
-  return Service.findByIdAndUpdate(query, update, options);
+  return Service.findByIdAndUpdate(query, update, options)
+    .populate("resource")
+    .exec();
 }
 
 export async function deleteService(
   query: FilterQuery<IService>,
   options: QueryOptions = { lean: true }
 ) {
-  return Service.findByIdAndRemove(query, options);
+  return Service.findByIdAndRemove(query, options).populate("resource").exec();
 }
 
-export async function allServices(options: QueryOptions = { lean: true }) {
-  return Service.find({}, {}, options);
+export async function allServices(
+  query: FilterQuery<IService> = {},
+  options: QueryOptions = { lean: true }
+) {
+  return Service.find(query, {}, options).populate("resource").exec();
 }

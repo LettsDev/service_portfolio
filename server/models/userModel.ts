@@ -7,10 +7,9 @@ const UserSchema = new Schema<IUser>(
   {
     first_name: { type: String, required: true },
     last_name: { type: String, required: true },
-    location: { type: Schema.Types.ObjectId, ref: "Location", required: true },
-    auth: { type: String, required: true, enum: ["ADMIN", "ELEVATED", "USER"] },
     email: { type: String, required: true },
     password: { type: String, required: true },
+    auth: { type: String, required: true, enum: ["ADMIN", "ENHANCED", "USER"] },
   },
   { timestamps: true }
 );

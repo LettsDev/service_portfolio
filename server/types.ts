@@ -17,8 +17,6 @@ export interface IResource {
   name: string;
   location: Types.ObjectId;
   created_by: Types.ObjectId;
-  createdAt: Date;
-  updatedAt: Date;
   notes?: string;
 }
 
@@ -26,8 +24,6 @@ export interface ISession {
   user: Types.ObjectId;
   valid: boolean;
   userAgent: string;
-  createdAt: Date;
-  updatedAt: Date;
 }
 
 export interface IService {
@@ -46,6 +42,5 @@ export interface IServiceEventException {
   is_cancelled: boolean;
   is_rescheduled: boolean;
   start_date: Date;
-  createdAt: Date;
-  updatedAt: Date;
+  created_by: Types.ObjectId;
 }

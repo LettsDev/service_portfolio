@@ -3,7 +3,6 @@ import Session from "../models/sessionModel";
 import type { ISession } from "../types";
 import { findUser } from "./user.service";
 import { verifyJWT, signJWT } from "../utils/auth";
-import { JwtPayload } from "jsonwebtoken";
 import { get } from "lodash";
 
 export async function createSession(userId: string, userAgent: string) {

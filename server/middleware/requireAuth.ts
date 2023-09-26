@@ -26,7 +26,7 @@ export function requireAdmin(req: Request, res: Response, next: NextFunction) {
 
   return next();
 }
-export function requireElevated(
+export function requireEnhanced(
   req: Request,
   res: Response,
   next: NextFunction

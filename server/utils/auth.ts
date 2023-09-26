@@ -37,7 +37,7 @@ export function verifyAuthority(minLevel: number, userAuthLevel: string) {
     switch (userAuthLevel) {
       case "ADMIN":
         return 3;
-      case "ELEVATED":
+      case "ENHANCED":
         return 2;
       case "USER":
         return 1;

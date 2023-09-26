@@ -3,17 +3,16 @@ import type { IService } from "../types";
 
 const ServiceSchema = new Schema<IService>(
   {
-    title: { type: String, required: true },
-    type: {
-      type: String,
-      required: true,
-      enum: ["MAINTAIN", "REPAIR", "OTHER"],
-    },
+    name: { type: String, required: true },
+    resource: { type: Schema.Types.ObjectId, ref: "Resource", required: true },
+    created_by: { type: Schema.Types.ObjectId, ref: "User", required: true },
     frequency: {
       type: String,
       enum: ["ONCE", "DAILY", "WEEKLY", "MONTHLY", "ANNUALLY"],
     },
-    interval: Number,
+    interval: { type: Number, required: true },
+    start_date: { type: Date, required: true },
+    completion_date: { type: Date, required: true },
   },
 
   { timestamps: true }
@@ -21,7 +20,8 @@ const ServiceSchema = new Schema<IService>(
 
 const Service = model<IService>("Service", ServiceSchema);
 export default Service;
-// Frequencytype would be one of the following values
+
+// Frequency type would be one of the following values
 
 // 'O' = Once
 // 'D' = Daily

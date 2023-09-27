@@ -22,6 +22,9 @@ function createServer() {
   //routers
 
   app.use("/api", ApiRouter);
+  app.get("/health", (req, res) => {
+    return res.sendStatus(200);
+  });
   //   app.use(express.static(path.join(__dirname, "client", "dist")));
 
   app.use(function (req, res, next) {

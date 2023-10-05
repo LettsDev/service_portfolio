@@ -1,9 +1,9 @@
-import { useState } from "react";
-import { Link, Outlet } from "react-router-dom";
+import { Link, Outlet, useLocation } from "react-router-dom";
 
 export default function TablePage() {
-  const [activeTab, setActiveTab] = useState("locations");
   const tables = ["locations", "resources", "services"];
+  const location = useLocation();
+
   return (
     <>
       <div className="flex justify-center w-full ">
@@ -13,9 +13,9 @@ export default function TablePage() {
             <li
               key={table}
               className={
-                "tab tab-lg " + (activeTab === table ? "tab-active" : "")
+                "tab tab-lg " +
+                (location.pathname === `/table/${table}` ? "tab-active" : "")
               }
-              onClick={() => setActiveTab(table)}
             >
               <Link to={`/table/${table}`}>{table}</Link>
             </li>

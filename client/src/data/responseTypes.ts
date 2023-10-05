@@ -7,6 +7,7 @@ export interface IResponseBase {
 
 export interface ILocation extends IResponseBase {
   name: string;
+  numResources: number;
 }
 
 export interface IUser extends IResponseBase {

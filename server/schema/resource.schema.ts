@@ -23,6 +23,14 @@ const params = {
   }),
 };
 
+const queryByLocationParams = {
+  params: object({
+    locationId: string({
+      required_error: "locationId is required",
+    }),
+  }),
+};
+
 export const createResourceSchema = object({
   ...payload,
 });
@@ -40,7 +48,12 @@ export const getResourceSchema = object({
   ...params,
 });
 
+export const queryByLocationSchema = object({
+  ...queryByLocationParams,
+});
+
 export type CreateResourceInput = TypeOf<typeof createResourceSchema>;
 export type ReadResourceInput = TypeOf<typeof getResourceSchema>;
 export type UpdateResourceInput = TypeOf<typeof updateResourceSchema>;
 export type DeleteResourceInput = TypeOf<typeof deleteResourceSchema>;
+export type QueryByLocationInput = TypeOf<typeof queryByLocationSchema>;

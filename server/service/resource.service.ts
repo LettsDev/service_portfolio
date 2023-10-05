@@ -44,3 +44,13 @@ export async function allResource(options: QueryOptions = { lean: true }) {
     .populate("created_by")
     .exec();
 }
+
+export async function queryResources(
+  query: FilterQuery<Pick<IResource, "location">>,
+  options: QueryOptions = { lean: true }
+) {
+  return Resource.find(query, {}, options)
+    .populate("location")
+    .populate("created_by")
+    .exec();
+}

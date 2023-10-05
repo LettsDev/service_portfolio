@@ -8,6 +8,13 @@ const LocationSchema = new Schema<ILocation>(
   { timestamps: true }
 );
 
+LocationSchema.virtual("numResources", {
+  ref: "Resource",
+  localField: "_id",
+  foreignField: "location",
+  count: true,
+});
+
 const Location = model<ILocation>("Location", LocationSchema);
 
 export default Location;

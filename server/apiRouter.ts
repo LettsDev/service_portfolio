@@ -31,6 +31,7 @@ import {
   updateResourceSchema,
   deleteResourceSchema,
   createResourceSchema,
+  queryByLocationSchema,
 } from "./schema/resource.schema";
 import {
   getServiceSchema,
@@ -119,6 +120,11 @@ router.delete(
   "/resource/:resourceId",
   [requireAdmin, validate(deleteResourceSchema)],
   resourceController.remove
+);
+router.get(
+  "/resource/query/:locationId",
+  [requireUser, validate(queryByLocationSchema)],
+  resourceController.queryByLocation
 );
 router.get("/resource", requireUser, resourceController.all);
 

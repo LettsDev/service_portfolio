@@ -4,6 +4,7 @@ import {
   DeleteResourceInput,
   UpdateResourceInput,
   ReadResourceInput,
+  QueryByLocationInput,
 } from "../schema/resource.schema";
 import {
   createResource,
@@ -11,6 +12,7 @@ import {
   updateResource,
   deleteResource,
   allResource,
+  queryResources,
 } from "../service/resource.service";
 
 const resourceController = (() => {
@@ -49,7 +51,11 @@ const resourceController = (() => {
   }
 
   async function edit(
-    req: Request<UpdateResourceInput["params"]>,
+    req: Request<
+      UpdateResourceInput["params"],
+      {},
+      UpdateResourceInput["body"]
+    >,
     res: Response
   ) {
     const id = req.params.resourceId;
@@ -79,7 +85,21 @@ const resourceController = (() => {
     return res.send(resource);
   }
 
-  return { all, create, remove, edit, get };
+  async function queryByLocation(
+    req: Request<QueryByLocationInput["params"]>,
+    res: Response
+  ) {
+    //need to query by location
+    const id = req.params.locationId;
+    const resources = await queryResources({ location: id });
+    if (!resources) {
+      return res.sendStatus(404);
+    }
+
+    return res.send(resources);
+  }
+
+  return { all, create, remove, edit, get, queryByLocation };
 })();
 
 export default resourceController;

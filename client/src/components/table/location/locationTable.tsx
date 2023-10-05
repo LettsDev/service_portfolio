@@ -1,0 +1,96 @@
+import { useState } from "react";
+import { Outlet, useOutletContext } from "react-router-dom";
+import Search from "../search";
+import useLocationTable from "../../../hooks/useLocationTable";
+import LocationRow from "./locationRow";
+import { Link } from "react-router-dom";
+import { ILocation } from "../../../data/responseTypes";
+import ErrorComponent from "../../error";
+export default function LocationTable() {
+  const [query, setQuery] = useState("");
+  const {
+    error,
+    loading,
+    locations,
+    deleteLocation,
+    fetchLocation,
+    newLocation,
+    editLocation,
+  } = useLocationTable();
+  const filteredLocations = () => {
+    //issue with useMemo not updating the table with location change
+
+    return locations.filter((location) =>
+      location.name.toLowerCase().includes(query.toLowerCase())
+    );
+  };
+
+  if (error) return <ErrorComponent error={error} />;
+
+  return (
+    <div className="mt-4">
+      <div className="flex justify-center gap-2">
+        <div
+          data-tip="Add Location"
+          className="tooltip tooltip-left tooltip-primary"
+        >
+          <Link
+            className="btn text-xl bg-primary hover:bg-primary-focus text-white"
+            to="new"
+          >
+            +
+          </Link>
+        </div>
+        <Search setQuery={setQuery} />
+      </div>
+      <table className="table table-fixed table-md mt-2 min-w-[563px]">
+        <thead className="">
+          <tr>
+            <th>Name</th>
+            <th>Number Of Resources</th>
+            {/* Options */}
+            <th></th>
+          </tr>
+        </thead>
+        {loading ? (
+          <tbody className="">
+            <tr className="">
+              <td>
+                <span className="loading loading-dots loading-lg"></span>
+              </td>
+            </tr>
+          </tbody>
+        ) : (
+          <tbody>
+            {filteredLocations().map((location) => (
+              <LocationRow location={location} key={location._id} />
+            ))}
+          </tbody>
+        )}
+      </table>
+      <Outlet
+        context={{
+          error,
+          loading,
+          locations,
+          deleteLocation,
+          fetchLocation,
+          newLocation,
+          editLocation,
+        }}
+      />
+    </div>
+  );
+}
+type ContextType = {
+  error: Error | null;
+  loading: boolean;
+  locations: ILocation[];
+  deleteLocation: (id: string) => Promise<void>;
+  fetchLocation: (id: string) => Promise<ILocation>;
+  newLocation: (data: Pick<ILocation, "name">) => Promise<ILocation>;
+  editLocation: (newLocation: ILocation) => Promise<ILocation>;
+};
+export function useLocation() {
+  return useOutletContext<ContextType>();
+}

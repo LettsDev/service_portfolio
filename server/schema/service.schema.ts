@@ -42,6 +42,13 @@ const queryParams = {
     }),
   }),
 };
+
+const queryByResourceParams = {
+  params: object({
+    resourceId: string({ required_error: "resourceID is required" }),
+  }),
+};
+
 export const createServiceSchema = object({
   ...payload,
 });
@@ -62,9 +69,13 @@ export const allServiceSchema = object({
   ...queryParams,
 });
 
+export const queryByResourceSchema = object({
+  ...queryByResourceParams,
+});
+
 export type CreateServiceInput = TypeOf<typeof createServiceSchema>;
 export type ReadServiceInput = TypeOf<typeof getServiceSchema>;
 export type UpdateServiceInput = TypeOf<typeof updateServiceSchema>;
 export type DeleteServiceInput = TypeOf<typeof deleteServiceSchema>;
 export type AllServiceInput = TypeOf<typeof allServiceSchema>;
-//query based off of time start & end times
+export type QueryByResourceInput = TypeOf<typeof queryByResourceSchema>;

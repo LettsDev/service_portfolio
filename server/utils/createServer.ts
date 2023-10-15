@@ -7,6 +7,7 @@ import deserializeUser from "../middleware/deserializeUser";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import "dotenv/config";
+import handleErrors from "../middleware/handleErrors";
 import path from "path";
 function createServer() {
   const app = express();
@@ -25,6 +26,8 @@ function createServer() {
   app.get("/health", (req, res) => {
     return res.sendStatus(200);
   });
+  // TODO create error handling middleware that the controller will pass errors to
+  app.use(handleErrors);
   //   app.use(express.static(path.join(__dirname, "client", "dist")));
 
   app.use(function (req, res, next) {

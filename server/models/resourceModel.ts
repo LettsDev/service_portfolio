@@ -11,5 +11,12 @@ const ResourceSchema = new Schema<IResource>(
   { timestamps: true }
 );
 
+ResourceSchema.virtual("numServices", {
+  ref: "Service",
+  localField: "_id",
+  foreignField: "resource",
+  count: true,
+});
+
 const Resource = model<IResource>("Resource", ResourceSchema);
 export default Resource;

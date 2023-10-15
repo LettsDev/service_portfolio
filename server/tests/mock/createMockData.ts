@@ -42,8 +42,8 @@ export default async function createMockData() {
     userIds: mongoose.Types.ObjectId[]
   ) {
     serviceData.forEach((service, index) => {
-      service["created_by"] = userIds[index];
       service["resource"] = resourceIds[index];
+      service["created_by"] = userIds[index];
     });
     return Promise.all(serviceData.map((serve) => Service.create(serve)));
   }

@@ -1,5 +1,7 @@
 import { Request, Response } from "express";
 import { omit } from "lodash";
+import asyncWrapper from "../utils/asyncWrapper";
+import { ExtendedError } from "../types";
 import {
   CreateUserInput,
   UpdateUserInput,
@@ -15,95 +17,85 @@ import {
 } from "../service/user.service";
 
 const userController = (() => {
-  async function create(
-    req: Request<{}, {}, CreateUserInput["body"]>,
-    res: Response
-  ) {
-    try {
+  const create = asyncWrapper(
+    async (req: Request<{}, {}, CreateUserInput["body"]>, res: Response) => {
       const user = await createUser(req.body);
-      return res.send(omit(user.toJSON(), "password"));
-    } catch (e: any) {
-      return res.status(409).send(e.message);
+      res.send(omit(user.toJSON(), "password"));
     }
-  }
+  );
 
-  async function update(
-    req: Request<UpdateUserInput["params"], {}, UpdateUserInput["body"]>,
-    res: Response
-  ) {
-    try {
+  const update = asyncWrapper(
+    async (
+      req: Request<UpdateUserInput["params"], {}, UpdateUserInput["body"]>,
+      res: Response
+    ) => {
       const id = req.params.userId;
       const update = req.body;
-
       const foundUser = await findUser({ id });
-      if (!!!foundUser) {
-        return res.sendStatus(404);
+
+      if (!foundUser) {
+        throw new ExtendedError("User not found", 404);
       }
-      const updatedUser = await updateUser({ _id: id }, update, {
-        new: true,
-      });
+
+      const updatedUser = await updateUser({ _id: id }, update, { new: true });
+
       if (updatedUser) {
-        return res.send(omit(updatedUser.toJSON(), "password"));
+        res.send(omit(updatedUser.toJSON(), "password"));
+      } else {
+        throw new ExtendedError("DB error updating the user", 500);
       }
-      throw Error("DB error updating the user");
-    } catch (e: any) {
-      console.log(e.message);
-      return res.status(409).send(e.message);
     }
-  }
+  );
 
-  async function remove(
-    req: Request<DeleteUserInput["params"]>,
-    res: Response
-  ) {
-    try {
+  const remove = asyncWrapper(
+    async (req: Request<DeleteUserInput["params"], {}, {}>, res: Response) => {
       const userId = req.params.userId;
       const foundUser = await findUser({ id: userId });
+
       if (!foundUser) {
-        return res.sendStatus(404);
+        throw new ExtendedError("User not found", 404);
       }
+
       const deletedUser = await deleteUser({ _id: userId });
+
       if (deletedUser) {
-        return res.send(omit(deletedUser.toJSON(), "password"));
+        res.send(omit(deletedUser.toJSON(), "password"));
+      } else {
+        throw new ExtendedError("DB error deleting the user", 500);
       }
-      throw Error("DB error deleting the user");
-    } catch (e: any) {
-      return res.status(409).send(e.message);
     }
-  }
+  );
 
-  async function get(req: Request<GetUserInput["params"]>, res: Response) {
-    try {
+  const get = asyncWrapper(
+    async (req: Request<GetUserInput["params"], {}, {}>, res: Response) => {
       const userId = req.params.userId;
-
       const foundUser = await findUser({ id: userId });
+
       if (!foundUser) {
-        return res.sendStatus(404);
+        throw new ExtendedError("User not found", 404);
       }
-      return res.send(omit(foundUser.toJSON(), "password"));
-    } catch (e: any) {
-      return res.status(409).send(e.message);
-    }
-  }
 
-  async function all(req: Request, res: Response) {
-    try {
-      const users = await allUsers();
-      if (users.length === 0) {
-        return res.sendStatus(404);
-      }
-      const sterilizedUsers = users.map((user) => {
-        return omit(user.toJSON(), "password");
-      });
-      return res.send(sterilizedUsers);
-    } catch (e: any) {
-      return res.status(409).send(e.message);
+      res.send(omit(foundUser.toJSON(), "password"));
     }
-  }
+  );
 
-  async function currentUser(req: Request, res: Response) {
-    return res.send(res.locals.user);
-  }
+  const all = asyncWrapper(async (req: Request, res: Response) => {
+    const users = await allUsers();
+
+    if (users.length === 0) {
+      throw new ExtendedError("No users found", 404);
+    }
+
+    const sterilizedUsers = users.map((user) => {
+      return omit(user.toJSON(), "password");
+    });
+
+    res.send(sterilizedUsers);
+  });
+
+  const currentUser = (req: Request, res: Response) => {
+    res.send(res.locals.user);
+  };
 
   return { create, update, remove, get, all, currentUser };
 })();

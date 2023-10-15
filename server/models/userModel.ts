@@ -8,7 +8,7 @@ const UserSchema = new Schema<IUser>(
     first_name: { type: String, required: true },
     last_name: { type: String, required: true },
     email: { type: String, required: true },
-    password: { type: String, required: true },
+    password: { type: String, required: true, select: false },
     auth: { type: String, required: true, enum: ["ADMIN", "ENHANCED", "USER"] },
   },
   { timestamps: true }
@@ -31,7 +31,10 @@ UserSchema.pre("save", async function (next) {
 UserSchema.methods.validatePassword = async function (
   validationPassword: string
 ): Promise<boolean> {
-  const user = this as IUser;
+  const user = await User.findById(this._id).select("+password").exec();
+  if (!user) {
+    throw new Error("User not found!");
+  }
   return bcryptjs
     .compare(validationPassword, user.password)
     .catch((e) => false);

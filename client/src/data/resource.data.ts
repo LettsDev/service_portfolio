@@ -1,8 +1,9 @@
 import axios, { AxiosResponse } from "axios";
-import { IResource, IResponseBase } from "./responseTypes";
+import { IResource, IResponseBase } from "../types";
+import fetchWithCatch from "../utils/fetchWithCatch";
 
-export async function getAllResources(): Promise<AxiosResponse<IResource[]>> {
-  return axios.get("/api/resource");
+export async function getAllResources(): Promise<IResource[] | null> {
+  return fetchWithCatch<IResource[]>({ method: "get", url: "resource" });
 }
 
 export async function updateResource(
@@ -23,8 +24,9 @@ export async function createResource(
   return axios.post("/api/resource", newResource);
 }
 
-export async function queryResource(
+//querying by location
+export async function queryByLocationResources(
   id: string
 ): Promise<AxiosResponse<IResource[]>> {
-  return axios.get(`/api/resource/query/${id}`);
+  return axios.get(`/api/resource/query_location/${id}`);
 }

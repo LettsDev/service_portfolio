@@ -22,6 +22,16 @@ export interface IResource extends IResponseBase {
   location: ILocation;
   created_by: IUser;
   notes?: string;
+  numServices: number;
+}
+
+export interface IResourceSubmit extends Pick<IResource, "name" | "notes"> {
+  created_by: string;
+  location: string;
+}
+
+export interface IResourceSubmitEdit extends IResourceSubmit {
+  _id: string;
 }
 
 //dates will be ISO strings
@@ -42,4 +52,18 @@ export interface IServiceEventException extends IResponseBase {
   is_rescheduled: boolean;
   start_date: Date;
   created_by: IUser;
+}
+
+export interface ISessionResponse extends IResponseBase {
+  user: string;
+  valid: boolean;
+  userAgent: string;
+}
+
+export class ExtendedError extends Error {
+  constructor(message: string, public statusCode: number) {
+    super(message);
+    this.name = "ExtendedError";
+    this.statusCode = statusCode;
+  }
 }

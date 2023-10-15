@@ -14,6 +14,7 @@ export async function findResource(
   return Resource.findById(query.id, {}, options)
     .populate("location")
     .populate("created_by")
+    .populate("numServices")
     .exec();
 }
 
@@ -25,6 +26,7 @@ export async function updateResource(
   return Resource.findByIdAndUpdate(query, update, options)
     .populate("location")
     .populate("created_by")
+    .populate("numServices")
     .exec();
 }
 
@@ -35,6 +37,7 @@ export async function deleteResource(
   return Resource.findByIdAndRemove(query, options)
     .populate("location")
     .populate("created_by")
+    .populate("numServices")
     .exec();
 }
 
@@ -42,15 +45,17 @@ export async function allResource(options: QueryOptions = { lean: true }) {
   return Resource.find({}, {}, options)
     .populate("location")
     .populate("created_by")
+    .populate("numServices")
     .exec();
 }
 
-export async function queryResources(
+export async function queryByLocationResources(
   query: FilterQuery<Pick<IResource, "location">>,
   options: QueryOptions = { lean: true }
 ) {
   return Resource.find(query, {}, options)
     .populate("location")
     .populate("created_by")
+    .populate("numServices")
     .exec();
 }

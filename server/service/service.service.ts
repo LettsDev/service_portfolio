@@ -37,3 +37,13 @@ export async function allServices(
 ) {
   return Service.find(query, {}, options).populate("resource").exec();
 }
+
+export async function queryByResourceServices(
+  query: FilterQuery<Pick<IService, "resource">>,
+  options: QueryOptions = { lean: true }
+) {
+  return Service.find(query, {}, options)
+    .populate("resource")
+    .populate("created_by")
+    .exec();
+}

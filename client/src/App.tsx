@@ -3,20 +3,25 @@ import { Outlet } from "react-router-dom";
 import { NavLink } from "react-router-dom";
 import "./App.css";
 import axios from "axios";
-
+import { UseAuth } from "./context/auth.provider";
+import { useNavigate } from "react-router-dom";
 function App() {
+  const { user, logout, login } = UseAuth();
+  const navigate = useNavigate();
   useEffect(() => {
     authenticate();
   }, []);
   async function authenticate() {
-    await axios.post("/api/session", {
+    //For testing
+    login({
       email: "test@gmail.com",
       password: "65f073f6-1897-4f4c-a17b-d910d02fc5da",
     });
   }
-  // authenticate().then(async () => {
-  //   await getLocationData();
-  // });
+  async function handleLogout() {
+    logout();
+    navigate("/login");
+  }
 
   return (
     <>
@@ -67,10 +72,16 @@ function App() {
         </div>
         <div className="navbar-end">
           {/* logout */}
-          <div className="avatar placeholder">
+          <div
+            className="avatar placeholder tooltip tooltip-left cursor-pointer"
+            data-tip="Logout"
+            onClick={handleLogout}
+          >
             <div className="bg-neutral-focus text-neutral-content rounded-full w-16">
               {/* TODO put in initials of logged in user */}
-              <span className="text-xl">JL</span>
+              <span className="text-lg">
+                {user ? `${user.first_name} ${user.last_name[0]}` : ""}
+              </span>
             </div>
           </div>
         </div>

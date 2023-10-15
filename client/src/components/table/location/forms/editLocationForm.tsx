@@ -1,11 +1,11 @@
 import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useLoaderData } from "react-router-dom";
 import { useLocation } from "../locationTable";
 import { useEffect, useState } from "react";
-import { ILocation } from "../../../../data/responseTypes";
-import ErrorComponent from "../../../error";
+import { ILocation } from "../../../../types";
+
 import Loading from "../../../loading";
 const schema = z.object({
   name: z.string().min(1, { message: "name is required" }),
@@ -13,7 +13,7 @@ const schema = z.object({
 type ValidationSchema = z.infer<typeof schema>;
 
 export default function EditLocationForm() {
-  const { id } = useParams();
+  const loaderData = useLoaderData() as ILocation;
   const {
     register,
     handleSubmit,
@@ -24,22 +24,9 @@ export default function EditLocationForm() {
   });
   const [location, setLocation] = useState<ILocation>();
   const navigate = useNavigate();
-  const { locations, error, loading, fetchLocation, editLocation } =
-    useLocation();
+  const { loading, editLocation } = useLocation();
   useEffect(() => {
-    const load = async () => {
-      //refresh on url the context will not load and will have to get data from server
-      if (locations.length === 0) {
-        setLocation(await fetchLocation(id!));
-        return;
-      }
-
-      const foundLocation = locations.find((local) => local._id === id);
-      if (foundLocation) {
-        setLocation(foundLocation);
-      }
-    };
-    load();
+    setLocation(loaderData);
   }, []);
 
   const onSubmit: SubmitHandler<ValidationSchema> = async (
@@ -53,7 +40,7 @@ export default function EditLocationForm() {
       });
     }
   };
-  if (error) return <ErrorComponent error={error} />;
+
   if (loading) return <Loading />;
   return (
     <>

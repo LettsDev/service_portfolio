@@ -6,7 +6,7 @@ export function requireUser(req: Request, res: Response, next: NextFunction) {
   const user = res.locals.user;
 
   if (!user) {
-    return res.sendStatus(403);
+    return res.sendStatus(401);
   }
 
   return next();
@@ -16,7 +16,7 @@ export function requireAdmin(req: Request, res: Response, next: NextFunction) {
   const user = res.locals.user;
 
   if (!user) {
-    return res.sendStatus(403);
+    return res.sendStatus(401);
   }
   const auth = get(user, "auth", "");
 
@@ -34,7 +34,7 @@ export function requireEnhanced(
   const user = res.locals.user;
 
   if (!user) {
-    return res.sendStatus(403);
+    return res.sendStatus(401);
   }
   const auth = get(user, "auth", "");
 

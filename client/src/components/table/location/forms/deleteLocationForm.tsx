@@ -1,36 +1,24 @@
 import { useEffect, useState } from "react";
 import { useLocation } from "../locationTable";
-import { useParams, useNavigate } from "react-router-dom";
-import { ILocation } from "../../../../data/responseTypes";
+import { useParams, useNavigate, useLoaderData } from "react-router-dom";
+import { ILocation } from "../../../../types";
 import Loading from "../../../loading";
-import ErrorComponent from "../../../error";
+
 export default function DeleteLocationForm() {
   const { id } = useParams();
   const [location, setLocation] = useState<ILocation>();
-  const { locations, error, loading, deleteLocation, fetchLocation } =
-    useLocation();
+  const { loading, deleteLocation } = useLocation();
+  const loaderData = useLoaderData() as ILocation;
   const navigate = useNavigate();
   useEffect(() => {
-    const load = async () => {
-      //refresh on url the context will not load and will have to get data from server
-      if (locations.length === 0) {
-        setLocation(await fetchLocation(id!));
-        return;
-      }
-
-      const foundLocation = locations.find((local) => local._id === id);
-      if (foundLocation) {
-        setLocation(foundLocation);
-      }
-    };
-    load();
+    setLocation(loaderData);
   }, []);
   const onSubmit = async (ev: React.FormEvent) => {
     ev.preventDefault();
     console.log(id);
     await deleteLocation(id!).then(() => navigate("/table/locations"));
   };
-  if (error) return <ErrorComponent error={error} />;
+
   if (loading) return <Loading />;
   return (
     <>
@@ -41,8 +29,8 @@ export default function DeleteLocationForm() {
       <div className="divider"></div>
 
       <p>
-        All of the equipment assigned to the location, as well as the services
-        attached to the equipment will also be deleted.
+        All of the resources assigned to the location, as well as the services
+        attached to the resources will also be deleted.
       </p>
       <form className="mt-2" onSubmit={(ev) => onSubmit(ev)}>
         <button className="btn btn-primary " type="submit">

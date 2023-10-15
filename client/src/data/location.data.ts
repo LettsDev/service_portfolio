@@ -1,8 +1,8 @@
 import axios, { AxiosResponse } from "axios";
-import { ILocation } from "./responseTypes";
-
-export async function getAllLocations(): Promise<AxiosResponse<ILocation[]>> {
-  return axios.get("/api/location");
+import { ILocation } from "../types";
+import fetchWithCatch from "../utils/fetchWithCatch";
+export async function getAllLocations(): Promise<ILocation[] | null> {
+  return fetchWithCatch<ILocation[]>({ method: "get", url: "location" });
 }
 
 export async function updateLocation(

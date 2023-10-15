@@ -4,19 +4,12 @@ import Search from "../search";
 import useLocationTable from "../../../hooks/useLocationTable";
 import LocationRow from "./locationRow";
 import { Link } from "react-router-dom";
-import { ILocation } from "../../../data/responseTypes";
-import ErrorComponent from "../../error";
+import { ILocation } from "../../../types";
+import Loading from "../../loading";
 export default function LocationTable() {
   const [query, setQuery] = useState("");
-  const {
-    error,
-    loading,
-    locations,
-    deleteLocation,
-    fetchLocation,
-    newLocation,
-    editLocation,
-  } = useLocationTable();
+  const { loading, locations, deleteLocation, newLocation, editLocation } =
+    useLocationTable();
   const filteredLocations = () => {
     //issue with useMemo not updating the table with location change
 
@@ -24,8 +17,6 @@ export default function LocationTable() {
       location.name.toLowerCase().includes(query.toLowerCase())
     );
   };
-
-  if (error) return <ErrorComponent error={error} />;
 
   return (
     <div className="mt-4">
@@ -56,7 +47,7 @@ export default function LocationTable() {
           <tbody className="">
             <tr className="">
               <td>
-                <span className="loading loading-dots loading-lg"></span>
+                <Loading />
               </td>
             </tr>
           </tbody>
@@ -70,11 +61,9 @@ export default function LocationTable() {
       </table>
       <Outlet
         context={{
-          error,
           loading,
           locations,
           deleteLocation,
-          fetchLocation,
           newLocation,
           editLocation,
         }}
@@ -83,11 +72,9 @@ export default function LocationTable() {
   );
 }
 type ContextType = {
-  error: Error | null;
   loading: boolean;
   locations: ILocation[];
   deleteLocation: (id: string) => Promise<void>;
-  fetchLocation: (id: string) => Promise<ILocation>;
   newLocation: (data: Pick<ILocation, "name">) => Promise<ILocation>;
   editLocation: (newLocation: ILocation) => Promise<ILocation>;
 };

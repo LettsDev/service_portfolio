@@ -59,7 +59,7 @@ const sessionController = (() => {
     const sessionId = res.locals.user.session;
 
     await updateSession({ _id: sessionId }, { valid: false });
-
+    res.clearCookie("accessToken");
     return res.send({ accessToken: null, refreshToken: null });
   }
   return { createUserSession, getUserSession, deleteUserSession };

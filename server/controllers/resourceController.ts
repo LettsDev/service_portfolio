@@ -1,4 +1,6 @@
 import { Request, Response } from "express";
+import asyncWrapper from "../utils/asyncWrapper";
+import { ExtendedError } from "../types";
 import {
   CreateResourceInput,
   DeleteResourceInput,
@@ -12,92 +14,113 @@ import {
   updateResource,
   deleteResource,
   allResource,
-  queryResources,
+  queryByLocationResources,
 } from "../service/resource.service";
 
 const resourceController = (() => {
-  async function all(req: Request, res: Response) {
+  const all = asyncWrapper(async (req: Request, res: Response) => {
     const resources = await allResource();
 
     if (resources.length === 0) {
-      return res.sendStatus(404);
-    }
-    return res.send(resources);
-  }
-
-  async function create(
-    req: Request<{}, {}, CreateResourceInput["body"]>,
-    res: Response
-  ) {
-    const body = req.body;
-
-    const resource = await createResource({ body });
-    return res.send(resource);
-  }
-
-  async function remove(
-    req: Request<DeleteResourceInput["params"]>,
-    res: Response
-  ) {
-    const id = req.params.resourceId;
-    const resource = await findResource({ id });
-
-    if (!resource) {
-      return res.sendStatus(404);
+      res.send([]);
+      return;
     }
 
-    const deletedResource = await deleteResource({ _id: id });
-    return res.send(deletedResource);
-  }
+    res.send(resources);
+  });
 
-  async function edit(
-    req: Request<
-      UpdateResourceInput["params"],
-      {},
-      UpdateResourceInput["body"]
-    >,
-    res: Response
-  ) {
-    const id = req.params.resourceId;
-    const update = req.body;
+  const create = asyncWrapper(
+    async (
+      req: Request<{}, {}, CreateResourceInput["body"]>,
+      res: Response
+    ) => {
+      const body = req.body;
 
-    const resource = await findResource({ id });
-
-    if (!resource) {
-      return res.sendStatus(404);
+      const resource = await createResource({ body });
+      await resource.populate("created_by");
+      await resource.populate("location");
+      await resource.populate("numServices");
+      console.log(resource);
+      res.send(resource);
     }
+  );
 
-    const updatedResource = await updateResource({ _id: id }, update, {
-      new: true,
-      lean: true,
-    });
+  const remove = asyncWrapper(
+    async (
+      req: Request<DeleteResourceInput["params"], {}, {}>,
+      res: Response
+    ) => {
+      const id = req.params.resourceId;
+      const resource = await findResource({ id });
 
-    return res.send(updatedResource);
-  }
+      if (!resource) {
+        throw new ExtendedError("No resource found", 404);
+      }
 
-  async function get(req: Request<ReadResourceInput["params"]>, res: Response) {
-    const id = req.params.resourceId;
-    const resource = await findResource({ id });
-    if (!resource) {
-      return res.sendStatus(404);
+      const deletedResource = await deleteResource({ _id: id });
+      res.send(deletedResource);
     }
+  );
 
-    return res.send(resource);
-  }
+  const edit = asyncWrapper(
+    async (
+      req: Request<
+        UpdateResourceInput["params"],
+        {},
+        UpdateResourceInput["body"]
+      >,
+      res: Response
+    ) => {
+      const id = req.params.resourceId;
+      const update = req.body;
 
-  async function queryByLocation(
-    req: Request<QueryByLocationInput["params"]>,
-    res: Response
-  ) {
-    //need to query by location
-    const id = req.params.locationId;
-    const resources = await queryResources({ location: id });
-    if (!resources) {
-      return res.sendStatus(404);
+      const resource = await findResource({ id });
+
+      if (!resource) {
+        throw new ExtendedError("No resource found", 404);
+      }
+
+      const updatedResource = await updateResource({ _id: id }, update, {
+        new: true,
+        lean: true,
+      });
+
+      res.send(updatedResource);
     }
+  );
 
-    return res.send(resources);
-  }
+  const get = asyncWrapper(
+    async (
+      req: Request<ReadResourceInput["params"], {}, {}>,
+      res: Response
+    ) => {
+      const id = req.params.resourceId;
+      const resource = await findResource({ id });
+
+      if (!resource) {
+        throw new ExtendedError("No resource found", 404);
+      }
+
+      res.send(resource);
+    }
+  );
+
+  const queryByLocation = asyncWrapper(
+    async (
+      req: Request<QueryByLocationInput["params"], {}, {}>,
+      res: Response
+    ) => {
+      const id = req.params.locationId;
+      const resources = await queryByLocationResources({ location: id });
+
+      if (resources.length === 0) {
+        res.send([]);
+        return;
+      }
+
+      res.send(resources);
+    }
+  );
 
   return { all, create, remove, edit, get, queryByLocation };
 })();

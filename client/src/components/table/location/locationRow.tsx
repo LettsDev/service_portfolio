@@ -1,16 +1,15 @@
 import { useState, Suspense, lazy } from "react";
-import { ILocation } from "../../../data/responseTypes";
-import { Link } from "react-router-dom";
+import { ILocation } from "../../../types";
 import Loading from "../../loading";
+import TableRowButtons from "../../tableRowButtons";
 
 const LocationRowInner = lazy(() => import("./locationRowInner"));
 
 export default function LocationRow({ location }: { location: ILocation }) {
   const [open, setOpen] = useState(false);
 
-  async function handleOpen() {
+  function handleOpen() {
     setOpen(!open);
-    // if open then load resources
   }
   return (
     <>
@@ -44,21 +43,7 @@ export default function LocationRow({ location }: { location: ILocation }) {
             }
           </td>
           <td>
-            {/* buttons to modals */}
-            <div className="join join-vertical lg:join-horizontal ">
-              <Link
-                to={`edit/${location._id}`}
-                className="btn join-item bg-primary hover:bg-primary-focus text-white"
-              >
-                Edit
-              </Link>
-              <Link
-                to={`delete/${location._id}`}
-                className="btn join-item bg-secondary hover:bg-secondary-focus text-secondary-content"
-              >
-                Delete
-              </Link>
-            </div>
+            <TableRowButtons id={location._id} />
           </td>
         </tr>
       )}

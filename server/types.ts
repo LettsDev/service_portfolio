@@ -1,5 +1,13 @@
 import { Types } from "mongoose";
 
+export class ExtendedError extends Error {
+  constructor(message: string, public statusCode?: number) {
+    super(message);
+    this.name = "ExtendedError";
+    this.statusCode = statusCode || 404;
+  }
+}
+
 export interface ILocation {
   name: string;
 }

@@ -39,6 +39,7 @@ import {
   updateServiceSchema,
   deleteServiceSchema,
   allServiceSchema,
+  queryByResourceSchema,
 } from "./schema/service.schema";
 import {
   getServiceEventExceptionSchema,
@@ -122,7 +123,7 @@ router.delete(
   resourceController.remove
 );
 router.get(
-  "/resource/query/:locationId",
+  "/resource/query_location/:locationId",
   [requireUser, validate(queryByLocationSchema)],
   resourceController.queryByLocation
 );
@@ -149,12 +150,19 @@ router.delete(
   [requireAdmin, validate(deleteServiceSchema)],
   serviceController.remove
 );
+// needed to change base as it was matching with the date query route
+router.get(
+  "/service_query/resource/:resourceId",
+  [requireUser, validate(queryByResourceSchema)],
+  serviceController.queryByResource
+);
 
 router.get(
   "/service/:start_date/:completion_date",
   [requireUser, validate(allServiceSchema)],
   serviceController.all
 );
+
 // ****************ServiceEvents****************
 router.get(
   "/serviceEvent/:serviceId",

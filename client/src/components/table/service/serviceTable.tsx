@@ -4,7 +4,7 @@ import Search from "../search";
 import useServiceTable from "../../../hooks/useServiceTable";
 import Loading from "../../loading";
 import ServiceRow from "./serviceRow";
-import { IService, IServiceSubmit } from "../../../types";
+import { IService, IServiceSubmit, IServiceSubmitEdit } from "../../../types";
 export default function ServiceTable() {
   const [query, setQuery] = useState("");
   const { loading, services, newService, editService, removeService } =
@@ -81,7 +81,7 @@ type ContextType = {
   services: IService[];
   removeService: (id: string) => Promise<void>;
   newService: (data: IServiceSubmit) => Promise<IService>;
-  editService: (newService: IService) => Promise<IService>;
+  editService: (newService: IServiceSubmitEdit) => Promise<void>;
 };
 
 export const useServiceContext = () => {

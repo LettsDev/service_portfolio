@@ -1,20 +1,21 @@
 import { useEffect } from "react";
 import { useServiceContext } from "../serviceTable";
-import { IResource, IServiceSubmit } from "../../../../types";
+import { IResource, IService, IServiceSubmitEdit } from "../../../../types";
 import { useLoaderData, useNavigate } from "react-router-dom";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { UseAuth } from "../../../../context/auth.provider";
 import { formatISO } from "date-fns";
-import { zonedTimeToUtc } from "date-fns-tz";
+import { utcToZonedTime, zonedTimeToUtc } from "date-fns-tz";
 import type { ValidationSchema } from "../../../../schemas/serviceSchemas";
 import { serviceSchema, helperInfo } from "../../../../schemas/serviceSchemas";
-
-export default function NewServiceForm() {
-  const { newService } = useServiceContext();
-
-  const resourcesLoaderData = useLoaderData() as IResource[];
-  const { user } = UseAuth();
+export default function EditServiceForm() {
+  const loaderData = useLoaderData() as {
+    resources: IResource[];
+    service: IService;
+  };
+  const { editService } = useServiceContext();
+  const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
   const navigate = useNavigate();
   const {
     register,
@@ -35,12 +36,11 @@ export default function NewServiceForm() {
   }, [formState, reset]);
 
   const onSubmit: SubmitHandler<ValidationSchema> = async (
-    createdService: ValidationSchema
+    updatedServiceInputs: ValidationSchema
   ) => {
     const { name, resource, start_date, completion_date, interval, frequency } =
-      createdService;
+      updatedServiceInputs;
     if (
-      user &&
       name &&
       resource &&
       typeof interval === "number" &&
@@ -48,29 +48,26 @@ export default function NewServiceForm() {
       start_date &&
       completion_date
     ) {
-      const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-
-      const formattedService = {
+      const editedService: IServiceSubmitEdit = {
         name,
         resource,
         interval,
-        frequency: frequency as IServiceSubmit["frequency"],
+        frequency: frequency as IServiceSubmitEdit["frequency"],
+        _id: loaderData.service._id,
+        created_by: loaderData.service.created_by._id,
         start_date: zonedTimeToUtc(start_date, timeZone).toISOString(),
         completion_date: zonedTimeToUtc(
           completion_date,
           timeZone
         ).toISOString(),
-        created_by: user._id,
       };
-
-      await newService(formattedService).then(() =>
-        navigate("/table/services")
-      );
+      await editService(editedService);
+      navigate("/table/services");
     }
   };
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <h1 className="text-xl font-bold mb-2">Create Service</h1>
+      <h1 className="text-xl font-bold mb-2">Edit Service</h1>
       {/* ************************* name ************************* */}
       <div className="form-control w-full max-w-sm ">
         <input
@@ -78,6 +75,7 @@ export default function NewServiceForm() {
           autoFocus
           placeholder="service name"
           className="input input-bordered "
+          defaultValue={loaderData.service.name}
           {...register("name")}
         />
         <label className="label">
@@ -93,13 +91,13 @@ export default function NewServiceForm() {
         <select
           className="select select-bordered"
           {...register("resource")}
-          defaultValue="placeholder"
+          defaultValue={loaderData.service.resource._id}
         >
           <option value="placeholder" disabled>
             Please select a resource
           </option>
           {/* sort Alphabetically needed??? */}
-          {resourcesLoaderData.map((res) => (
+          {loaderData.resources.map((res) => (
             <option key={res._id} value={res._id}>
               {res.name}({res.location.name})
             </option>
@@ -118,7 +116,7 @@ export default function NewServiceForm() {
         <select
           className="select select-bordered"
           {...register("frequency")}
-          defaultValue="placeholder"
+          defaultValue={loaderData.service.frequency}
         >
           <option value="placeholder" disabled>
             Please select a frequency
@@ -152,7 +150,7 @@ export default function NewServiceForm() {
           id="interval"
           {...register("interval", { valueAsNumber: true })}
           className="input input-bordered"
-          defaultValue={0}
+          defaultValue={loaderData.service.interval}
           disabled={watchFrequency === "ONCE"}
         />
         <label className="label">
@@ -178,7 +176,10 @@ export default function NewServiceForm() {
             type="date"
             id="start_date"
             // need to set defaultValue for the schema to pass the initial verification stage and have superRefine run
-            defaultValue={formatISO(new Date(), { representation: "date" })}
+            defaultValue={formatISO(
+              new Date(utcToZonedTime(loaderData.service.start_date, timeZone)),
+              { representation: "date" }
+            )}
             className="input input-bordered "
             {...register("start_date", { valueAsDate: true })}
           />
@@ -201,7 +202,12 @@ export default function NewServiceForm() {
             id="completion_date"
             className="input input-bordered "
             // need to set defaultValue for the schema to pass the initial verification stage and have superRefine schema run
-            defaultValue={formatISO(new Date(), { representation: "date" })}
+            defaultValue={formatISO(
+              new Date(
+                utcToZonedTime(loaderData.service.completion_date, timeZone)
+              ),
+              { representation: "date" }
+            )}
             disabled={watchFrequency === "ONCE"}
             {...register("completion_date", { valueAsDate: true })}
           />
@@ -214,7 +220,11 @@ export default function NewServiceForm() {
           </label>
         </div>
       </div>
-      <button type="submit" className="btn btn-primary ">
+      <button
+        type="submit"
+        className="btn btn-primary "
+        onClick={() => console.log(formState)}
+      >
         Submit
       </button>
     </form>

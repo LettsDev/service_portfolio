@@ -1,6 +1,11 @@
 import { useState, useEffect } from "react";
 import { useLoaderData } from "react-router-dom";
-import { IService, IServiceSubmit, IResponseBase } from "../types";
+import {
+  IService,
+  IServiceSubmit,
+  IResponseBase,
+  IServiceSubmitEdit,
+} from "../types";
 import fetchWithCatch from "../utils/fetchWithCatch";
 export default function useServiceTable() {
   const [loading, setLoading] = useState(true);
@@ -26,7 +31,32 @@ export default function useServiceTable() {
     setServices([...services, fullNewService]);
     setLoading(false);
   };
-  const editService = async () => {};
-  const removeService = async () => {};
+  const editService = async (updatedService: IServiceSubmitEdit) => {
+    setLoading(true);
+    const editedService = await fetchWithCatch<IService>({
+      url: `service/${updatedService._id}`,
+      method: "put",
+      data: updatedService,
+    });
+    const index = services.findIndex(
+      (serve) => serve._id === editedService._id
+    );
+    const updatedServices = services;
+    updatedServices.splice(index, 1, editedService);
+    setServices(updatedServices);
+    setLoading(false);
+  };
+  const removeService = async (id: string) => {
+    setLoading(true);
+    await fetchWithCatch<IService>({
+      url: `service/${id}`,
+      method: "delete",
+    });
+    const index = services.findIndex((serve) => serve._id === id);
+    const updatedServices = services;
+    updatedServices.splice(index, 1);
+    setServices(updatedServices);
+    setLoading(false);
+  };
   return { loading, services, newService, editService, removeService };
 }

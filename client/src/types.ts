@@ -53,6 +53,10 @@ export interface IServiceSubmit
   created_by: string;
   resource: string;
 }
+
+export interface IServiceSubmitEdit extends IServiceSubmit {
+  _id: string;
+}
 export interface IServiceEventException extends IResponseBase {
   service: IService;
   exception_date: Date;

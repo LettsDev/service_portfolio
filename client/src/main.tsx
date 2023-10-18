@@ -28,6 +28,8 @@ import EditResourceForm from "./components/table/resource/forms/editResourceForm
 import { ILocation, IResource, IService } from "./types.ts";
 import ServiceTable from "./components/table/service/serviceTable.tsx";
 import NewServiceForm from "./components/table/service/forms/newServiceForm.tsx";
+import DeleteServiceForm from "./components/table/service/forms/deleteServiceForm.tsx";
+import EditServiceForm from "./components/table/service/forms/editServiceForm.tsx";
 const router = createBrowserRouter([
   {
     element: <App />,
@@ -169,8 +171,39 @@ const router = createBrowserRouter([
                   });
                 },
               },
-              { path: "edit/:id", element: <></> },
-              { path: "delete/:id", element: <></> },
+              {
+                path: "edit/:id",
+                element: (
+                  <Modal showModal={true}>
+                    <EditServiceForm />
+                  </Modal>
+                ),
+                loader: async ({ params }) => {
+                  const resources = await loaderWrapper<IResource[]>({
+                    url: "resource",
+                    method: "get",
+                  });
+                  const service = await loaderWrapper<IService>({
+                    url: `service/${params.id}`,
+                    method: "get",
+                  });
+                  return { resources, service };
+                },
+              },
+              {
+                path: "delete/:id",
+                element: (
+                  <Modal showModal={true}>
+                    <DeleteServiceForm />
+                  </Modal>
+                ),
+                loader: async ({ params }) => {
+                  return loaderWrapper<IService>({
+                    url: `service/${params.id}`,
+                    method: "get",
+                  });
+                },
+              },
             ],
           },
         ],

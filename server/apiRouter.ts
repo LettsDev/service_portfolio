@@ -130,6 +130,9 @@ router.get(
 router.get("/resource", requireUser, resourceController.all);
 
 // ****************Service****************
+
+router.get("/service", requireUser, serviceController.all);
+
 router.get(
   "/service/:serviceId",
   [requireUser, validate(getServiceSchema)],
@@ -160,7 +163,7 @@ router.get(
 router.get(
   "/service/:start_date/:completion_date",
   [requireUser, validate(allServiceSchema)],
-  serviceController.all
+  serviceController.queryByDate
 );
 
 // ****************ServiceEvents****************

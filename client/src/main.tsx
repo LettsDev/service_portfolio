@@ -25,7 +25,9 @@ import { AuthProvider } from "./context/auth.provider.tsx";
 import WithAuth from "./pages/withAuth.tsx";
 import { loaderWrapper } from "./utils/fetchWithCatch.ts";
 import EditResourceForm from "./components/table/resource/forms/editResourceForm.tsx";
-import { ILocation, IResource } from "./types.ts";
+import { ILocation, IResource, IService } from "./types.ts";
+import ServiceTable from "./components/table/service/serviceTable.tsx";
+import NewServiceForm from "./components/table/service/forms/newServiceForm.tsx";
 const router = createBrowserRouter([
   {
     element: <App />,
@@ -143,7 +145,34 @@ const router = createBrowserRouter([
               },
             ],
           },
-          { path: "services", element: <></> },
+          {
+            path: "services",
+            element: <ServiceTable />,
+            loader: async () => {
+              return loaderWrapper<IService[]>({
+                url: "service",
+                method: "get",
+              });
+            },
+            children: [
+              {
+                path: "new",
+                element: (
+                  <Modal showModal={true}>
+                    <NewServiceForm />
+                  </Modal>
+                ),
+                loader: async () => {
+                  return loaderWrapper<IResource[]>({
+                    url: "resource",
+                    method: "get",
+                  });
+                },
+              },
+              { path: "edit/:id", element: <></> },
+              { path: "delete/:id", element: <></> },
+            ],
+          },
         ],
       },
       { path: "calendar", element: <Calendar /> },

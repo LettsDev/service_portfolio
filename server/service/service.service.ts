@@ -11,7 +11,10 @@ export async function findService(
   query: FilterQuery<IService>,
   options: QueryOptions = { lean: true }
 ) {
-  return Service.findById(query.id, {}, options).populate("resource").exec();
+  return Service.findById(query.id, {}, options)
+    .populate({ path: "resource", populate: { path: "location" } })
+    .populate("created_by")
+    .exec();
 }
 
 export async function updateService(
@@ -35,7 +38,10 @@ export async function allServices(
   query: FilterQuery<IService> = {},
   options: QueryOptions = { lean: true }
 ) {
-  return Service.find(query, {}, options).populate("resource").exec();
+  return Service.find(query, {}, options)
+    .populate({ path: "resource", populate: { path: "location" } })
+    .populate("created_by")
+    .exec();
 }
 
 export async function queryByResourceServices(

@@ -19,7 +19,7 @@ import {
 } from "../service/service.service";
 
 const serviceController = (() => {
-  const all = asyncWrapper(
+  const queryByDate = asyncWrapper(
     async (req: Request<AllServiceInput["params"]>, res: Response) => {
       const startDate = req.params.start_date;
       const endDate = req.params.end_date;
@@ -110,6 +110,15 @@ const serviceController = (() => {
     }
   );
 
-  return { all, create, remove, edit, get, queryByResource };
+  const all = asyncWrapper(async (req: Request, res: Response) => {
+    const services = await allServices();
+    if (services.length === 0) {
+      res.send([]);
+      return;
+    }
+    res.send(services);
+  });
+
+  return { queryByDate, create, remove, edit, get, queryByResource, all };
 })();
 export default serviceController;

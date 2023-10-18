@@ -45,6 +45,14 @@ export interface IService extends IResponseBase {
   frequency: "ONCE" | "DAILY" | "WEEKLY" | "MONTHLY" | "ANNUALLY";
 }
 
+export interface IServiceSubmit
+  extends Pick<
+    IService,
+    "name" | "start_date" | "completion_date" | "interval" | "frequency"
+  > {
+  created_by: string;
+  resource: string;
+}
 export interface IServiceEventException extends IResponseBase {
   service: IService;
   exception_date: Date;

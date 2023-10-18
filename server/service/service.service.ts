@@ -23,7 +23,8 @@ export async function updateService(
   options: QueryOptions = { lean: true, new: true }
 ) {
   return Service.findByIdAndUpdate(query, update, options)
-    .populate("resource")
+    .populate({ path: "resource", populate: { path: "location" } })
+    .populate("created_by")
     .exec();
 }
 

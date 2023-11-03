@@ -24,8 +24,8 @@ const serviceController = (() => {
       const startDate = req.params.start_date;
       const endDate = req.params.end_date;
       const services = await allServices({
-        start_date: { $gte: startDate },
-        completion_date: { $lte: endDate },
+        start_date: { $lte: endDate },
+        completion_date: { $gte: startDate },
       });
 
       if (services.length === 0) {
@@ -75,7 +75,7 @@ const serviceController = (() => {
       if (!service) {
         throw new ExtendedError("Service not found", 404);
       }
-
+      // IF you edit the schedule then all Event Exceptions would have to be changed as well... So better to delete them on edit and delete of service
       const updatedService = await updateService({ _id: id }, update, {
         new: true,
         lean: true,

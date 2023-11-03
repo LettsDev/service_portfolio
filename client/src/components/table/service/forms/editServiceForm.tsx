@@ -4,18 +4,19 @@ import { IResource, IService, IServiceSubmitEdit } from "../../../../types";
 import { useLoaderData, useNavigate } from "react-router-dom";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { UseAuth } from "../../../../context/auth.provider";
 import { formatISO } from "date-fns";
-import { utcToZonedTime, zonedTimeToUtc } from "date-fns-tz";
 import type { ValidationSchema } from "../../../../schemas/serviceSchemas";
 import { serviceSchema, helperInfo } from "../../../../schemas/serviceSchemas";
+import {
+  convertFromDateToIsoString,
+  convertFromIsoStringToDate,
+} from "../../../../utils/dateConversion";
 export default function EditServiceForm() {
   const loaderData = useLoaderData() as {
     resources: IResource[];
     service: IService;
   };
   const { editService } = useServiceContext();
-  const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
   const navigate = useNavigate();
   const {
     register,
@@ -48,18 +49,22 @@ export default function EditServiceForm() {
       start_date &&
       completion_date
     ) {
+      let trueInterval = interval
+      if(frequency === "WEEKLY"){
+        trueInterval -= 1
+        // remove 1 for correct day-of-week 
+      }
+
+
       const editedService: IServiceSubmitEdit = {
         name,
         resource,
-        interval,
+        interval: trueInterval,
         frequency: frequency as IServiceSubmitEdit["frequency"],
         _id: loaderData.service._id,
         created_by: loaderData.service.created_by._id,
-        start_date: zonedTimeToUtc(start_date, timeZone).toISOString(),
-        completion_date: zonedTimeToUtc(
-          completion_date,
-          timeZone
-        ).toISOString(),
+        start_date: convertFromDateToIsoString(start_date),
+        completion_date: convertFromDateToIsoString(completion_date),
       };
       await editService(editedService);
       navigate("/table/services");
@@ -177,7 +182,7 @@ export default function EditServiceForm() {
             id="start_date"
             // need to set defaultValue for the schema to pass the initial verification stage and have superRefine run
             defaultValue={formatISO(
-              new Date(utcToZonedTime(loaderData.service.start_date, timeZone)),
+              convertFromIsoStringToDate(loaderData.service.start_date),
               { representation: "date" }
             )}
             className="input input-bordered "
@@ -203,9 +208,7 @@ export default function EditServiceForm() {
             className="input input-bordered "
             // need to set defaultValue for the schema to pass the initial verification stage and have superRefine schema run
             defaultValue={formatISO(
-              new Date(
-                utcToZonedTime(loaderData.service.completion_date, timeZone)
-              ),
+              convertFromIsoStringToDate(loaderData.service.completion_date),
               { representation: "date" }
             )}
             disabled={watchFrequency === "ONCE"}

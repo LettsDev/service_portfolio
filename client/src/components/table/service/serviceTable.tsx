@@ -24,7 +24,7 @@ export default function ServiceTable() {
     <div className="mt-4">
       <div className="flex justify-center gap-2">
         <div
-          data-tip="Add Location"
+          data-tip="Add Service"
           className="tooltip tooltip-left tooltip-primary"
         >
           <Link

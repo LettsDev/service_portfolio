@@ -14,6 +14,7 @@ import {
   allServiceEventException,
   findServiceEventException,
 } from "../service/serviceEventException.service";
+import asyncWrapper from "../utils/asyncWrapper";
 
 const serviceEventController = (() => {
   //creating an exception event to be stored
@@ -92,28 +93,48 @@ const serviceEventController = (() => {
     }
   }
 
-  async function getAllInDateRange(
-    req: Request<ReadServiceEventInput["params"]>,
-    res: Response
-  ) {
-    const start_date = req.params.start_date;
-    const end_date = req.params.end_date;
+  const getAllInDateRange = asyncWrapper(
+    async (req: Request<ReadServiceEventInput["params"]>, res: Response) => {
+      const start_date = req.params.start_date;
+      const end_date = req.params.end_date;
 
-    const serviceEvents = await allServiceEventException(
-      { exception_date: { $gte: start_date, $lte: end_date } },
-      {
-        lean: true,
-        populate: [
-          { path: "service", model: "Service" },
-          { path: "created_by", model: "User" },
-        ],
+      // 1. event exceptions for services that occur during the time period (start_date within period time)(which may or may not occur themselves during the period (exception_date))
+      // 2. event exceptions that occur during the time period (exception_date within period)
+      const eventsBasedOnServices = await allServiceEventException(
+        //event exceptions that are from services which occur during the time period
+        {
+          start_date: { $lte: end_date, $gte: start_date },
+        },
+        {
+          lean: true,
+          populate: [
+            { path: "service", model: "Service" },
+            { path: "created_by", model: "User" },
+          ],
+        }
+      );
+
+      const eventsBasedOnDateRange = await allServiceEventException(
+        // These are event exceptions that occur during the time period
+        { exception_date: { $gte: start_date, $lte: end_date } },
+        {
+          lean: true,
+          populate: [
+            { path: "service", model: "Service" },
+            { path: "created_by", model: "User" },
+          ],
+        }
+      );
+      const arr = [...eventsBasedOnServices, ...eventsBasedOnDateRange];
+      // remove duplicates
+      const mergedArr = [...new Set(arr)];
+      if (mergedArr.length === 0) {
+        res.send([]);
+        return;
       }
-    );
-    if (serviceEvents.length === 0) {
-      return res.sendStatus(404);
+      res.send(mergedArr);
     }
-    return res.send(serviceEvents);
-  }
+  );
 
   async function getAllByService(
     req: Request<ServiceSearchServiceEventInput["params"]>,

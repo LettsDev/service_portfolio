@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { IService } from "../../../types";
-import TableRowButtons from "../../tableRowButtons";
+import TableRowButtons from "../tableRowButtons";
+import { formatServiceSchedule } from "../../../utils/calendarUtils";
 export default function ServiceRow({ service }: { service: IService }) {
   const [open, setOpen] = useState(false);
   return (
@@ -27,10 +28,18 @@ export default function ServiceRow({ service }: { service: IService }) {
               </p>
             </div>
           </td>
-          <td>
+          <td className="flex flex-col gap-2">
             <p className="badge text-xs md:text-sm">
               created by: {service.created_by.first_name}{" "}
               {service.created_by.last_name}
+            </p>
+            <p className="badge badge-lg text-xs md:text-sm">
+              {`schedule: ${formatServiceSchedule({
+                interval: service.interval,
+                frequency: service.frequency,
+                start_date: service.start_date,
+                completion_date: service.completion_date,
+              })}`}
             </p>
           </td>
           <td>

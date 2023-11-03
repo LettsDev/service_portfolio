@@ -1,7 +1,7 @@
 import { useState, Suspense, lazy } from "react";
 import { ILocation } from "../../../types";
 import Loading from "../../loading";
-import TableRowButtons from "../../tableRowButtons";
+import TableRowButtons from "../tableRowButtons";
 
 const LocationRowInner = lazy(() => import("./locationRowInner"));
 

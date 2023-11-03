@@ -25,11 +25,19 @@ import { AuthProvider } from "./context/auth.provider.tsx";
 import WithAuth from "./pages/withAuth.tsx";
 import { loaderWrapper } from "./utils/fetchWithCatch.ts";
 import EditResourceForm from "./components/table/resource/forms/editResourceForm.tsx";
-import { ILocation, IResource, IService } from "./types.ts";
+import {
+  ILocation,
+  IResource,
+  IService,
+  IServiceEventException,
+} from "./types.ts";
 import ServiceTable from "./components/table/service/serviceTable.tsx";
 import NewServiceForm from "./components/table/service/forms/newServiceForm.tsx";
 import DeleteServiceForm from "./components/table/service/forms/deleteServiceForm.tsx";
 import EditServiceForm from "./components/table/service/forms/editServiceForm.tsx";
+import { endOfMonth, startOfMonth } from "date-fns";
+import { convertFromDateToIsoString } from "./utils/dateConversion.ts";
+import RescheduleForm from "./components/calendar/forms/rescheduleForm.tsx";
 const router = createBrowserRouter([
   {
     element: <App />,
@@ -208,7 +216,35 @@ const router = createBrowserRouter([
           },
         ],
       },
-      { path: "calendar", element: <Calendar /> },
+      {
+        path: "calendar",
+        element: <Calendar />,
+        loader: async () => {
+          const start = convertFromDateToIsoString(startOfMonth(new Date()));
+          const end = convertFromDateToIsoString(endOfMonth(new Date()));
+          const services = await loaderWrapper<IService[]>({
+            url: `service/${start}/${end}`,
+            method: "get",
+          });
+          const serviceEventExceptions = await loaderWrapper<
+            IServiceEventException[]
+          >({ url: `serviceEvent/${start}/${end}`, method: "get" });
+          return {
+            initialServices: services,
+            initialEventExceptions: serviceEventExceptions,
+          };
+        },
+        children: [
+          {
+            path: "reschedule/:id",
+            element: (
+              <Modal showModal={true}>
+                <RescheduleForm />
+              </Modal>
+            ),
+          },
+        ],
+      },
       { path: "*", element: <Navigate to="/home" />, index: true },
     ],
     errorElement: <ErrorPage />,

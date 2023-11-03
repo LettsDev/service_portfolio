@@ -1,7 +1,7 @@
 import { IResource } from "../../../types";
 import { useState, Suspense, lazy } from "react";
 import Loading from "../../loading";
-import TableRowButtons from "../../tableRowButtons";
+import TableRowButtons from "../tableRowButtons";
 const ResourceRowInner = lazy(() => import("./resourceRowInner"));
 
 type Props = {

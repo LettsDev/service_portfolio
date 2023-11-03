@@ -57,14 +57,16 @@ export interface IServiceSubmit
 export interface IServiceSubmitEdit extends IServiceSubmit {
   _id: string;
 }
+
 export interface IServiceEventException extends IResponseBase {
   service: IService;
-  exception_date: Date;
+  exception_date: string;
   is_cancelled: boolean;
   is_rescheduled: boolean;
-  start_date: Date;
+  start_date: string;
   created_by: IUser;
 }
+// the exception date is when the event takes place compared to the start_date which is used to link to the service event that originally it is from
 
 export interface ISessionResponse extends IResponseBase {
   user: string;
@@ -78,4 +80,9 @@ export class ExtendedError extends Error {
     this.name = "ExtendedError";
     this.statusCode = statusCode;
   }
+}
+//format for creating the calendar events and dates
+export interface IDateItem {
+  date: Date;
+  events: IServiceEventException[];
 }

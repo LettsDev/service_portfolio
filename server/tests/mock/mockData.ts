@@ -60,8 +60,8 @@ export const services: IService[] = [
     resource: new mongoose.Types.ObjectId(),
     created_by: new mongoose.Types.ObjectId(),
     start_date: new Date("2023-09-01"),
-    completion_date: new Date("2023-09-08"),
-    interval: 7,
+    completion_date: new Date("2023-11-08"),
+    interval: 6,
     frequency: "WEEKLY",
   },
   {
@@ -69,8 +69,8 @@ export const services: IService[] = [
     resource: new mongoose.Types.ObjectId(),
     created_by: new mongoose.Types.ObjectId(),
     start_date: new Date("2023-09-05"),
-    completion_date: new Date("2023-09-15"),
-    interval: 1,
+    completion_date: new Date("2024-09-15"),
+    interval: 20,
     frequency: "DAILY",
   },
   {
@@ -78,8 +78,8 @@ export const services: IService[] = [
     resource: new mongoose.Types.ObjectId(),
     created_by: new mongoose.Types.ObjectId(),
     start_date: new Date("2023-09-01"),
-    completion_date: new Date("2023-09-30"),
-    interval: 1,
+    completion_date: new Date("2024-09-30"),
+    interval: 20,
     frequency: "MONTHLY",
   },
 ];

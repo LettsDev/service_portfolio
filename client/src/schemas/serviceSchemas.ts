@@ -1,25 +1,59 @@
 import * as z from "zod";
-import { isSameDay, isBefore } from "date-fns";
-// If type = 'Once' then value = 0 (no interval) schedule would execute on start_date
-// If type = 'Daily' then value = # of days interval
-// If type = 'Weekly' then 1 through 7 for day of the week
-// If type = 'Monthly' then 1 through 31 for day of the month
-// If type = 'Annually' then 1 through 365 for day of the year
+import {
+  isSameDay,
+  isBefore,
+  addDays,
+  isSameWeek,
+  isSameMonth,
+  setDay,
+  set,
+  getDayOfYear,
+  setDayOfYear,
+} from "date-fns";
+import { formatDateWithLocalTime } from "../utils/formUtils";
+
 export const serviceSchema = z
   .object({
     name: z.string(),
     resource: z.string(),
-    start_date: z.date(),
-    completion_date: z.date(),
-    interval: z.number(),
+    startDate: z.string(),
+    weeklyStartDate: z.string(),
+    monthlyStartDate: z.string(),
+    annualStartDate: z.string(),
+    completionDate: z.string(),
+    weeklyCompletionDate: z.string(),
+    monthlyCompletionDate: z.string(),
+    annualCompletionDate: z.string(),
     frequency: z.string(),
+    dailyInterval: z.string(),
+    weeklyInterval: z.string(),
+    monthlyInterval: z.string(),
+    annualInterval: z.string(),
   })
   .partial() // makes all the fields optional, which is required for superRefine to run
   .superRefine(
     (
-      { name, frequency, interval, resource, start_date, completion_date },
+      {
+        name,
+        resource,
+        startDate,
+        weeklyStartDate,
+        monthlyStartDate,
+        annualStartDate,
+        completionDate,
+        weeklyCompletionDate,
+        monthlyCompletionDate,
+        annualCompletionDate,
+        frequency,
+        dailyInterval,
+        weeklyInterval,
+        monthlyInterval,
+        annualInterval,
+      },
       ctx
     ) => {
+      // ********************** NAME **********************
+
       if (name === "") {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
@@ -27,6 +61,7 @@ export const serviceSchema = z
           path: ["name"],
         });
       }
+      // ********************** RESOURCE **********************
       if (resource === "placeholder") {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
@@ -34,6 +69,7 @@ export const serviceSchema = z
           path: ["resource"],
         });
       }
+      // ********************** FREQUENCY **********************
       if (frequency === "placeholder") {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
@@ -42,78 +78,321 @@ export const serviceSchema = z
         });
       }
 
-      if (interval === 0 && frequency !== "ONCE") {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: "an interval is required",
-          path: ["interval"],
-        });
-      }
-      if (frequency !== "ONCE") {
-        if (start_date && completion_date) {
-          if (isSameDay(start_date, completion_date)) {
-            ctx.addIssue({
-              code: z.ZodIssueCode.custom,
-              message: "the start and end dates cannot be on the same day",
-              path: ["start_date"],
-            });
-          }
-          if (typeof interval === "number") {
-            if (interval === 0 && frequency !== "ONCE") {
-              ctx.addIssue({
-                code: z.ZodIssueCode.custom,
-                message: "an interval is required",
-                path: ["interval"],
-              });
-            }
+      // ONCE => no interval
+      // DAILY => interval (default value = 0)
+      // WEEKLY => interval (default value = 0)
+      // MONTHLY => interval (default value = 0)
+      // ANNUALLY =>annualInterval (default value = current Date)
 
-            if (frequency === "WEEKLY" && (interval < 1 || interval > 7)) {
-              ctx.addIssue({
-                code: z.ZodIssueCode.custom,
-                message: "an interval of 1 to 7 is required",
-                path: ["interval"],
-              });
-            }
-            if (frequency === "MONTHLY" && (interval < 1 || interval > 31)) {
-              ctx.addIssue({
-                code: z.ZodIssueCode.custom,
-                message: "an interval of 1 to 31 is required",
-                path: ["interval"],
-              });
-            }
-            if (frequency === "ANNUALLY" && (interval < 1 || interval > 365)) {
-              ctx.addIssue({
-                code: z.ZodIssueCode.custom,
-                message: "an interval of 1 to 365 is required",
-                path: ["interval"],
-              });
-            }
-          }
-          if (isBefore(completion_date, start_date)) {
-            ctx.addIssue({
-              code: z.ZodIssueCode.custom,
-              message: "the end date cannot be before the start date",
-              path: ["end_date"],
-            });
-          }
+      // ********************** frequency === ONCE **********************
+
+      if (frequency === "ONCE" || frequency === "DAILY") {
+        if (!startDate) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "a starting date is required",
+            path: ["startDate"],
+          });
+        }
+
+        const startTime = formatDateWithLocalTime(startDate!);
+        const now = new Date();
+        if (!isBefore(now, startTime) && !isSameDay(now, startTime)) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: `the date has to be at least: ${new Date().toLocaleDateString()}`,
+            path: ["startDate"],
+          });
+        }
+      }
+
+      if (frequency === "DAILY") {
+        if (!dailyInterval || +dailyInterval === 0) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "an interval is required",
+            path: ["dailyInterval"],
+          });
+        }
+        if (+dailyInterval! < 0) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "an interval has to be more than 0",
+            path: ["dailyInterval"],
+          });
+        }
+        if (!completionDate) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "a completion date is required",
+            path: ["completionDate"],
+          });
+        }
+        const completionTime = formatDateWithLocalTime(completionDate!);
+        const leastFuture = addDays(
+          formatDateWithLocalTime(startDate!),
+          +dailyInterval! + 1
+        );
+        if (completionTime! < leastFuture) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: `the date has to be at least: ${leastFuture.toLocaleDateString()}`,
+            path: ["completionDate"],
+          });
+        }
+      }
+      if (frequency === "WEEKLY") {
+        if (weeklyInterval === "7") {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "an interval is required",
+            path: ["weeklyInterval"],
+          });
+        }
+
+        if (!weeklyStartDate) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "a start date is required",
+            path: ["weeklyStartDate"],
+          });
+        }
+        if (!weeklyCompletionDate) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "a completion date is required",
+            path: ["weeklyCompletionDate"],
+          });
+        }
+        if (
+          !isBefore(new Date(weeklyStartDate!), new Date(weeklyCompletionDate!))
+        ) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "the completion date must come after the start date",
+            path: ["weeklyCompletionDate"],
+          });
+        }
+
+        if (
+          isSameWeek(
+            new Date(weeklyStartDate!),
+            new Date(weeklyCompletionDate!)
+          )
+        ) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message:
+              "the completion date and start date can't fall on the same week",
+            path: ["weeklyStartDate"],
+          });
+        }
+      }
+      if (frequency === "MONTHLY") {
+        if (!monthlyInterval || +monthlyInterval === 0) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "an interval is required",
+            path: ["monthlyInterval"],
+          });
+        }
+        if (+monthlyInterval! < 0) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "an interval has to be more than 0",
+            path: ["monthlyInterval"],
+          });
+        }
+        if (+monthlyInterval! > 31) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "an interval has to be at most 31",
+            path: ["monthlyInterval"],
+          });
+        }
+        if (!monthlyStartDate) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "a start date is required",
+            path: ["monthlyStartDate"],
+          });
+        }
+        if (!monthlyCompletionDate) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "a completion date is required",
+            path: ["monthlyCompletionDate"],
+          });
+        }
+        if (
+          !isBefore(
+            new Date(monthlyStartDate!),
+            new Date(monthlyCompletionDate!)
+          )
+        ) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "the completion date must come after the start date",
+            path: ["monthlyCompletionDate"],
+          });
+        }
+
+        if (
+          isSameMonth(
+            new Date(monthlyStartDate!),
+            new Date(monthlyCompletionDate!)
+          )
+        ) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message:
+              "the completion date and start date can't fall on the same month",
+            path: ["monthlyStartDate"],
+          });
+        }
+      }
+      if (frequency === "ANNUALLY") {
+        if (!annualInterval) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "an interval is required",
+            path: ["annualInterval"],
+          });
+        }
+
+        if (!annualStartDate || +annualStartDate === 0) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "a start year is required",
+            path: ["annualStartDate"],
+          });
+        }
+        if (+annualStartDate! < new Date().getFullYear()) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: `the start year must be at least ${new Date().getFullYear()}`,
+            path: ["annualStartDate"],
+          });
+        }
+
+        if (!annualCompletionDate || +annualCompletionDate === 0) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "a completion year is required",
+            path: ["annualCompletionDate"],
+          });
+        }
+        if (+annualCompletionDate! < new Date().getFullYear() + 1) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: `the start year must be at least ${
+              new Date().getFullYear() + 1
+            }`,
+            path: ["annualCompletionDate"],
+          });
+        }
+        if (+annualCompletionDate! < +annualStartDate!) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "the start year must be more than the completion year ",
+            path: ["annualStartDate"],
+          });
         }
       }
     }
+  )
+  .transform(
+    ({
+      name,
+      resource,
+      startDate,
+      weeklyStartDate,
+      monthlyStartDate,
+      annualStartDate,
+      completionDate,
+      weeklyCompletionDate,
+      monthlyCompletionDate,
+      annualCompletionDate,
+      frequency,
+      dailyInterval,
+      weeklyInterval,
+      monthlyInterval,
+      annualInterval,
+    }) => {
+      // ****************** Interval ******************
+      // If type = 'Once' then value = 0 (no interval) schedule would execute on start_date
+      // If type = 'Daily' then value = # of days interval
+      // If type = 'Weekly' then 1 through 7 for day of the week
+      // If type = 'Monthly' then 1 through 31 for day of the month
+      // If type = 'Annually' then 1 through 365 for day of the year
+
+      //Weekly -> the starting and ending dates occur on the interval (day of the week)
+      const trueWeeklyStartDate = setDay(
+        new Date(weeklyStartDate!),
+        +weeklyInterval!
+      ).toString();
+
+      const trueWeeklyCompletionDate = setDay(
+        new Date(weeklyCompletionDate!),
+        +weeklyInterval!
+      ).toString();
+      //Monthly -> the starting and completion dates occur on the interval (day of the month)
+      //if interval is beyond the scope of the month chosen -> will move to end of month when calculating i.e interval of 31 in November when it only has 30 days
+
+      const trueMonthlyStartDate =
+        +monthlyInterval! < new Date(monthlyStartDate!).getDate()
+          ? set(new Date(monthlyStartDate!), {
+              date: +monthlyInterval!,
+            }).toString()
+          : monthlyStartDate!;
+      const trueMonthlyCompletionDate =
+        +monthlyInterval! < new Date(monthlyCompletionDate!).getDate()
+          ? set(new Date(monthlyCompletionDate!), {
+              date: +monthlyInterval!,
+            }).toString()
+          : monthlyCompletionDate!;
+      //Annually -> need to create start date, completion date and interval
+      const trueAnnualInterval = getDayOfYear(new Date(annualInterval!)) + 1;
+      const trueAnnualStartDate = setDayOfYear(
+        new Date(+annualStartDate!, 0, 1),
+        trueAnnualInterval
+      ).toString();
+      const trueAnnualCompletionDate = setDayOfYear(
+        new Date(+annualCompletionDate!, 0, 1),
+        trueAnnualInterval
+      ).toString();
+      return {
+        name,
+        resource,
+        startDate,
+        weeklyStartDate: trueWeeklyStartDate,
+        monthlyStartDate: trueMonthlyStartDate,
+        annualStartDate: trueAnnualStartDate,
+        completionDate,
+        weeklyCompletionDate: trueWeeklyCompletionDate,
+        monthlyCompletionDate: trueMonthlyCompletionDate,
+        annualCompletionDate: trueAnnualCompletionDate,
+        frequency,
+        dailyInterval,
+        weeklyInterval,
+        monthlyInterval,
+        annualInterval: trueAnnualInterval.toString(),
+      };
+    }
   );
+
 export type ValidationSchema = z.infer<typeof serviceSchema>;
 
 export const helperInfo = (watchFrequency: string | undefined) => {
   switch (watchFrequency) {
-    case "ONCE":
-      return "once: no interval (service only runs once)";
     case "DAILY":
-      return "daily: interval is the # of days between events";
+      return "every (interval) days";
     case "WEEKLY":
-      return "weekly: interval is the day of the week, use 1 to 7 (Sunday start)";
+      return "interval is the day of the week, every week";
     case "MONTHLY":
-      return "monthly: interval is the day of the month, use 1 to 31 ";
+      return "interval is the day of the month, use 1 to 31 ";
     case "ANNUALLY":
-      return "annually: interval is the day of the year, use 1 to 365";
+      return "interval is the day of the year";
     default:
       return " ";
   }

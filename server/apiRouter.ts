@@ -161,7 +161,7 @@ router.get(
 );
 
 router.get(
-  "/service/:start_date/:completion_date",
+  "/service/:start_date/:end_date",
   [requireUser, validate(allServiceSchema)],
   serviceController.queryByDate
 );

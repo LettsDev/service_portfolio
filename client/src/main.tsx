@@ -38,6 +38,7 @@ import EditServiceForm from "./components/table/service/forms/editServiceForm.ts
 import { endOfMonth, startOfMonth } from "date-fns";
 import { convertFromDateToIsoString } from "./utils/dateConversion.ts";
 import RescheduleForm from "./components/calendar/forms/rescheduleForm.tsx";
+import { createEvent } from "./utils/calendarUtils.ts";
 const router = createBrowserRouter([
   {
     element: <App />,
@@ -236,7 +237,30 @@ const router = createBrowserRouter([
         },
         children: [
           {
-            path: "reschedule/:id",
+            path: "reschedule/:serviceId/:start_date",
+            loader: async ({ params }) => {
+              const event = await loaderWrapper<
+                IServiceEventException | undefined
+              >({
+                url: `serviceEvent/search/${params.serviceId}/${params.start_date}`,
+                method: "get",
+              });
+              if (!event) {
+                const service = await loaderWrapper<IService>({
+                  url: `service/${params.serviceId}`,
+                  method: "get",
+                });
+                if (!service) {
+                  throw Error("could not find service");
+                }
+                const createdEvent = createEvent(
+                  service as IService,
+                  new Date(params.start_date!)
+                );
+                return createdEvent;
+              }
+              return event;
+            },
             element: (
               <Modal showModal={true}>
                 <RescheduleForm />

@@ -3,12 +3,14 @@ import {
   subDays,
   setDayOfYear,
   isSameDay,
+  isBefore,
+  setDay,
   addDays,
   getDaysInMonth,
   format,
 } from "date-fns";
 import { IDateItem, IServiceEventException, IService } from "../types";
-import { getNextDay, daysIntoYear, dateIntoDays } from "./dateConversion";
+import { daysIntoYear, dateIntoDays, getNextDay } from "./dateConversion";
 
 // **************************** Formatting Service Schedules ****************************
 export const formatServiceSchedule = ({
@@ -30,15 +32,28 @@ export const formatServiceSchedule = ({
     case "DAILY":
       return `  ${
         interval > 1 ? `EVERY ${interval} days` : "EVERYDAY"
-      }, starting ${new Date(start_date).toLocaleDateString()} till ${new Date(
-        completion_date
-      ).toLocaleDateString()}`;
+      }, starting ${new Date(start_date)
+        .toUTCString()
+        .split(" ")
+        .slice(0, 4)
+        .join(" ")} till ${new Date(completion_date)
+        .toUTCString()
+        .split(" ")
+        .slice(0, 4)
+        .join(" ")}`;
     case "WEEKLY":
-      return `${format(interval, "cccc")}s, starting ${new Date(
-        start_date
-      ).toLocaleDateString()} till ${new Date(
-        completion_date
-      ).toLocaleDateString()}`;
+      return `${format(
+        setDay(new Date(new Date().getFullYear(), 1, 1), interval),
+        "cccc"
+      )}s, starting ${new Date(start_date)
+        .toUTCString()
+        .split(" ")
+        .slice(0, 4)
+        .join(" ")} till ${new Date(completion_date)
+        .toUTCString()
+        .split(" ")
+        .slice(0, 4)
+        .join(" ")}`;
     case "MONTHLY":
       return `${format(
         new Date(`2023-1-${interval}`),
@@ -56,7 +71,7 @@ export const formatServiceSchedule = ({
             +start_date.split("-")[1],
             interval
           ),
-          interval
+          interval + 1
         ),
         "MMMM-do"
       )}, starting ${new Date(start_date).getFullYear()} till ${new Date(
@@ -111,8 +126,12 @@ export const createEvent = (
   return {
     _id: crypto.randomUUID(),
     service: service,
-    exception_date: date ? date.toISOString() : service.start_date,
-    start_date: service.start_date,
+    exception_date: date
+      ? date.toISOString()
+      : new Date(service.start_date).toISOString(),
+    start_date: date
+      ? date.toISOString()
+      : new Date(service.start_date).toISOString(),
     created_by: service.created_by,
     ...base,
   };
@@ -147,27 +166,36 @@ export function upperCalendarWeekOverlap(upperDateRange: Date): IDateItem[] {
   return dateItems;
 }
 
-// **************************** Date Range narrowing / calculating ****************************
+// **************************** Date Range narrowing / calculating start dates ****************************
 
 export const withinRange = (
   date: Date,
   lowerDateRange: Date,
   upperDateRange: Date
 ): boolean => {
-  //if within the lower and upper date ranges
-  if (date >= lowerDateRange && date <= upperDateRange) {
+  if (
+    date.getUTCDate() >= lowerDateRange.getUTCDate() &&
+    date.getUTCMonth() >= lowerDateRange.getUTCMonth() &&
+    date.getUTCFullYear() >= lowerDateRange.getUTCFullYear() &&
+    date.getUTCDate() <= upperDateRange.getUTCDate() &&
+    date.getUTCMonth() <= upperDateRange.getUTCMonth() &&
+    date.getUTCFullYear() <= upperDateRange.getUTCFullYear()
+  ) {
     return true;
   }
   return false;
 };
 
 export const getWeeklyStartDate = (start_date: Date, interval: number) => {
-  //if your day of the week interval is before the starting date day of the week: start the next week on the interval
-  //example start date is set for a Friday, but the interval is every Tuesday, the first event would be on the following Tuesday
-  if (start_date.getDay() !== interval || start_date.getDay()! < interval) {
-    return getNextDay(start_date, interval as Day);
-  }
+  // the start_date is setting the starting week
+  const delta = interval - start_date.getUTCDay();
 
+  if (delta < 0) {
+    return subDays(start_date, delta);
+  }
+  if (delta > 0) {
+    return addDays(start_date, delta);
+  }
   return start_date;
 };
 

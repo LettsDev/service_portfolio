@@ -46,6 +46,7 @@ import {
   createServiceEventExceptionSchema,
   updateServiceEventExceptionSchema,
   deleteServiceEventExceptionSchema,
+  getEventExceptionsByServiceAndStartSchema,
 } from "./schema/serviceEventException.schema";
 const router = express.Router();
 
@@ -172,6 +173,7 @@ router.get(
   [requireUser, validate(getServiceEventExceptionSchema)],
   serviceEventController.getAllByService
 );
+
 router.post(
   "/serviceEvent",
   [requireUser, validate(createServiceEventExceptionSchema)],
@@ -193,5 +195,9 @@ router.get(
   requireUser,
   serviceEventController.getAllInDateRange
 );
-
+router.get(
+  "/serviceEvent/search/:serviceId/:start_date",
+  [requireUser, validate(getEventExceptionsByServiceAndStartSchema)],
+  serviceEventController.getByStartDateAndService
+);
 export default router;

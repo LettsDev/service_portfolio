@@ -3,7 +3,10 @@ import { IService, IServiceEventException, IDateItem } from "../types";
 import fetchWithCatch from "../utils/fetchWithCatch";
 import { startOfMonth, endOfMonth } from "date-fns";
 import { useLoaderData } from "react-router-dom";
-import { convertFromDateToIsoString } from "../utils/dateConversion";
+import {
+  convertFromDateToIsoString,
+  getUtcEquivalent,
+} from "../utils/dateConversion";
 
 import useCalendarEvents from "./useCalendarEvents";
 export default function useCalendar() {
@@ -29,8 +32,8 @@ export default function useCalendar() {
   useEffect(() => {
     //When a user changes the month shown, the services that intersect the month and event exceptions are retrieved
     async function fetchServicesAndEventExceptions(newDate: Date) {
-      const start = convertFromDateToIsoString(startOfMonth(newDate));
-      const end = convertFromDateToIsoString(endOfMonth(newDate));
+      const start = getUtcEquivalent(startOfMonth(newDate)).toISOString();
+      const end = getUtcEquivalent(endOfMonth(newDate)).toISOString();
 
       const refreshedServices = await fetchWithCatch<IService[]>({
         //Services that are within the date range (start less than endDate & completion_date after start date)

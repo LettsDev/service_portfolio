@@ -1,6 +1,6 @@
 import * as z from "zod";
 import {
-  isSameDay,
+  // isSameDay,
   isBefore,
   addDays,
   isSameWeek,
@@ -11,6 +11,8 @@ import {
   setDayOfYear,
 } from "date-fns";
 import { formatDateWithLocalTime } from "../utils/formUtils";
+import { IService } from "../types";
+import { getWeeklyStartDate } from "../utils/calendarUtils";
 
 export const serviceSchema = z
   .object({
@@ -94,16 +96,16 @@ export const serviceSchema = z
             path: ["startDate"],
           });
         }
-
-        const startTime = formatDateWithLocalTime(startDate!);
-        const now = new Date();
-        if (!isBefore(now, startTime) && !isSameDay(now, startTime)) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: `the date has to be at least: ${new Date().toLocaleDateString()}`,
-            path: ["startDate"],
-          });
-        }
+        //removed due to editing past events
+        // const startTime = formatDateWithLocalTime(startDate!);
+        // const now = new Date();
+        // if (!isBefore(now, startTime) && !isSameDay(now, startTime)) {
+        //   ctx.addIssue({
+        //     code: z.ZodIssueCode.custom,
+        //     message: `the date has to be at least: ${new Date().toLocaleDateString()}`,
+        //     path: ["startDate"],
+        //   });
+        // }
       }
 
       if (frequency === "DAILY") {
@@ -267,13 +269,14 @@ export const serviceSchema = z
             path: ["annualStartDate"],
           });
         }
-        if (+annualStartDate! < new Date().getFullYear()) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: `the start year must be at least ${new Date().getFullYear()}`,
-            path: ["annualStartDate"],
-          });
-        }
+        //removed due to editing an older service
+        // if (+annualStartDate! < new Date().getFullYear()) {
+        //   ctx.addIssue({
+        //     code: z.ZodIssueCode.custom,
+        //     message: `the start year must be at least ${new Date().getFullYear()}`,
+        //     path: ["annualStartDate"],
+        //   });
+        // }
 
         if (!annualCompletionDate || +annualCompletionDate === 0) {
           ctx.addIssue({
@@ -282,15 +285,15 @@ export const serviceSchema = z
             path: ["annualCompletionDate"],
           });
         }
-        if (+annualCompletionDate! < new Date().getFullYear() + 1) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: `the start year must be at least ${
-              new Date().getFullYear() + 1
-            }`,
-            path: ["annualCompletionDate"],
-          });
-        }
+        // if (+annualCompletionDate! < new Date().getFullYear() + 1) {
+        //   ctx.addIssue({
+        //     code: z.ZodIssueCode.custom,
+        //     message: `the start year must be at least ${
+        //       new Date().getFullYear() + 1
+        //     }`,
+        //     path: ["annualCompletionDate"],
+        //   });
+        // }
         if (+annualCompletionDate! < +annualStartDate!) {
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
@@ -326,16 +329,15 @@ export const serviceSchema = z
       // If type = 'Monthly' then 1 through 31 for day of the month
       // If type = 'Annually' then 1 through 365 for day of the year
 
-      //Weekly -> the starting and ending dates occur on the interval (day of the week)
-      const trueWeeklyStartDate = setDay(
+      const trueWeeklyStartDate = getWeeklyStartDate(
         new Date(weeklyStartDate!),
         +weeklyInterval!
-      ).toString();
-
-      const trueWeeklyCompletionDate = setDay(
+      ).toISOString();
+      const trueWeeklyCompletionDate = getWeeklyStartDate(
         new Date(weeklyCompletionDate!),
         +weeklyInterval!
-      ).toString();
+      ).toISOString();
+
       //Monthly -> the starting and completion dates occur on the interval (day of the month)
       //if interval is beyond the scope of the month chosen -> will move to end of month when calculating i.e interval of 31 in November when it only has 30 days
 
@@ -383,8 +385,11 @@ export const serviceSchema = z
 
 export type ValidationSchema = z.infer<typeof serviceSchema>;
 
-export const helperInfo = (watchFrequency: string | undefined) => {
-  switch (watchFrequency) {
+export const helperInfo = (
+  watchFrequency: string | undefined,
+  loaderDataService?: IService
+) => {
+  switch (watchFrequency || loaderDataService?.frequency) {
     case "DAILY":
       return "every (interval) days";
     case "WEEKLY":

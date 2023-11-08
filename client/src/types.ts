@@ -34,12 +34,13 @@ export interface IResourceSubmitEdit extends IResourceSubmit {
   _id: string;
 }
 
-//dates will be ISO strings
 export interface IService extends IResponseBase {
   name: string;
   resource: IResource;
   created_by: IUser;
+  /**start_date: ISO string */
   start_date: string;
+  /**completion_date: ISO string */
   completion_date: string;
   interval: number;
   frequency: "ONCE" | "DAILY" | "WEEKLY" | "MONTHLY" | "ANNUALLY";
@@ -60,13 +61,18 @@ export interface IServiceSubmitEdit extends IServiceSubmit {
 
 export interface IServiceEventException extends IResponseBase {
   service: IService;
+  /**
+   * exception_date: The date that the event takes place on. ISO string.
+   */
   exception_date: string;
   is_cancelled: boolean;
   is_rescheduled: boolean;
+  /**
+   * start_date: The date that the exception event is from. So from the originally created service event. ISO string.
+   */
   start_date: string;
   created_by: IUser;
 }
-// the exception date is when the event takes place compared to the start_date which is used to link to the service event that originally it is from
 
 export interface ISessionResponse extends IResponseBase {
   user: string;

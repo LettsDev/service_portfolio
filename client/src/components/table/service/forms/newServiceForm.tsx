@@ -103,9 +103,8 @@ export default function NewServiceForm() {
         created_by: user._id,
       };
       console.log(formattedService);
-      await newService(formattedService).then(() =>
-        navigate("/table/services")
-      );
+      await newService(formattedService);
+      navigate("/table/services");
     }
   };
   return (
@@ -415,7 +414,7 @@ export default function NewServiceForm() {
             id="completionDate"
             className="input input-bordered "
             // need to set defaultValue for the schema to pass the initial verification stage and have superRefine schema run
-            defaultValue={formatISO(new Date(), { representation: "date" })}
+            defaultValue={`${format(new Date(), "yyy-MM-dd")}`}
             {...register("completionDate")}
           />
           <label className="label">

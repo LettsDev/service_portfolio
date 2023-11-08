@@ -4,6 +4,7 @@ import useCalendar from "../../hooks/useCalendar";
 import { IDateItem } from "../../types";
 import Cell from "../../components/calendar/cell";
 import Agenda from "../../components/calendar/agenda";
+import { Outlet } from "react-router-dom";
 export default function Calendar() {
   const dayLabels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   const { selectedDate, setSelectedDate, dateItems } = useCalendar();
@@ -94,6 +95,7 @@ export default function Calendar() {
         </table>
         <Agenda dateItems={dateItems} selectedDate={selectedDate} />
       </div>
+      <Outlet />
     </main>
   );
 }

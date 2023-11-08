@@ -33,9 +33,7 @@ export function frequencyIntervalSwitcher({
       return {
         interval: +intervals.dailyInterval,
         formattedStartDate: new Date(startDates.startDate).toISOString(),
-        formattedCompletionDate: new Date(
-          completionDates.completionDate
-        ).toISOString(),
+        formattedCompletionDate: new Date(startDates.startDate).toISOString(),
       };
     case "DAILY":
       return {

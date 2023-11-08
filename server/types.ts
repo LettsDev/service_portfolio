@@ -46,9 +46,9 @@ export interface IService {
 
 export interface IServiceEventException {
   service: Types.ObjectId;
+  start_date: Date;
   exception_date: Date;
   is_cancelled: boolean;
   is_rescheduled: boolean;
-  start_date: Date;
   created_by: Types.ObjectId;
 }

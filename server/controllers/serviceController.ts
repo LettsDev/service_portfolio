@@ -23,11 +23,13 @@ const serviceController = (() => {
     async (req: Request<AllServiceInput["params"]>, res: Response) => {
       const startDate = req.params.start_date;
       const endDate = req.params.end_date;
+      const formattedStart = new Date(startDate).toISOString();
+      const formattedEnd = new Date(endDate).toISOString();
       const services = await allServices({
-        start_date: { $lte: endDate },
-        completion_date: { $gte: startDate },
+        start_date: { $lte: formattedEnd },
+        completion_date: { $gte: formattedStart },
       });
-
+      console.log("services: ", services);
       if (services.length === 0) {
         res.send([]);
         return;
@@ -116,6 +118,7 @@ const serviceController = (() => {
       res.send([]);
       return;
     }
+    console.log(services);
     res.send(services);
   });
 

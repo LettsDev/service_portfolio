@@ -6,8 +6,11 @@ const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 export function toUtc(date: Date) {
   return zonedTimeToUtc(date, timeZone);
 }
-export function toLocalTz(date: Date) {
-  return utcToZonedTime(date, timeZone);
+export function getUtcEquivalent(selectedDate: Date) {
+  const year = selectedDate.getFullYear();
+  const month = selectedDate.getMonth();
+  const date = selectedDate.getDate();
+  return new Date(Date.UTC(year, month, date));
 }
 
 export function convertFromDateToIsoString(date: Date) {
@@ -17,13 +20,6 @@ export function convertFromDateToIsoString(date: Date) {
 
 export function convertFromIsoStringToDate(isoString: string) {
   return new Date(utcToZonedTime(isoString, timeZone));
-}
-
-export function getNextDay(date: Date, interval: 0 | 1 | 2 | 3 | 4 | 5 | 6) {
-  // based off of date-fns nextDay but it is using UTC format
-  let delta = interval - date.getUTCDay();
-  if (delta <= 0) delta += 7;
-  return addDays(date, delta);
 }
 
 export function daysIntoYear(date: Date) {

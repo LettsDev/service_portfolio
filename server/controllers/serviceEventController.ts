@@ -5,6 +5,7 @@ import {
   UpdateServiceEventInput,
   DeleteServiceEventInput,
   ServiceSearchServiceEventInput,
+  GetEventExceptionByServiceAndStartInput,
 } from "../schema/serviceEventException.schema";
 
 import {
@@ -157,6 +158,41 @@ const serviceEventController = (() => {
     return res.send(foundEvents);
   }
 
-  return { create, update, remove, getAllInDateRange, getAllByService };
+  async function getByStartDateAndService(
+    req: Request<GetEventExceptionByServiceAndStartInput["params"]>,
+    res: Response
+  ) {
+    const serviceId = req.params.serviceId;
+    const startDate = req.params.start_date;
+    try {
+      const foundEventException = await findServiceEventException(
+        { service: serviceId, start_date: startDate },
+        {
+          lean: true,
+          populate: [
+            { path: "service", model: "Service" },
+            { path: "created_by", model: "User" },
+          ],
+        }
+      );
+
+      if (!foundEventException) {
+        return res.sendStatus(204);
+      }
+      return res.send(foundEventException);
+    } catch (e: any) {
+      console.log(e.message);
+      return res.status(409).send(e.message);
+    }
+  }
+
+  return {
+    create,
+    update,
+    remove,
+    getAllInDateRange,
+    getAllByService,
+    getByStartDateAndService,
+  };
 })();
 export default serviceEventController;

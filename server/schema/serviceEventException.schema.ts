@@ -1,20 +1,23 @@
-import { object, string, TypeOf, z, number, date } from "zod";
+import { object, string, TypeOf, boolean } from "zod";
 import transformToMongoId from "../utils/transformToMongoID";
 const payload = {
   body: object({
-    name: string({ required_error: "name is required" }),
-    resource: string({ required_error: "resource is required" }).transform(
+    service: string({ required_error: "service is required" }).transform(
       (val) => transformToMongoId(val)
     ),
+    start_date: string({ required_error: "start date is required" }).datetime({
+      message: "invalid date-time. It must be in UTC",
+    }),
+    exception_date: string({
+      required_error: "start date is required",
+    }).datetime({
+      message: "invalid date-time. It must be in UTC",
+    }),
+    is_cancelled: boolean({ required_error: "interval is required" }),
+    is_rescheduled: boolean({ required_error: "interval is required" }),
     created_by: string({ required_error: "creator is required" }).transform(
       (val) => transformToMongoId(val)
     ),
-    start_date: date({ required_error: "start date is required" }),
-    completion_date: date({ required_error: "completion date is required" }),
-    interval: number({ required_error: "interval is required" }),
-    frequency: z.enum(["ONCE", "DAILY", "WEEKLY", "MONTHLY", "ANNUALLY"], {
-      required_error: "frequency is required",
-    }),
   }),
 };
 
@@ -29,6 +32,16 @@ const searchByServiceParams = {
   params: object({
     serviceId: string({
       required_error: "serviceId is required",
+    }),
+  }),
+};
+const searchByServiceAndStartParams = {
+  params: object({
+    serviceId: string({
+      required_error: "serviceId is required",
+    }),
+    start_date: string().datetime({
+      message: "invalid datetime. It must be UTC",
     }),
   }),
 };
@@ -58,8 +71,12 @@ export const getServiceEventExceptionSchema = object({
   ...queryParams,
 });
 
-export const getServiceEventExceptionByService = object({
+export const getServiceEventExceptionByServiceSchema = object({
   ...searchByServiceParams,
+});
+
+export const getEventExceptionsByServiceAndStartSchema = object({
+  ...searchByServiceAndStartParams,
 });
 
 export type CreateServiceEventInput = TypeOf<
@@ -76,5 +93,9 @@ export type DeleteServiceEventInput = TypeOf<
 >;
 
 export type ServiceSearchServiceEventInput = TypeOf<
-  typeof getServiceEventExceptionByService
+  typeof getServiceEventExceptionByServiceSchema
+>;
+
+export type GetEventExceptionByServiceAndStartInput = TypeOf<
+  typeof getEventExceptionsByServiceAndStartSchema
 >;

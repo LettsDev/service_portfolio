@@ -1,4 +1,4 @@
-import { add, isSameDay } from "date-fns";
+import { add, isBefore, isSameDay } from "date-fns";
 import { IService, IServiceEventException, IDateItem } from "../types";
 import {
   createEmptyDateItems,
@@ -48,12 +48,24 @@ export default function useCalendarEvents() {
           return [];
         }
         //no valid exception event
-        return [createEvent(service)];
+        if (
+          withinRange(
+            new Date(service.start_date),
+            lowerDateRange,
+            upperDateRange
+          )
+        ) {
+          console.log("service within range", service);
+
+          return [createEvent(service, new Date(service.start_date))];
+        }
+        return [];
 
       case "DAILY":
         for (
           let date = new Date(service.start_date);
-          date <= new Date(service.completion_date);
+          isBefore(date, new Date(service.completion_date)) ||
+          isSameDay(date, new Date(service.completion_date));
           date = add(date, { days: service.interval })
         ) {
           //does the date occur during the time range?
@@ -87,11 +99,13 @@ export default function useCalendarEvents() {
             new Date(service.start_date),
             service.interval
           );
-          date <= new Date(service.completion_date);
+          isBefore(date, new Date(service.completion_date)) ||
+          isSameDay(date, new Date(service.completion_date));
           date = add(date, { weeks: 1 })
         ) {
           //does the date occur during the time range?
           if (withinRange(date, lowerDateRange, upperDateRange)) {
+            console.log("date UTC day", date.getUTCDate());
             //we have event exceptions for this service
             if (eventExceptionsFilteredByService.length > 0) {
               const index = eventExceptionsFilteredByService.findIndex(
@@ -120,7 +134,8 @@ export default function useCalendarEvents() {
             new Date(service.start_date),
             service.interval
           );
-          date <= new Date(service.completion_date);
+          isBefore(date, new Date(service.completion_date)) ||
+          isSameDay(date, new Date(service.completion_date));
           date = add(date, { months: 1 })
         ) {
           //does the date occur during the time range?
@@ -153,7 +168,8 @@ export default function useCalendarEvents() {
             new Date(service.start_date),
             service.interval
           );
-          date <= new Date(service.completion_date);
+          isBefore(date, new Date(service.completion_date)) ||
+          isSameDay(date, new Date(service.completion_date));
           date = add(date, { months: 1 })
         ) {
           const eventException = filterEventsByRange(
@@ -227,6 +243,7 @@ export default function useCalendarEvents() {
       });
       if (foundDateItemIndex === -1) {
         console.log("couldn't find the correct date for the event:", evnt);
+        console.log("date Items", dateItems);
         throw Error("Date Error");
       }
       dateItems[foundDateItemIndex].events.push(evnt);

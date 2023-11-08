@@ -30,12 +30,16 @@ export default function Cell({
     >
       <div>{dateItem.date.getDate()}</div>
       <div className="flex justify-center gap-1">
-        {dateItem.events.map((event) => (
-          <div
-            className="w-1.5 h-1.5 bg-primary-content rounded"
-            key={event.service.name}
-          ></div>
-        ))}
+        {dateItem.events.map((event, index) => {
+          if (index < 3) {
+            return (
+              <div
+                className="w-1.5 h-1.5 bg-primary-content rounded"
+                key={event.service.name}
+              ></div>
+            );
+          }
+        })}
       </div>
     </td>
   );

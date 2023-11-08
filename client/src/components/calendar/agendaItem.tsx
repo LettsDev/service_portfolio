@@ -1,11 +1,25 @@
 import { IServiceEventException } from "../../types";
-
+import { formatServiceSchedule } from "../../utils/calendarUtils";
+import { Link } from "react-router-dom";
 export default function AgendaItem({ ev }: { ev: IServiceEventException }) {
+  const { interval, frequency, start_date, completion_date } = ev.service;
   return (
-    <tr className="hover">
-      <td>{ev.service.name}</td>
+    <tr className="hover cursor-default">
       <td>
-        <div>{ev.service.resource.name}</div>
+        <div
+          className="tooltip t"
+          data-tip={formatServiceSchedule({
+            interval,
+            frequency,
+            start_date,
+            completion_date,
+          })}
+        >
+          {ev.service.name}
+        </div>
+      </td>
+      <td>
+        <div className="">{ev.service.resource.name}</div>
       </td>
       <td>
         <div className="badge badge-neutral">
@@ -18,9 +32,12 @@ export default function AgendaItem({ ev }: { ev: IServiceEventException }) {
           <p>Cancelled</p>
         ) : (
           <div className="flex flex-col gap-2">
-            <a href={`reschedule/${ev._id}`} className="btn btn-primary btn-sm">
+            <Link
+              to={`reschedule/${ev.service._id}/${ev.start_date}`}
+              className="btn btn-primary btn-sm"
+            >
               reschedule
-            </a>
+            </Link>
             <a href="" className="btn btn-secondary btn-sm">
               cancel
             </a>

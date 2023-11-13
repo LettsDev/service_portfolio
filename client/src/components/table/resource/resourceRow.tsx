@@ -1,7 +1,9 @@
-import { IResource } from "../../../types";
+import { IResource, IService, IServiceDated } from "../../../types";
 import { useState, Suspense, lazy } from "react";
 import Loading from "../../loading";
 import TableRowButtons from "../tableRowButtons";
+import fetchWithCatch from "../../../utils/fetchWithCatch";
+import { toIServiceDated } from "../../../utils/dateConversion";
 const ResourceRowInner = lazy(() => import("./resourceRowInner"));
 
 type Props = {
@@ -9,9 +11,18 @@ type Props = {
 };
 export default function ResourceRow({ resource }: Props) {
   const [open, setOpen] = useState(false);
+  const [services, setServices] = useState<IServiceDated[]>([]);
 
-  function handleOpen() {
+  async function handleOpen() {
     setOpen(!open);
+    const loadedServices = await fetchWithCatch<IService[]>({
+      url: `service_query/resource/${resource._id}`,
+      method: "get",
+    });
+    const datedServices = loadedServices.map((service) =>
+      toIServiceDated(service)
+    );
+    setServices(datedServices);
   }
   return (
     <>
@@ -29,18 +40,18 @@ export default function ResourceRow({ resource }: Props) {
           {resource.notes ? <td>{`Note: ${resource.notes}`}</td> : <td />}
           <td>
             <div className="flex flex-col gap-2">
-              <p className="badge text-xs md:text-sm">{`created: ${new Date(
+              <p className="badge text-xs md:text-sm cursor-default">{`created: ${new Date(
                 resource.createdAt
               ).toLocaleDateString()}`}</p>
-              <p className="badge text-xs md:text-sm">{`last updated: ${new Date(
+              <p className="badge text-xs md:text-sm cursor-default">{`last updated: ${new Date(
                 resource.updatedAt
               ).toLocaleDateString()}`}</p>
-              <p className="badge text-xs md:text-sm">{`created by:${resource.created_by.first_name} ${resource.created_by.last_name}`}</p>
+              <p className="badge text-xs md:text-sm cursor-default">{`created by:${resource.created_by.first_name} ${resource.created_by.last_name}`}</p>
             </div>
           </td>
           <td>
             <Suspense fallback={<Loading />}>
-              <ResourceRowInner id={resource._id} />
+              <ResourceRowInner datedServices={services} />
             </Suspense>
           </td>
           <td>

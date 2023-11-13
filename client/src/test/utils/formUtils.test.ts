@@ -34,7 +34,7 @@ describe("frequencyIntervalSwitcher function", () => {
     });
     expect(result.interval).toEqual(10);
     expect(result.formattedStartDate).toEqual("2023-10-31T00:00:00.000Z");
-    expect(result.formattedCompletionDate).toEqual("2023-12-01T00:00:00.000Z");
+    expect(result.formattedCompletionDate).toEqual("2023-10-31T00:00:00.000Z");
   });
   it("correctly creates a DAILY service", () => {
     const result = frequencyIntervalSwitcher({

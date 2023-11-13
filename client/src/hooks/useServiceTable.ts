@@ -5,14 +5,19 @@ import {
   IServiceSubmit,
   IResponseBase,
   IServiceSubmitEdit,
+  IServiceDated,
 } from "../types";
 import fetchWithCatch from "../utils/fetchWithCatch";
+import { toIServiceDated } from "../utils/dateConversion";
 export default function useServiceTable() {
   const [loading, setLoading] = useState(true);
-  const [services, setServices] = useState<IService[]>([]);
+  const [services, setServices] = useState<IServiceDated[]>([]);
   const loadedServices = useLoaderData() as IService[];
+  const loadedDatedServices = loadedServices.map((service) =>
+    toIServiceDated(service)
+  );
   useEffect(() => {
-    setServices(loadedServices);
+    setServices(loadedDatedServices);
     setLoading(false);
   }, []);
   const newService = async (data: IServiceSubmit) => {
@@ -28,7 +33,7 @@ export default function useServiceTable() {
       method: "get",
     });
 
-    setServices([...services, fullNewService]);
+    setServices([...services, toIServiceDated(fullNewService)]);
     setLoading(false);
   };
   const editService = async (updatedService: IServiceSubmitEdit) => {
@@ -42,7 +47,7 @@ export default function useServiceTable() {
       (serve) => serve._id === editedService._id
     );
     const updatedServices = services;
-    updatedServices.splice(index, 1, editedService);
+    updatedServices.splice(index, 1, toIServiceDated(editedService));
     setServices(updatedServices);
     setLoading(false);
   };

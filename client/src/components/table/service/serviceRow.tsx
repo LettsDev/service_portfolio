@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { IService } from "../../../types";
+import { IServiceDated } from "../../../types";
 import TableRowButtons from "../tableRowButtons";
 import { formatServiceSchedule } from "../../../utils/calendarUtils";
-export default function ServiceRow({ service }: { service: IService }) {
+export default function ServiceRow({ service }: { service: IServiceDated }) {
   const [open, setOpen] = useState(false);
   return (
     <>
@@ -34,7 +34,7 @@ export default function ServiceRow({ service }: { service: IService }) {
               {service.created_by.last_name}
             </p>
             <p className="badge badge-lg text-xs md:text-sm">
-              {`schedule: ${formatServiceSchedule({
+              {`${formatServiceSchedule({
                 interval: service.interval,
                 frequency: service.frequency,
                 start_date: service.start_date,

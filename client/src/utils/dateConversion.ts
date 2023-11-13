@@ -1,5 +1,5 @@
-import { addDays } from "date-fns";
-import { utcToZonedTime, zonedTimeToUtc } from "date-fns-tz";
+import { zonedTimeToUtc } from "date-fns-tz";
+import { IService, IServiceDated } from "../types";
 
 const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
@@ -18,8 +18,35 @@ export function convertFromDateToIsoString(date: Date) {
   // return zonedTimeToUtc(date, timeZone).toISOString();
 }
 
-export function convertFromIsoStringToDate(isoString: string) {
-  return new Date(utcToZonedTime(isoString, timeZone));
+export function dateToIso(date: Date) {
+  const year = date.getFullYear();
+  const month = date.getMonth();
+  const day = date.getDate();
+  return new Date(Date.UTC(year, month, day)).toISOString();
+}
+export function IsoToDate(isoString: string) {
+  const [year, month, rest] = isoString.split("-");
+  const day = rest.slice(0, 2);
+  return new Date(+year, +month - 1, +day, 12);
+}
+
+export function toIServiceDated(service: IService): IServiceDated {
+  return {
+    ...service,
+    start_date: IsoToDate(service.start_date),
+    completion_date: IsoToDate(service.completion_date),
+  };
+}
+
+export function toIService(datedService: IServiceDated): IService {
+  return {
+    ...datedService,
+    start_date: dateToIso(datedService.start_date),
+    completion_date: dateToIso(datedService.completion_date),
+  };
+}
+export function formDateStringToIso(formDateString: string) {
+  //formDateString -> "yyyy-mm-dd"
 }
 
 export function daysIntoYear(date: Date) {

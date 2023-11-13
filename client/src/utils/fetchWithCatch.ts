@@ -12,7 +12,7 @@ export default async function fetchWithCatch<T>(
     });
     return response.data;
   } catch (error) {
-    // if there is an error related to wrong page(404), forbidden due to auth (403), then throw to be caught by react router and handled with an Error page
+    // if there is an error related to wrong page(404), forbidden due to auth (403), then throw to be caught by react router and handled with an Error page boundary
     if (axios.isAxiosError(error)) {
       if (error.response) {
         //the request was made and there was a response

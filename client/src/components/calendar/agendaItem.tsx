@@ -1,6 +1,7 @@
 import { IServiceEventException } from "../../types";
 import { formatServiceSchedule } from "../../utils/calendarUtils";
 import { Link } from "react-router-dom";
+import { IsoToDate } from "../../utils/dateConversion";
 export default function AgendaItem({ ev }: { ev: IServiceEventException }) {
   const { interval, frequency, start_date, completion_date } = ev.service;
   return (
@@ -11,8 +12,8 @@ export default function AgendaItem({ ev }: { ev: IServiceEventException }) {
           data-tip={formatServiceSchedule({
             interval,
             frequency,
-            start_date,
-            completion_date,
+            start_date: IsoToDate(start_date),
+            completion_date: IsoToDate(completion_date),
           })}
         >
           {ev.service.name}

@@ -3,14 +3,16 @@ import {
   subDays,
   setDayOfYear,
   isSameDay,
-  isBefore,
   setDay,
   addDays,
   getDaysInMonth,
   format,
+  set,
+  getDayOfYear,
+  isLeapYear,
 } from "date-fns";
-import { IDateItem, IServiceEventException, IService } from "../types";
-import { daysIntoYear, dateIntoDays, getNextDay } from "./dateConversion";
+import { IDateItem, IServiceEventException, IServiceDated } from "../types";
+import { toIService } from "./dateConversion";
 
 // **************************** Formatting Service Schedules ****************************
 export const formatServiceSchedule = ({
@@ -19,25 +21,25 @@ export const formatServiceSchedule = ({
   start_date,
   completion_date,
 }: Pick<
-  IService,
+  IServiceDated,
   "interval" | "frequency" | "start_date" | "completion_date"
 >) => {
   switch (frequency) {
     case "ONCE":
-      return `ONCE on ${new Date(start_date)
-        .toUTCString()
+      return `ONCE on ${start_date
+        .toString()
         .split(" ")
         .slice(0, 4)
         .join(" ")}`;
     case "DAILY":
       return `  ${
         interval > 1 ? `EVERY ${interval} days` : "EVERYDAY"
-      }, starting ${new Date(start_date)
-        .toUTCString()
+      }, starting ${start_date
+        .toString()
         .split(" ")
         .slice(0, 4)
-        .join(" ")} till ${new Date(completion_date)
-        .toUTCString()
+        .join(" ")} till ${completion_date
+        .toString()
         .split(" ")
         .slice(0, 4)
         .join(" ")}`;
@@ -45,12 +47,12 @@ export const formatServiceSchedule = ({
       return `${format(
         setDay(new Date(new Date().getFullYear(), 1, 1), interval),
         "cccc"
-      )}s, starting ${new Date(start_date)
-        .toUTCString()
+      )}s, starting ${start_date
+        .toString()
         .split(" ")
         .slice(0, 4)
-        .join(" ")} till ${new Date(completion_date)
-        .toUTCString()
+        .join(" ")} till ${completion_date
+        .toString()
         .split(" ")
         .slice(0, 4)
         .join(" ")}`;
@@ -58,25 +60,20 @@ export const formatServiceSchedule = ({
       return `${format(
         new Date(`2023-1-${interval}`),
         "do"
-      )} of every month, starting ${new Date(
-        start_date
-      ).toLocaleDateString()} till ${new Date(
-        completion_date
-      ).toLocaleDateString()} `;
+      )} of every month, starting ${start_date
+        .toString()
+        .split(" ")
+        .splice(0, 4)
+        .join(" ")} till ${completion_date
+        .toString()
+        .split(" ")
+        .splice(0, 4)
+        .join(" ")} `;
     case "ANNUALLY":
       return `${format(
-        setDayOfYear(
-          new Date(
-            +start_date.split("-")[0],
-            +start_date.split("-")[1],
-            interval
-          ),
-          interval + 1
-        ),
+        setDayOfYear(start_date, interval + 1),
         "MMMM-do"
-      )}, starting ${new Date(start_date).getFullYear()} till ${new Date(
-        completion_date
-      ).getFullYear()} `;
+      )}, starting ${start_date.getFullYear()} till ${completion_date.getFullYear()} `;
     default:
       break;
   }
@@ -113,7 +110,7 @@ export const createEmptyDateItems = (
 // **************************** Exception Event ****************************
 
 export const createEvent = (
-  service: IService,
+  service: IServiceDated,
   date?: Date
 ): IServiceEventException => {
   const base = {
@@ -125,7 +122,7 @@ export const createEvent = (
   };
   return {
     _id: crypto.randomUUID(),
-    service: service,
+    service: toIService(service),
     exception_date: date
       ? date.toISOString()
       : new Date(service.start_date).toISOString(),
@@ -174,12 +171,12 @@ export const withinRange = (
   upperDateRange: Date
 ): boolean => {
   if (
-    date.getUTCDate() >= lowerDateRange.getUTCDate() &&
-    date.getUTCMonth() >= lowerDateRange.getUTCMonth() &&
-    date.getUTCFullYear() >= lowerDateRange.getUTCFullYear() &&
-    date.getUTCDate() <= upperDateRange.getUTCDate() &&
-    date.getUTCMonth() <= upperDateRange.getUTCMonth() &&
-    date.getUTCFullYear() <= upperDateRange.getUTCFullYear()
+    date.getDate() >= lowerDateRange.getDate() &&
+    date.getMonth() >= lowerDateRange.getMonth() &&
+    date.getFullYear() >= lowerDateRange.getFullYear() &&
+    date.getDate() <= upperDateRange.getDate() &&
+    date.getMonth() <= upperDateRange.getMonth() &&
+    date.getFullYear() <= upperDateRange.getFullYear()
   ) {
     return true;
   }
@@ -188,61 +185,34 @@ export const withinRange = (
 
 export const getWeeklyStartDate = (start_date: Date, interval: number) => {
   // the start_date is setting the starting week
-  const delta = interval - start_date.getUTCDay();
+  const delta = interval - start_date.getDay();
 
-  if (delta < 0) {
-    return subDays(start_date, delta);
-  }
-  if (delta > 0) {
+  if (delta !== 0) {
     return addDays(start_date, delta);
   }
   return start_date;
 };
 
 export const getMonthlyStartDate = (start_date: Date, interval: number) => {
+  //When monthly intervals are created, the user is asked to choose the starting month. So we need to set the starting date to the same month as the start_date but with the interval as the date.
   const startDay = start_date.getDate();
-  const currentMonth = start_date.getMonth();
-  const currentYear = start_date.getFullYear();
-  const nextMonth = new Date(currentYear, currentMonth + 1, 3);
-  const daysInNextMonth = getDaysInMonth(nextMonth);
+  const daysInCurrentMonth = getDaysInMonth(start_date);
   if (startDay !== interval) {
-    if (startDay > interval) {
-      // go to the next month
-      if (daysInNextMonth < interval) {
-        //next month has fewer days than the interval.. so go to the last day in the month
-        nextMonth.setDate(daysInNextMonth);
-        return nextMonth;
-      }
-      nextMonth.setDate(interval);
-      return nextMonth;
+    if (interval > daysInCurrentMonth) {
+      return set(start_date, { date: daysInCurrentMonth });
     }
-    const sameMonthInterval = start_date;
-    sameMonthInterval.setDate(interval - 1);
-    return sameMonthInterval;
+    return set(start_date, { date: interval });
   }
   return start_date;
 };
 
 export const getAnnuallyStartDate = (start_date: Date, interval: number) => {
-  const dayOfYear = daysIntoYear(start_date);
-  const startDateInterval = daysIntoYear(start_date);
-  const currentYear = start_date.getUTCFullYear();
-  const nextYear = currentYear + 1;
+  const dayOfYear = getDayOfYear(start_date);
   if (dayOfYear !== interval) {
-    if (startDateInterval > interval) {
-      if (
-        (nextYear % 4 === 0 && nextYear % 400 === 0) ||
-        nextYear % 100 !== 0
-      ) {
-        //the next year is a leap year
-        if (interval > 59) {
-          //leap years have a February 29th which is the 60th day of the year
-          // if interval is after then add 1
-          return dateIntoDays(interval + 1, nextYear);
-        }
-      }
-      // return next year at the interval
-      return dateIntoDays(interval, nextYear);
+    if (isLeapYear(start_date) && interval > 59) {
+      //leap years have a February 29th which is the 60th day of the year
+      // if interval is after, then add 1
+      return setDayOfYear(start_date, interval + 1);
     }
     return setDayOfYear(start_date, interval);
   }

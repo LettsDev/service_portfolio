@@ -36,7 +36,10 @@ import NewServiceForm from "./components/table/service/forms/newServiceForm.tsx"
 import DeleteServiceForm from "./components/table/service/forms/deleteServiceForm.tsx";
 import EditServiceForm from "./components/table/service/forms/editServiceForm.tsx";
 import { endOfMonth, startOfMonth } from "date-fns";
-import { convertFromDateToIsoString } from "./utils/dateConversion.ts";
+import {
+  convertFromDateToIsoString,
+  toIServiceDated,
+} from "./utils/dateConversion.ts";
 import RescheduleForm from "./components/calendar/forms/rescheduleForm.tsx";
 import { createEvent } from "./utils/calendarUtils.ts";
 const router = createBrowserRouter([

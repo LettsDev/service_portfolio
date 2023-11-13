@@ -1,5 +1,5 @@
 import { add, isBefore, isSameDay } from "date-fns";
-import { IService, IServiceEventException, IDateItem } from "../types";
+import { IServiceEventException, IDateItem, IServiceDated } from "../types";
 import {
   createEmptyDateItems,
   withinRange,
@@ -11,10 +11,10 @@ import {
   lowerCalendarWeekOverlap,
   upperCalendarWeekOverlap,
 } from "../utils/calendarUtils";
-
+import { IsoToDate } from "../utils/dateConversion";
 export default function useCalendarEvents() {
   function processService(
-    service: IService,
+    service: IServiceDated,
     lowerDateRange: Date,
     upperDateRange: Date,
     serviceEventExceptions: IServiceEventException[]
@@ -48,24 +48,18 @@ export default function useCalendarEvents() {
           return [];
         }
         //no valid exception event
-        if (
-          withinRange(
-            new Date(service.start_date),
-            lowerDateRange,
-            upperDateRange
-          )
-        ) {
+        if (withinRange(service.start_date, lowerDateRange, upperDateRange)) {
           console.log("service within range", service);
 
-          return [createEvent(service, new Date(service.start_date))];
+          return [createEvent(service, service.start_date)];
         }
         return [];
 
       case "DAILY":
         for (
-          let date = new Date(service.start_date);
-          isBefore(date, new Date(service.completion_date)) ||
-          isSameDay(date, new Date(service.completion_date));
+          let date = service.start_date;
+          isBefore(date, service.completion_date) ||
+          isSameDay(date, service.completion_date);
           date = add(date, { days: service.interval })
         ) {
           //does the date occur during the time range?
@@ -74,7 +68,7 @@ export default function useCalendarEvents() {
             if (eventExceptionsFilteredByService.length > 0) {
               const index = eventExceptionsFilteredByService.findIndex(
                 (eventException) =>
-                  isSameDay(new Date(eventException.start_date), date) &&
+                  isSameDay(IsoToDate(eventException.start_date), date) &&
                   withinRange(
                     new Date(eventException.exception_date),
                     lowerDateRange,
@@ -95,17 +89,13 @@ export default function useCalendarEvents() {
 
       case "WEEKLY":
         for (
-          let date = getWeeklyStartDate(
-            new Date(service.start_date),
-            service.interval
-          );
-          isBefore(date, new Date(service.completion_date)) ||
-          isSameDay(date, new Date(service.completion_date));
+          let date = getWeeklyStartDate(service.start_date, service.interval);
+          isBefore(date, service.completion_date) ||
+          isSameDay(date, service.completion_date);
           date = add(date, { weeks: 1 })
         ) {
           //does the date occur during the time range?
           if (withinRange(date, lowerDateRange, upperDateRange)) {
-            console.log("date UTC day", date.getUTCDate());
             //we have event exceptions for this service
             if (eventExceptionsFilteredByService.length > 0) {
               const index = eventExceptionsFilteredByService.findIndex(
@@ -130,12 +120,9 @@ export default function useCalendarEvents() {
         return events;
       case "MONTHLY":
         for (
-          let date = getMonthlyStartDate(
-            new Date(service.start_date),
-            service.interval
-          );
-          isBefore(date, new Date(service.completion_date)) ||
-          isSameDay(date, new Date(service.completion_date));
+          let date = getMonthlyStartDate(service.start_date, service.interval);
+          isBefore(date, service.completion_date) ||
+          isSameDay(date, service.completion_date);
           date = add(date, { months: 1 })
         ) {
           //does the date occur during the time range?
@@ -164,12 +151,9 @@ export default function useCalendarEvents() {
         return events;
       case "ANNUALLY":
         for (
-          let date = getAnnuallyStartDate(
-            new Date(service.start_date),
-            service.interval
-          );
-          isBefore(date, new Date(service.completion_date)) ||
-          isSameDay(date, new Date(service.completion_date));
+          let date = getAnnuallyStartDate(service.start_date, service.interval);
+          isBefore(date, service.completion_date) ||
+          isSameDay(date, service.completion_date);
           date = add(date, { months: 1 })
         ) {
           const eventException = filterEventsByRange(
@@ -194,7 +178,7 @@ export default function useCalendarEvents() {
   function createEvents(
     lowerDateRange: Date,
     upperDateRange: Date,
-    services: IService[],
+    services: IServiceDated[],
     serviceEventExceptions: IServiceEventException[]
   ) {
     //steps
@@ -231,7 +215,7 @@ export default function useCalendarEvents() {
       "services from outside Date Range: ",
       servicesFromOutsideDateRange
     );
-    //parse events and match with dateItems
+    //parsing events to match with dateItems
     events.forEach((evnt) => {
       const foundDateItemIndex = dateItems.findIndex((dateItem) => {
         const dateItemDate = dateItem.date;
@@ -253,7 +237,7 @@ export default function useCalendarEvents() {
 
   function createDateItems(
     selectedDate: Date,
-    services: IService[],
+    services: IServiceDated[],
     serviceEventExceptions: IServiceEventException[]
   ): IDateItem[] {
     const lowerDateRange = new Date(
@@ -266,7 +250,7 @@ export default function useCalendarEvents() {
       selectedDate.getMonth() + 1,
       0
     );
-    //these are the date items that are from other months that are still included in the displayed calendar
+    // date items that are from other months that are still included in the displayed calendar
     const lowerFill = lowerCalendarWeekOverlap(lowerDateRange);
     const upperFill = upperCalendarWeekOverlap(upperDateRange);
 

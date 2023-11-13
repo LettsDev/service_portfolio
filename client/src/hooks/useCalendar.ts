@@ -3,10 +3,7 @@ import { IService, IServiceEventException, IDateItem } from "../types";
 import fetchWithCatch from "../utils/fetchWithCatch";
 import { startOfMonth, endOfMonth } from "date-fns";
 import { useLoaderData } from "react-router-dom";
-import {
-  convertFromDateToIsoString,
-  getUtcEquivalent,
-} from "../utils/dateConversion";
+import { getUtcEquivalent, toIServiceDated } from "../utils/dateConversion";
 
 import useCalendarEvents from "./useCalendarEvents";
 export default function useCalendar() {
@@ -23,7 +20,7 @@ export default function useCalendar() {
   useEffect(() => {
     const dates = createDateItems(
       selectedDate,
-      initialServices,
+      initialServices.map((service) => toIServiceDated(service)),
       initialEventExceptions
     );
     setDateItems(dates);
@@ -40,6 +37,9 @@ export default function useCalendar() {
         url: `service/${start}/${end}`,
         method: "get",
       });
+      const refreshedDatedServices = refreshedServices.map((service) =>
+        toIServiceDated(service)
+      );
       const refreshedServiceEvents = await fetchWithCatch<
         IServiceEventException[]
       >({
@@ -49,24 +49,20 @@ export default function useCalendar() {
         url: `serviceEvent/${start}/${end}`,
         method: "get",
       });
-      return { refreshedServices, refreshedServiceEvents };
+
+      const dates = createDateItems(
+        selectedDate,
+        refreshedDatedServices,
+        refreshedServiceEvents
+      );
+      setDateItems(dates);
+      console.log(dates);
     }
-    //will only make and API call if the user changes the month
     if (previousSelectedMonthRef.current === selectedDate.getMonth()) {
       return;
     }
     previousSelectedMonthRef.current = selectedDate.getMonth();
-    fetchServicesAndEventExceptions(selectedDate).then(
-      ({ refreshedServices, refreshedServiceEvents }) => {
-        const dates = createDateItems(
-          selectedDate,
-          refreshedServices,
-          refreshedServiceEvents
-        );
-        setDateItems(dates);
-        console.log(dates);
-      }
-    );
+    fetchServicesAndEventExceptions(selectedDate);
   }, [selectedDate, createDateItems]);
 
   return { selectedDate, setSelectedDate, dateItems };

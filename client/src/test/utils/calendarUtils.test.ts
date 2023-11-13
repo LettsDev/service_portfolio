@@ -3,8 +3,8 @@ import { subDays, addDays } from "date-fns";
 import { IServiceEventException } from "../../types";
 import {
   createDateItem,
-  previousCalendarOverlap,
-  nextMonthsDateCalendarOverlap,
+  lowerCalendarWeekOverlap,
+  upperCalendarWeekOverlap,
   createEmptyDateItems,
   withinRange,
   getWeeklyStartDate,
@@ -13,7 +13,7 @@ import {
   filterEventsByRange,
   createEvent,
 } from "../../utils/calendarUtils"; // Import the functions from your code file
-
+import { toIServiceDated } from "../../utils/dateConversion";
 const baseEvents: IServiceEventException[] = [
   {
     _id: "1",
@@ -181,70 +181,64 @@ describe("Date Utility Functions", () => {
       expect(dateItem.events).toEqual(baseEvents);
     });
   });
-  describe("previousCalendarOverlap function", () => {
+  describe("lowerCalendarWeekOverlap function", () => {
     it("returns an empty array when the week starts on Sunday (weekIndex is 0)", () => {
-      const lowerDateRange = new Date("2023-10-01"); // A Sundy
-      const result = previousCalendarOverlap(lowerDateRange);
+      const lowerDateRange = new Date(2023, 9, 1); // A Sunday
+      const result = lowerCalendarWeekOverlap(lowerDateRange);
 
       expect(result).toEqual([]); // Expect an empty array
     });
 
     it("returns an array of date items for the previous days in the same week", () => {
-      const lowerDateRange = new Date("2023-10-04"); // A Wednesday which is index3
+      const lowerDateRange = new Date(2023, 9, 4); // A Wednesday which is index3
       const expectedDateItems = [
         createDateItem(subDays(lowerDateRange, 3)), // Previous Sunday
         createDateItem(subDays(lowerDateRange, 2)), // Previous Monday
         createDateItem(subDays(lowerDateRange, 1)), // Previous Tuesday
       ];
 
-      const result = previousCalendarOverlap(lowerDateRange);
+      const result = lowerCalendarWeekOverlap(lowerDateRange);
 
       expect(result).toEqual(expectedDateItems);
     });
 
     it("returns an empty array when lowerDateRange is a specific date", () => {
-      const lowerDateRange = new Date("2023-10-15"); // A specific date (e.g., Saturda)
-      const result = previousCalendarOverlap(lowerDateRange);
+      const lowerDateRange = new Date(2023, 9, 15); // A specific date (e.g., Saturday)
+      const result = lowerCalendarWeekOverlap(lowerDateRange);
 
       expect(result).toEqual([]); // Expect an empty array
     });
   });
-  describe("nextCalendarOverlap function", () => {
+  describe("upperCalendarOverlap function", () => {
     it("returns an empty array when the week starts on Saturday (weekIndex is 6)", () => {
-      const upperDateRange = new Date("2023-10-07"); // A Saturdy
-      const result = nextMonthsDateCalendarOverlap(upperDateRange);
+      const upperDateRange = new Date(2023, 9, 7); // A Saturday
+      const result = upperCalendarWeekOverlap(upperDateRange);
 
       expect(result).toEqual([]); // Expect an empty array
     });
 
-    it("returns an array of date items for the next days in the same week (week starts on Sunday)", () => {
-      const upperDateRange = new Date("2023-10-03"); // A Tuesday which index is2
+    it("returns an array of date items for the next days in the same week", () => {
+      const upperDateRange = new Date(2023, 9, 3); // A Tuesday which index is 2
       const expectedDateItems = [
-        createDateItem(addDays(upperDateRange, 0)), // Same Tuesday
         createDateItem(addDays(upperDateRange, 1)), // Next Wednesday
         createDateItem(addDays(upperDateRange, 2)), // Next Thursday
         createDateItem(addDays(upperDateRange, 3)), // Next Friday
         createDateItem(addDays(upperDateRange, 4)), // Next Saturday
-        createDateItem(addDays(upperDateRange, 5)), // Next Sunday
       ];
 
-      const result = nextMonthsDateCalendarOverlap(upperDateRange);
-
+      const result = upperCalendarWeekOverlap(upperDateRange);
       expect(result).toEqual(expectedDateItems);
     });
 
-    it("returns an array of date items for the next days in the same week (week starts on Monday)", () => {
-      const upperDateRange = new Date("2023-10-04"); // A Wednesday which is index3
+    it("returns an array of date items for the next days in the same week", () => {
+      const upperDateRange = new Date(2023, 9, 4); // A Wednesday which is index3
       const expectedDateItems = [
-        createDateItem(addDays(upperDateRange, 0)), // Same Wednesday
         createDateItem(addDays(upperDateRange, 1)), // Next Thursday
         createDateItem(addDays(upperDateRange, 2)), // Next Friday
         createDateItem(addDays(upperDateRange, 3)), // Next Saturday
-        createDateItem(addDays(upperDateRange, 4)), // Next Sunday
-        createDateItem(addDays(upperDateRange, 5)), // Next Monday
       ];
 
-      const result = nextMonthsDateCalendarOverlap(upperDateRange);
+      const result = upperCalendarWeekOverlap(upperDateRange);
 
       expect(result).toEqual(expectedDateItems);
     });
@@ -252,8 +246,8 @@ describe("Date Utility Functions", () => {
 
   describe("createEmptyDateItems function", () => {
     it("throws an error when the lowerDateRange is after the upperDateRange", () => {
-      const lowerDateRange = new Date("2023-10-15"); // A later dae
-      const upperDateRange = new Date("2023-10-10"); // An earlier dae
+      const lowerDateRange = new Date(2023, 9, 15); // A later dae
+      const upperDateRange = new Date(2023, 9, 10); // An earlier dae
 
       // Use a function to catch the error
       const createEmptyDateItemsWithError = () => {
@@ -266,8 +260,8 @@ describe("Date Utility Functions", () => {
     });
 
     it("returns an array of date items for a valid date range", () => {
-      const lowerDateRange = new Date("2023-10-01"); // Start dae
-      const upperDateRange = new Date("2023-10-05"); // End dae
+      const lowerDateRange = new Date(2023, 9, 1); // Start dae
+      const upperDateRange = new Date(2023, 9, 5); // End dae
       const expectedDateItems = [
         createDateItem(lowerDateRange),
         createDateItem(addDays(lowerDateRange, 1)),
@@ -282,8 +276,8 @@ describe("Date Utility Functions", () => {
     });
 
     it("returns an empty array when the date range is a single day", () => {
-      const lowerDateRange = new Date("2023-10-10");
-      const upperDateRange = new Date("2023-10-10");
+      const lowerDateRange = new Date(2023, 9, 10);
+      const upperDateRange = new Date(2023, 9, 10);
       const result = createEmptyDateItems(lowerDateRange, upperDateRange);
 
       expect(result).toEqual([]); // Expect an empty array
@@ -293,8 +287,8 @@ describe("Date Utility Functions", () => {
   describe("withinRange", () => {
     it("returns true for a date within the date range", () => {
       const date = new Date("2023-10-15");
-      const lowerDateRange = new Date("2023-10-10");
-      const upperDateRange = new Date("2023-10-20");
+      const lowerDateRange = new Date(2023, 9, 10);
+      const upperDateRange = new Date(2023, 9, 20);
 
       const result = withinRange(date, lowerDateRange, upperDateRange);
 
@@ -302,9 +296,9 @@ describe("Date Utility Functions", () => {
     });
 
     it("returns true for a date equal to the lower date range", () => {
-      const date = new Date("2023-10-10"); // Equal to lowerDateRane
-      const lowerDateRange = new Date("2023-10-10");
-      const upperDateRange = new Date("2023-10-20");
+      const date = new Date(2023, 9, 10); // Equal to lowerDateRane
+      const lowerDateRange = new Date(2023, 9, 10);
+      const upperDateRange = new Date(2023, 9, 20);
 
       const result = withinRange(date, lowerDateRange, upperDateRange);
 
@@ -312,9 +306,9 @@ describe("Date Utility Functions", () => {
     });
 
     it("returns true for a date equal to the upper date range", () => {
-      const date = new Date("2023-10-20"); // Equal to upperDateRane
-      const lowerDateRange = new Date("2023-10-10");
-      const upperDateRange = new Date("2023-10-20");
+      const date = new Date(2023, 9, 20); // Equal to upperDateRane
+      const lowerDateRange = new Date(2023, 9, 10);
+      const upperDateRange = new Date(2023, 9, 20);
 
       const result = withinRange(date, lowerDateRange, upperDateRange);
 
@@ -323,8 +317,8 @@ describe("Date Utility Functions", () => {
 
     it("returns false for a date outside the date range", () => {
       const date = new Date("2023-10-05"); // Outside the date rane
-      const lowerDateRange = new Date("2023-10-10");
-      const upperDateRange = new Date("2023-10-20");
+      const lowerDateRange = new Date(2023, 9, 10);
+      const upperDateRange = new Date(2023, 9, 20);
 
       const result = withinRange(date, lowerDateRange, upperDateRange);
 
@@ -333,7 +327,7 @@ describe("Date Utility Functions", () => {
   });
   describe("getWeeklyStartDate", () => {
     it("returns the same start_date when the day of the week interval matches", () => {
-      const start_date = new Date("2023-10-20"); // A Friday
+      const start_date = new Date(2023, 9, 20); // A Friday
       const interval = 5; // Friday
 
       const result = getWeeklyStartDate(start_date, interval);
@@ -341,10 +335,11 @@ describe("Date Utility Functions", () => {
       expect(result).toEqual(start_date); // Expect the same start_date
     });
 
-    it("returns the next week start_date when the day of the week interval does not match", () => {
-      const start_date = new Date("2023-10-20"); // A Friday
+    it("returns the same week start_date when the day of the week interval does not match", () => {
+      const start_date = new Date(2023, 9, 20); // A Friday
+      console.log(start_date.getDay());
       const interval = 2; // Tuesday
-      const expectedStartDate = new Date("2023-10-24"); // Next Tuesdy
+      const expectedStartDate = new Date(2023, 9, 17); // same Tuesday
 
       const result = getWeeklyStartDate(start_date, interval);
 
@@ -352,13 +347,13 @@ describe("Date Utility Functions", () => {
     });
 
     it("handles yearly changeover correctly", () => {
-      const start_date = new Date("2023-12-31"); // UTC time, a Sunday
-      const interval = 5; // Sunday
+      const start_date = new Date(2023, 11, 31); //  a Sunday
+      const interval = 5; // Friday
 
       const result = getWeeklyStartDate(start_date, interval);
 
       // The result should be the first Friday of the next year, which is '2024-01-05'
-      const expectedDate = new Date("2024-01-05");
+      const expectedDate = new Date(2024, 0, 5);
 
       expect(result.toISOString()).toBe(expectedDate.toISOString());
     });
@@ -366,7 +361,7 @@ describe("Date Utility Functions", () => {
 
   describe("getMonthlyStartDate", () => {
     it("returns the same start_date when the date interval matches", () => {
-      const start_date = new Date("2023-10-15");
+      const start_date = new Date(2023, 9, 15);
       const interval = 15; // The same day of the month
 
       const result = getMonthlyStartDate(start_date, interval);
@@ -374,24 +369,26 @@ describe("Date Utility Functions", () => {
       expect(result).toEqual(start_date); // Expect the same start_date
     });
 
-    it("returns the next month start_date when the date interval is smaller", () => {
-      const start_date = new Date("2023-10-26");
+    it("returns the same month start_date when the date interval is smaller", () => {
+      //same month as when a service is created the user sets the starting month. Se regardless of whenever they choose their start date. We only get the month from then and use the interval as the Date.
+      const start_date = new Date(2023, 9, 26);
       const interval = 25; // A day earlier in the month
-      const expectedStartDate = new Date("2023-11-25");
+      const expectedStartDate = new Date(2023, 9, 25);
 
       const result = getMonthlyStartDate(start_date, interval);
 
-      expect(result).toEqual(expectedStartDate); // Expect the start_date of the next month
+      expect(result).toEqual(expectedStartDate); // Expect the start_date of the same month
     });
 
     it("handles next month with fewer days", () => {
-      const start_date = new Date("2023-01-31"); // January 31, 2023
+      //in this case it will switch to the next month
+      const start_date = new Date(2023, 1, 15); // Feb 15, 2023
       const interval = 30; // Attempting to set to the 30th day (which doesn't exist in February)
 
       const result = getMonthlyStartDate(start_date, interval);
 
       // The result should be adjusted to February 28 (in a non-leap year)
-      const expectedDate = new Date("2023-02-28");
+      const expectedDate = new Date(2023, 1, 28);
 
       expect(result.toISOString()).toBe(expectedDate.toISOString());
     });
@@ -407,22 +404,22 @@ describe("Date Utility Functions", () => {
       expect(result).toEqual(start_date); // Expect the same start_date
     });
 
-    it("returns the next year start_date when the day of the year interval is smaller and is a leap year", () => {
-      const start_date = new Date("2023-10-20");
+    it("returns the same year start_date when the day of the year interval is smaller and is a leap year", () => {
+      const start_date = new Date(2024, 9, 20);
       const interval = 292; // A day earlier in the year
-      const expectedStartDate = new Date("2024-10-19");
+      const expectedStartDate = new Date(2024, 9, 19);
 
       const result = getAnnuallyStartDate(start_date, interval);
 
-      expect(result).toEqual(expectedStartDate); // Expect the start_date of the next year
+      expect(result).toEqual(expectedStartDate);
     });
   });
 
   describe("filterEventsByRange", () => {
     it("returns the event that matches the date range", () => {
       const date = new Date("2023-10-15");
-      const lowerDateRange = new Date("2023-10-10");
-      const upperDateRange = new Date("2023-10-20");
+      const lowerDateRange = new Date(2023, 9, 10);
+      const upperDateRange = new Date(2023, 9, 20);
       const event = baseEvents[0];
 
       const eventsByService = [event];
@@ -436,11 +433,11 @@ describe("Date Utility Functions", () => {
       expect(result).toEqual(event); // Expect the event within the date range
     });
 
-    it("returns undefined for events outside the date range", () => {
-      const date = new Date("2023-10-05"); // Outside the date range
-      const lowerDateRange = new Date("2023-10-10");
-      const upperDateRange = new Date("2023-10-20");
-      const event = createEvent({} as any, date);
+    it("returns null for events outside the date range", () => {
+      const date = new Date(2023, 9, 5); // Outside the date range
+      const lowerDateRange = new Date(2023, 9, 10);
+      const upperDateRange = new Date(2023, 9, 20);
+      const event = createEvent(toIServiceDated(baseEvents[0].service), date);
 
       const eventsByService = [event];
       const result = filterEventsByRange(
@@ -450,7 +447,7 @@ describe("Date Utility Functions", () => {
         upperDateRange
       );
 
-      expect(result).toBeUndefined(); // Expect undefined for events outside the date range
+      expect(result).toBeNull(); // Expect undefined for events outside the date range
     });
   });
 });

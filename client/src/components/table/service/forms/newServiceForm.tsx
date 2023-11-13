@@ -341,7 +341,7 @@ export default function NewServiceForm() {
             )}
           </label>
         </div>
-        {/* ************************* startDate Month************************* */}
+        {/* ************************* startDate Month ************************* */}
         <div
           className={` ${
             watchFrequency === "MONTHLY"

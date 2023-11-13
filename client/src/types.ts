@@ -46,6 +46,12 @@ export interface IService extends IResponseBase {
   frequency: "ONCE" | "DAILY" | "WEEKLY" | "MONTHLY" | "ANNUALLY";
 }
 
+export interface IServiceDated
+  extends Omit<IService, "start_date" | "completion_date"> {
+  start_date: Date;
+  completion_date: Date;
+}
+
 export interface IServiceSubmit
   extends Pick<
     IService,
@@ -74,6 +80,11 @@ export interface IServiceEventException extends IResponseBase {
   created_by: IUser;
 }
 
+export interface IServiceEventExceptionDated
+  extends Omit<IServiceEventException, "start_date" | "exception_date"> {
+  start_date: Date;
+  exception_date: Date;
+}
 export interface ISessionResponse extends IResponseBase {
   user: string;
   valid: boolean;

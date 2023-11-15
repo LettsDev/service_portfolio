@@ -5,14 +5,15 @@ import {
   addDays,
   isSameWeek,
   isSameMonth,
-  setDay,
   set,
   getDayOfYear,
-  setDayOfYear,
 } from "date-fns";
-import { formatDateWithLocalTime } from "../utils/formUtils";
 import { IService } from "../types";
-import { getWeeklyStartDate } from "../utils/calendarUtils";
+import {
+  getAnnuallyStartDate,
+  getWeeklyStartDate,
+} from "../utils/calendarUtils";
+import { dateToIso, fromDatePickerToDate } from "../utils/dateConversion";
 
 export const serviceSchema = z
   .object({
@@ -96,16 +97,6 @@ export const serviceSchema = z
             path: ["startDate"],
           });
         }
-        //removed due to editing past events
-        // const startTime = formatDateWithLocalTime(startDate!);
-        // const now = new Date();
-        // if (!isBefore(now, startTime) && !isSameDay(now, startTime)) {
-        //   ctx.addIssue({
-        //     code: z.ZodIssueCode.custom,
-        //     message: `the date has to be at least: ${new Date().toLocaleDateString()}`,
-        //     path: ["startDate"],
-        //   });
-        // }
       }
 
       if (frequency === "DAILY") {
@@ -130,9 +121,9 @@ export const serviceSchema = z
             path: ["completionDate"],
           });
         }
-        const completionTime = formatDateWithLocalTime(completionDate!);
+        const completionTime = fromDatePickerToDate(completionDate!);
         const leastFuture = addDays(
-          formatDateWithLocalTime(startDate!),
+          fromDatePickerToDate(startDate!),
           +dailyInterval! + 1
         );
         if (completionTime! < leastFuture) {
@@ -269,14 +260,6 @@ export const serviceSchema = z
             path: ["annualStartDate"],
           });
         }
-        //removed due to editing an older service
-        // if (+annualStartDate! < new Date().getFullYear()) {
-        //   ctx.addIssue({
-        //     code: z.ZodIssueCode.custom,
-        //     message: `the start year must be at least ${new Date().getFullYear()}`,
-        //     path: ["annualStartDate"],
-        //   });
-        // }
 
         if (!annualCompletionDate || +annualCompletionDate === 0) {
           ctx.addIssue({
@@ -285,15 +268,7 @@ export const serviceSchema = z
             path: ["annualCompletionDate"],
           });
         }
-        // if (+annualCompletionDate! < new Date().getFullYear() + 1) {
-        //   ctx.addIssue({
-        //     code: z.ZodIssueCode.custom,
-        //     message: `the start year must be at least ${
-        //       new Date().getFullYear() + 1
-        //     }`,
-        //     path: ["annualCompletionDate"],
-        //   });
-        // }
+
         if (+annualCompletionDate! < +annualStartDate!) {
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
@@ -329,14 +304,18 @@ export const serviceSchema = z
       // If type = 'Monthly' then 1 through 31 for day of the month
       // If type = 'Annually' then 1 through 365 for day of the year
 
-      const trueWeeklyStartDate = getWeeklyStartDate(
-        new Date(weeklyStartDate!),
-        +weeklyInterval!
-      ).toISOString();
-      const trueWeeklyCompletionDate = getWeeklyStartDate(
-        new Date(weeklyCompletionDate!),
-        +weeklyInterval!
-      ).toISOString();
+      const trueWeeklyStartDate = dateToIso(
+        getWeeklyStartDate(
+          fromDatePickerToDate(weeklyStartDate!),
+          +weeklyInterval!
+        )
+      );
+      const trueWeeklyCompletionDate = dateToIso(
+        getWeeklyStartDate(
+          fromDatePickerToDate(weeklyCompletionDate!),
+          +weeklyInterval!
+        )
+      );
 
       //Monthly -> the starting and completion dates occur on the interval (day of the month)
       //if interval is beyond the scope of the month chosen -> will move to end of month when calculating i.e interval of 31 in November when it only has 30 days
@@ -355,12 +334,13 @@ export const serviceSchema = z
           : monthlyCompletionDate!;
       //Annually -> need to create start date, completion date and interval
       const trueAnnualInterval = getDayOfYear(new Date(annualInterval!)) + 1;
-      const trueAnnualStartDate = setDayOfYear(
-        new Date(+annualStartDate!, 0, 1),
+      const trueAnnualStartDate = getAnnuallyStartDate(
+        new Date(+annualStartDate!, 1, 1),
         trueAnnualInterval
       ).toString();
-      const trueAnnualCompletionDate = setDayOfYear(
-        new Date(+annualCompletionDate!, 0, 1),
+
+      const trueAnnualCompletionDate = getAnnuallyStartDate(
+        new Date(+annualCompletionDate!, 1, 1),
         trueAnnualInterval
       ).toString();
       return {

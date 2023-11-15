@@ -1,9 +1,18 @@
 import { useState, useEffect, useRef } from "react";
-import { IService, IServiceEventException, IDateItem } from "../types";
+import {
+  IService,
+  IServiceEventException,
+  IDateItem,
+  IServiceEventExceptionSubmit,
+} from "../types";
 import fetchWithCatch from "../utils/fetchWithCatch";
-import { startOfMonth, endOfMonth } from "date-fns";
+import { startOfMonth, endOfMonth, isSameDay } from "date-fns";
 import { useLoaderData } from "react-router-dom";
-import { getUtcEquivalent, toIServiceDated } from "../utils/dateConversion";
+import {
+  IsoToDate,
+  getUtcEquivalent,
+  toIServiceDated,
+} from "../utils/dateConversion";
 
 import useCalendarEvents from "./useCalendarEvents";
 export default function useCalendar() {
@@ -12,11 +21,11 @@ export default function useCalendar() {
     initialServices: IService[];
     initialEventExceptions: IServiceEventException[];
   };
-  const previousSelectedMonthRef = useRef(0);
+  const previousSelectedMonthRef = useRef({ month: 0, year: 0 });
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [dateItems, setDateItems] = useState<IDateItem[]>([]);
   const { createDateItems } = useCalendarEvents();
-
+  const [loading, setLoading] = useState(false);
   useEffect(() => {
     const dates = createDateItems(
       selectedDate,
@@ -58,12 +67,66 @@ export default function useCalendar() {
       setDateItems(dates);
       console.log(dates);
     }
-    if (previousSelectedMonthRef.current === selectedDate.getMonth()) {
+    if (
+      previousSelectedMonthRef.current.month === selectedDate.getMonth() &&
+      previousSelectedMonthRef.current.year === selectedDate.getFullYear()
+    ) {
       return;
     }
-    previousSelectedMonthRef.current = selectedDate.getMonth();
+    previousSelectedMonthRef.current.month = selectedDate.getMonth();
+    previousSelectedMonthRef.current.year = selectedDate.getFullYear();
+
     fetchServicesAndEventExceptions(selectedDate);
   }, [selectedDate, createDateItems]);
 
-  return { selectedDate, setSelectedDate, dateItems };
+  async function rescheduleEvent(
+    editedExceptionEvent: IServiceEventException,
+    originalEventDate: Date
+  ) {
+    setLoading(true);
+    const { _id, ...sanitizedEvent } = editedExceptionEvent;
+    const submittedEditedEventException: IServiceEventExceptionSubmit = {
+      ...sanitizedEvent,
+      created_by: editedExceptionEvent.created_by._id,
+      service: editedExceptionEvent.service._id,
+    };
+    const editedEvent = await fetchWithCatch<IServiceEventException>({
+      url: "/serviceEvent",
+      method: "post",
+      data: submittedEditedEventException,
+    });
+
+    const dateItemIndex = dateItems.findIndex((dateItem) =>
+      isSameDay(dateItem.date, originalEventDate)
+    );
+    const eventIndex = dateItems[dateItemIndex].events.findIndex(
+      (eventException) => eventException._id === editedExceptionEvent._id
+    );
+    const editedDateItems = dateItems;
+    //remove the old event
+    editedDateItems[dateItemIndex].events.splice(eventIndex, 1);
+    const movedToDateIndex = editedDateItems.findIndex((dateItem) =>
+      isSameDay(
+        dateItem.date,
+        IsoToDate(submittedEditedEventException.exception_date)
+      )
+    );
+    editedDateItems[movedToDateIndex].events.push(editedEvent);
+    setDateItems(editedDateItems);
+    setLoading(false);
+  }
+
+  async function cancelEvent(cancelledExceptionEvent: IServiceEventException) {
+    setLoading(true);
+    setLoading(false);
+  }
+
+  return {
+    selectedDate,
+    setSelectedDate,
+    dateItems,
+    loading,
+    rescheduleEvent,
+    cancelEvent,
+  };
 }

@@ -22,7 +22,8 @@ export default function Cell({
           : ""
       } ${
         dateItem.date.getDate() === new Date().getDate() &&
-        dateItem.date.getMonth() === new Date().getMonth()
+        dateItem.date.getMonth() === new Date().getMonth() &&
+        dateItem.date.getFullYear() === new Date().getFullYear()
           ? "font-bold"
           : ""
       } `}

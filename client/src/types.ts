@@ -85,6 +85,12 @@ export interface IServiceEventExceptionDated
   start_date: Date;
   exception_date: Date;
 }
+
+export interface IServiceEventExceptionSubmit
+  extends Omit<IServiceEventException, "service" | "created_by" | "_id"> {
+  service: string;
+  created_by: string;
+}
 export interface ISessionResponse extends IResponseBase {
   user: string;
   valid: boolean;

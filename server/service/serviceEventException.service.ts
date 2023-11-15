@@ -6,9 +6,7 @@ import { CreateServiceEventInput } from "../schema/serviceEventException.schema"
 export async function createServiceEventException(
   input: CreateServiceEventInput
 ) {
-  return (
-    await (await ServiceEventException.create(input.body)).populate("service")
-  ).populate("created_by");
+  return ServiceEventException.create(input.body);
 }
 
 export async function updateServiceEventException(

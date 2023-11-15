@@ -1,13 +1,20 @@
 import { FaArrowRight, FaArrowLeft } from "react-icons/fa6";
 import { format, addMonths, subMonths } from "date-fns";
 import useCalendar from "../../hooks/useCalendar";
-import { IDateItem } from "../../types";
+import { IDateItem, IServiceEventException } from "../../types";
 import Cell from "../../components/calendar/cell";
 import Agenda from "../../components/calendar/agenda";
-import { Outlet } from "react-router-dom";
+import { Outlet, useOutletContext } from "react-router-dom";
 export default function Calendar() {
   const dayLabels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-  const { selectedDate, setSelectedDate, dateItems } = useCalendar();
+  const {
+    selectedDate,
+    setSelectedDate,
+    dateItems,
+    loading,
+    rescheduleEvent,
+    cancelEvent,
+  } = useCalendar();
 
   const CreateMonthElements = ({
     dateItems,
@@ -95,7 +102,19 @@ export default function Calendar() {
         </table>
         <Agenda dateItems={dateItems} selectedDate={selectedDate} />
       </div>
-      <Outlet />
+      <Outlet context={{ loading, rescheduleEvent, cancelEvent }} />
     </main>
   );
 }
+
+type ContextType = {
+  loading: boolean;
+  rescheduleEvent: (
+    editedExceptionEvent: IServiceEventException,
+    originalEventDate: Date
+  ) => Promise<void>;
+  cancelEvent: (cancelledEvent: IServiceEventException) => Promise<void>;
+};
+export const useCalendarContext = () => {
+  return useOutletContext<ContextType>();
+};

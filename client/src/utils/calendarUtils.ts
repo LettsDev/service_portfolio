@@ -47,11 +47,11 @@ export const formatServiceSchedule = ({
       return `${format(
         setDay(new Date(new Date().getFullYear(), 1, 1), interval),
         "cccc"
-      )}s, starting ${start_date
+      )}s, starting week of ${start_date
         .toString()
         .split(" ")
         .slice(0, 4)
-        .join(" ")} till ${completion_date
+        .join(" ")} till week of ${completion_date
         .toString()
         .split(" ")
         .slice(0, 4)
@@ -60,20 +60,15 @@ export const formatServiceSchedule = ({
       return `${format(
         new Date(`2023-1-${interval}`),
         "do"
-      )} of every month, starting ${start_date
-        .toString()
-        .split(" ")
-        .splice(0, 4)
-        .join(" ")} till ${completion_date
-        .toString()
-        .split(" ")
-        .splice(0, 4)
-        .join(" ")} `;
+      )} of every month, starting ${format(
+        start_date,
+        "LLLL,yyyy"
+      )} till ${format(completion_date, "LLLL, yyyy")} `;
     case "ANNUALLY":
       return `${format(
-        setDayOfYear(start_date, interval + 1),
-        "MMMM-do"
-      )}, starting ${start_date.getFullYear()} till ${completion_date.getFullYear()} `;
+        setDayOfYear(start_date, interval),
+        "MMMM,do"
+      )} starting ${start_date.getFullYear()} till ${completion_date.getFullYear()} `;
     default:
       break;
   }
@@ -184,7 +179,7 @@ export const withinRange = (
 };
 
 export const getWeeklyStartDate = (start_date: Date, interval: number) => {
-  // the start_date is setting the starting week
+  // the start_date is setting the starting week regardless if the starting date is in a different month
   const delta = interval - start_date.getDay();
 
   if (delta !== 0) {

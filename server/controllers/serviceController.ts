@@ -29,7 +29,7 @@ const serviceController = (() => {
         start_date: { $lte: formattedEnd },
         completion_date: { $gte: formattedStart },
       });
-      console.log("services: ", services);
+      // console.log("services: ", services);
       if (services.length === 0) {
         res.send([]);
         return;

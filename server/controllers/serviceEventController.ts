@@ -7,7 +7,7 @@ import {
   ServiceSearchServiceEventInput,
   GetEventExceptionByServiceAndStartInput,
 } from "../schema/serviceEventException.schema";
-
+import _ from "lodash";
 import {
   createServiceEventException,
   updateServiceEventException,
@@ -16,6 +16,7 @@ import {
   findServiceEventException,
 } from "../service/serviceEventException.service";
 import asyncWrapper from "../utils/asyncWrapper";
+import { IServiceEventException } from "../types";
 
 const serviceEventController = (() => {
   //creating an exception event to be stored
@@ -23,8 +24,55 @@ const serviceEventController = (() => {
     req: Request<{}, {}, CreateServiceEventInput["body"]>,
     res: Response
   ) {
-    const serviceEvent = await createServiceEventException(req);
-    return res.send(serviceEvent);
+    try {
+      const body = req.body;
+      // used
+      const existingEvent = await findServiceEventException({
+        service: body.service,
+        start_date: body.start_date,
+      });
+      if (existingEvent) {
+        const editedEvent = await updateServiceEventException(
+          existingEvent._id,
+          body,
+          {
+            lean: true,
+            populate: [
+              {
+                path: "service",
+                model: "Service",
+                populate: {
+                  path: "resource",
+                  model: "Resource",
+                  populate: { path: "location", model: "Location" },
+                },
+              },
+              { path: "created_by", model: "User" },
+            ],
+          }
+        );
+        return res.send(editedEvent);
+      }
+
+      let serviceEvent = await createServiceEventException({ body });
+      await serviceEvent.populate([
+        {
+          path: "service",
+          model: "Service",
+          populate: {
+            path: "resource",
+            model: "Resource",
+            populate: { path: "location", model: "Location" },
+          },
+        },
+        { path: "created_by", model: "User" },
+      ]);
+      // console.log("created Service Event: ", serviceEvent);
+      return res.send(serviceEvent);
+    } catch (error) {
+      console.error(error);
+      return res.send(error).sendStatus(500);
+    }
   }
 
   async function update(
@@ -80,7 +128,15 @@ const serviceEventController = (() => {
         {
           lean: true,
           populate: [
-            { path: "service", model: "Service" },
+            {
+              path: "service",
+              model: "Service",
+              populate: {
+                path: "resource",
+                model: "Resource",
+                populate: { path: "location", model: "Location" },
+              },
+            },
             { path: "created_by", model: "User" },
           ],
         }
@@ -109,7 +165,15 @@ const serviceEventController = (() => {
         {
           lean: true,
           populate: [
-            { path: "service", model: "Service" },
+            {
+              path: "service",
+              model: "Service",
+              populate: {
+                path: "resource",
+                model: "Resource",
+                populate: { path: "location", model: "Location" },
+              },
+            },
             { path: "created_by", model: "User" },
           ],
         }
@@ -121,19 +185,39 @@ const serviceEventController = (() => {
         {
           lean: true,
           populate: [
-            { path: "service", model: "Service" },
+            {
+              path: "service",
+              model: "Service",
+              populate: {
+                path: "resource",
+                model: "Resource",
+                populate: { path: "location", model: "Location" },
+              },
+            },
             { path: "created_by", model: "User" },
           ],
         }
       );
       const arr = [...eventsBasedOnServices, ...eventsBasedOnDateRange];
       // remove duplicates
-      const mergedArr = [...new Set(arr)];
+      //TODO duplicates are not being removed properly -> need to remove based on id as they are not true duplicates
+      const foundItems: typeof eventsBasedOnServices = [];
+      const mergedArr = arr.filter((eventException) => {
+        const index = foundItems.findIndex(
+          (item) => item.id === eventException.id
+        );
+        if (index === -1) {
+          foundItems.push(eventException);
+          return true;
+        }
+        return false;
+      });
       if (mergedArr.length === 0) {
         res.send([]);
         return;
       }
       res.send(mergedArr);
+      return;
     }
   );
 
@@ -170,7 +254,15 @@ const serviceEventController = (() => {
         {
           lean: true,
           populate: [
-            { path: "service", model: "Service" },
+            {
+              path: "service",
+              model: "Service",
+              populate: {
+                path: "resource",
+                model: "Resource",
+                populate: { path: "location", model: "Location" },
+              },
+            },
             { path: "created_by", model: "User" },
           ],
         }

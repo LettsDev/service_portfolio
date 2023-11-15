@@ -1,5 +1,5 @@
 import { IServiceSubmit } from "../types";
-import { convertFromDateToIsoString } from "./dateConversion";
+import { convertFromDateToIsoString, dateToIso } from "./dateConversion";
 
 type frequencyIntervalSwitcherProps = {
   frequency: IServiceSubmit["frequency"];
@@ -64,23 +64,11 @@ export function frequencyIntervalSwitcher({
       };
     case "ANNUALLY":
       return {
-        //TODO convert to day of the year
         interval: +intervals.annualInterval,
-        formattedStartDate: convertFromDateToIsoString(
-          new Date(startDates.annualStartDate)
-        ),
-        formattedCompletionDate: convertFromDateToIsoString(
+        formattedStartDate: dateToIso(new Date(startDates.annualStartDate)),
+        formattedCompletionDate: dateToIso(
           new Date(completionDates.annualCompletionDate)
         ),
       };
   }
-}
-
-export function formatDateWithLocalTime(startDate: string) {
-  const [year, month, day] = startDate!.split("-");
-  const startTime = new Date();
-  startTime.setFullYear(+year);
-  startTime.setMonth(+month - 1);
-  startTime.setDate(+day);
-  return startTime;
 }

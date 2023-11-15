@@ -61,6 +61,12 @@ export function daysIntoYear(date: Date) {
   return days;
 }
 
+export function fromDatePickerToDate(dateString: string) {
+  //dateString format yyyy-mm-dd
+  const [year, month, day] = dateString.split("-");
+  return new Date(+year, +month - 1, +day, 12);
+}
+
 export function dateIntoDays(numberOfDaysInterval: number, year: number) {
   const date = new Date(Date.UTC(year, 0, 1));
   date.setUTCDate(numberOfDaysInterval);

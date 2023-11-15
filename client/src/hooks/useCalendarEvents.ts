@@ -1,4 +1,4 @@
-import { add, isBefore, isSameDay } from "date-fns";
+import { add, isBefore, isSameDay, setDay } from "date-fns";
 import { IServiceEventException, IDateItem, IServiceDated } from "../types";
 import {
   createEmptyDateItems,
@@ -90,17 +90,17 @@ export default function useCalendarEvents() {
       case "WEEKLY":
         for (
           let date = getWeeklyStartDate(service.start_date, service.interval);
-          isBefore(date, service.completion_date) ||
-          isSameDay(date, service.completion_date);
+          isBefore(date, setDay(service.completion_date, 6)) ||
+          isSameDay(date, setDay(service.completion_date, 6));
           date = add(date, { weeks: 1 })
         ) {
-          //does the date occur during the time range?
           if (withinRange(date, lowerDateRange, upperDateRange)) {
-            //we have event exceptions for this service
+            //does the date occur during the time range?
             if (eventExceptionsFilteredByService.length > 0) {
+              //we have event exceptions for this service
               const index = eventExceptionsFilteredByService.findIndex(
                 (eventException) =>
-                  isSameDay(new Date(eventException.start_date), date) &&
+                  isSameDay(IsoToDate(eventException.start_date), date) &&
                   withinRange(
                     new Date(eventException.exception_date),
                     lowerDateRange,
@@ -113,7 +113,7 @@ export default function useCalendarEvents() {
                 continue;
               }
             }
-            //there are no event exceptions for this service OR there are event exceptions but none are from this date.
+            // there are no event exceptions  for this date.
             events.push(createEvent(service, date));
           }
         }
@@ -154,7 +154,7 @@ export default function useCalendarEvents() {
           let date = getAnnuallyStartDate(service.start_date, service.interval);
           isBefore(date, service.completion_date) ||
           isSameDay(date, service.completion_date);
-          date = add(date, { months: 1 })
+          date = add(date, { years: 1 })
         ) {
           const eventException = filterEventsByRange(
             eventExceptionsFilteredByService,
@@ -219,10 +219,10 @@ export default function useCalendarEvents() {
     events.forEach((evnt) => {
       const foundDateItemIndex = dateItems.findIndex((dateItem) => {
         const dateItemDate = dateItem.date;
-        const eventExceptionDate = new Date(evnt.exception_date);
+        const eventExceptionDate = IsoToDate(evnt.exception_date);
         return (
-          dateItemDate.getUTCDate() === eventExceptionDate.getUTCDate() &&
-          dateItemDate.getUTCMonth() === eventExceptionDate.getUTCMonth()
+          dateItemDate.getDate() === eventExceptionDate.getDate() &&
+          dateItemDate.getMonth() === eventExceptionDate.getMonth()
         );
       });
       if (foundDateItemIndex === -1) {
@@ -248,7 +248,8 @@ export default function useCalendarEvents() {
     const upperDateRange = new Date(
       selectedDate.getFullYear(),
       selectedDate.getMonth() + 1,
-      0
+      0,
+      23
     );
     // date items that are from other months that are still included in the displayed calendar
     const lowerFill = lowerCalendarWeekOverlap(lowerDateRange);

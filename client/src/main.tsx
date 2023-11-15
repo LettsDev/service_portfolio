@@ -256,8 +256,9 @@ const router = createBrowserRouter([
                 if (!service) {
                   throw Error("could not find service");
                 }
+                const datedService = toIServiceDated(service as IService);
                 const createdEvent = createEvent(
-                  service as IService,
+                  datedService,
                   new Date(params.start_date!)
                 );
                 return createdEvent;

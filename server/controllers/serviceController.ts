@@ -17,6 +17,7 @@ import {
   allServices,
   queryByResourceServices,
 } from "../service/service.service";
+import { deleteServiceExceptionEventsByService } from "../service/serviceEventException.service";
 
 const serviceController = (() => {
   const queryByDate = asyncWrapper(
@@ -57,6 +58,8 @@ const serviceController = (() => {
       }
 
       const removedService = await deleteService({ _id: id });
+      //remove event exceptions
+      await deleteServiceExceptionEventsByService({ service: service._id });
       res.send(removedService);
     }
   );

@@ -37,3 +37,10 @@ export async function findServiceEventException(
 ) {
   return ServiceEventException.findOne(query, {}, options);
 }
+
+export async function deleteServiceExceptionEventsByService(
+  query: FilterQuery<IServiceEventException>,
+  options: QueryOptions = { lean: true }
+) {
+  return ServiceEventException.deleteMany(query, options);
+}

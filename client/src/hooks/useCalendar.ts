@@ -10,6 +10,7 @@ import { startOfMonth, endOfMonth, isSameDay } from "date-fns";
 import { useLoaderData } from "react-router-dom";
 import {
   IsoToDate,
+  dateToIso,
   getUtcEquivalent,
   toIServiceDated,
 } from "../utils/dateConversion";
@@ -38,8 +39,8 @@ export default function useCalendar() {
   useEffect(() => {
     //When a user changes the month shown, the services that intersect the month and event exceptions are retrieved
     async function fetchServicesAndEventExceptions(newDate: Date) {
-      const start = getUtcEquivalent(startOfMonth(newDate)).toISOString();
-      const end = getUtcEquivalent(endOfMonth(newDate)).toISOString();
+      const start = dateToIso(startOfMonth(newDate));
+      const end = dateToIso(endOfMonth(newDate));
 
       const refreshedServices = await fetchWithCatch<IService[]>({
         //Services that are within the date range (start less than endDate & completion_date after start date)
@@ -75,8 +76,9 @@ export default function useCalendar() {
     }
     previousSelectedMonthRef.current.month = selectedDate.getMonth();
     previousSelectedMonthRef.current.year = selectedDate.getFullYear();
-
+    setLoading(true);
     fetchServicesAndEventExceptions(selectedDate);
+    setLoading(false);
   }, [selectedDate, createDateItems]);
 
   async function rescheduleEvent(
@@ -118,6 +120,32 @@ export default function useCalendar() {
 
   async function cancelEvent(cancelledExceptionEvent: IServiceEventException) {
     setLoading(true);
+    const { _id, ...sanitizedEvent } = cancelledExceptionEvent;
+    const submittedCancelledEventException: IServiceEventExceptionSubmit = {
+      ...sanitizedEvent,
+      created_by: cancelledExceptionEvent.created_by._id,
+      service: cancelledExceptionEvent.service._id,
+    };
+    const cancelledEvent = await fetchWithCatch<IServiceEventException>({
+      url: "/serviceEvent",
+      method: "post",
+      data: submittedCancelledEventException,
+    });
+    const editedDateItems = dateItems;
+    const dateItemIndex = dateItems.findIndex((dateItem) => {
+      return isSameDay(dateItem.date, IsoToDate(cancelledEvent.exception_date));
+    });
+    const eventIndex = dateItems[dateItemIndex].events.findIndex(
+      (exceptionEvent) =>
+        exceptionEvent.service._id === cancelledExceptionEvent.service._id &&
+        isSameDay(
+          IsoToDate(exceptionEvent.start_date),
+          IsoToDate(cancelledExceptionEvent.start_date)
+        )
+    );
+    editedDateItems[dateItemIndex].events[eventIndex].is_cancelled =
+      !dateItems[dateItemIndex].events[eventIndex].is_cancelled;
+    setDateItems(editedDateItems);
     setLoading(false);
   }
 

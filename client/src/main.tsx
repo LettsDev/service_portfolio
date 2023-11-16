@@ -37,11 +37,13 @@ import DeleteServiceForm from "./components/table/service/forms/deleteServiceFor
 import EditServiceForm from "./components/table/service/forms/editServiceForm.tsx";
 import { endOfMonth, startOfMonth } from "date-fns";
 import {
+  IsoToDate,
   convertFromDateToIsoString,
   toIServiceDated,
 } from "./utils/dateConversion.ts";
 import RescheduleForm from "./components/calendar/forms/rescheduleForm.tsx";
 import { createEvent } from "./utils/calendarUtils.ts";
+import CancelForm from "./components/calendar/forms/cancelForm.tsx";
 const router = createBrowserRouter([
   {
     element: <App />,
@@ -259,7 +261,7 @@ const router = createBrowserRouter([
                 const datedService = toIServiceDated(service as IService);
                 const createdEvent = createEvent(
                   datedService,
-                  new Date(params.start_date!)
+                  IsoToDate(params.start_date!)
                 );
                 return createdEvent;
               }
@@ -268,6 +270,38 @@ const router = createBrowserRouter([
             element: (
               <Modal showModal={true}>
                 <RescheduleForm />
+              </Modal>
+            ),
+          },
+          {
+            path: "cancel/:serviceId/:start_date",
+            loader: async ({ params }) => {
+              const event = await loaderWrapper<
+                IServiceEventException | undefined
+              >({
+                url: `serviceEvent/search/${params.serviceId}/${params.start_date}`,
+                method: "get",
+              });
+              if (!event) {
+                const service = await loaderWrapper<IService>({
+                  url: `service/${params.serviceId}`,
+                  method: "get",
+                });
+                if (!service) {
+                  throw Error("could not find service");
+                }
+                const datedService = toIServiceDated(service as IService);
+                const createdEvent = createEvent(
+                  datedService,
+                  IsoToDate(params.start_date!)
+                );
+                return createdEvent;
+              }
+              return event;
+            },
+            element: (
+              <Modal showModal={true}>
+                <CancelForm />
               </Modal>
             ),
           },

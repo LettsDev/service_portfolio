@@ -14,6 +14,7 @@ export default function Agenda({ dateItems, selectedDate }: AgendaProps) {
           <td>Resource</td>
           <td>Location</td>
           <td></td>
+          <td></td>
         </tr>
       </thead>
       <tbody>

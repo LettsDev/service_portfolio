@@ -67,7 +67,10 @@ const serviceEventController = (() => {
         },
         { path: "created_by", model: "User" },
       ]);
-      // console.log("created Service Event: ", serviceEvent);
+      console.log("created new event", serviceEvent);
+      // TODO have a check to see if the event has been reset and can be deleted
+      // - no longer rescheduled (start_date === exception_date)
+      // - no longer cancelled (but also not rescheduled)
       return res.send(serviceEvent);
     } catch (error) {
       console.error(error);
@@ -157,10 +160,13 @@ const serviceEventController = (() => {
 
       // 1. event exceptions for services that occur during the time period (start_date within period time)(which may or may not occur themselves during the period (exception_date))
       // 2. event exceptions that occur during the time period (exception_date within period)
-      const eventsBasedOnServices = await allServiceEventException(
+      const events = await allServiceEventException(
         //event exceptions that are from services which occur during the time period
         {
-          start_date: { $lte: end_date, $gte: start_date },
+          $or: [
+            { start_date: { $lte: end_date, $gte: start_date } },
+            { exception_date: { $gte: start_date, $lte: end_date } },
+          ],
         },
         {
           lean: true,
@@ -178,45 +184,11 @@ const serviceEventController = (() => {
           ],
         }
       );
-
-      const eventsBasedOnDateRange = await allServiceEventException(
-        // These are event exceptions that occur during the time period
-        { exception_date: { $gte: start_date, $lte: end_date } },
-        {
-          lean: true,
-          populate: [
-            {
-              path: "service",
-              model: "Service",
-              populate: {
-                path: "resource",
-                model: "Resource",
-                populate: { path: "location", model: "Location" },
-              },
-            },
-            { path: "created_by", model: "User" },
-          ],
-        }
-      );
-      const arr = [...eventsBasedOnServices, ...eventsBasedOnDateRange];
-      // remove duplicates
-      //TODO duplicates are not being removed properly -> need to remove based on id as they are not true duplicates
-      const foundItems: typeof eventsBasedOnServices = [];
-      const mergedArr = arr.filter((eventException) => {
-        const index = foundItems.findIndex(
-          (item) => item.id === eventException.id
-        );
-        if (index === -1) {
-          foundItems.push(eventException);
-          return true;
-        }
-        return false;
-      });
-      if (mergedArr.length === 0) {
+      if (events.length === 0) {
         res.send([]);
         return;
       }
-      res.send(mergedArr);
+      res.send(events);
       return;
     }
   );

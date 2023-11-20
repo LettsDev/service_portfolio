@@ -30,7 +30,7 @@ export async function deleteLocation(
   query: FilterQuery<ILocation>,
   options: QueryOptions = { lean: true }
 ) {
-  return Location.findByIdAndRemove(query, options).exec();
+  return Location.findOneAndDelete(query, options).exec();
 }
 
 export async function allLocations(options: QueryOptions = { lean: true }) {

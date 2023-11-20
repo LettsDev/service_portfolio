@@ -46,15 +46,6 @@ const locationController = (() => {
       if (!location) {
         throw new ExtendedError("cannot find location", 404);
       }
-
-      // need to delete the resources first else the location id will be null on the resources
-      const foundResources = await queryByLocationResources({ location: id });
-      if (foundResources.length > 0) {
-        foundResources.forEach(async (resource) => {
-          await deleteResource({ _id: resource._id });
-        });
-      }
-      //TODO need to delete the services that are attached to the resources
       const removedLocation = await deleteLocation({ _id: id });
       res.send(removedLocation);
     }

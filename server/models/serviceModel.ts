@@ -1,5 +1,6 @@
 import { Schema, model } from "mongoose";
 import type { IService } from "../types";
+import ServiceEventException from "./serviceEventExceptionModel";
 
 const ServiceSchema = new Schema<IService>(
   {
@@ -16,6 +17,20 @@ const ServiceSchema = new Schema<IService>(
   },
 
   { timestamps: true }
+);
+
+ServiceSchema.pre(
+  "deleteOne",
+  { document: true, query: false },
+  async function (next) {
+    const serviceEvents = await ServiceEventException.find({
+      service: this._id,
+    });
+    serviceEvents.forEach(
+      async (serviceEvent) => await serviceEvent.deleteOne()
+    );
+    next();
+  }
 );
 
 const Service = model<IService>("Service", ServiceSchema);

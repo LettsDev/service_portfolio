@@ -1,6 +1,6 @@
 import { Schema, model } from "mongoose";
 import type { IResource } from "../types";
-
+import Service from "./serviceModel";
 const ResourceSchema = new Schema<IResource>(
   {
     name: { type: String, required: true },
@@ -17,6 +17,16 @@ ResourceSchema.virtual("numServices", {
   foreignField: "resource",
   count: true,
 });
+
+ResourceSchema.pre(
+  "deleteOne",
+  { document: true, query: false },
+  async function (next) {
+    const services = await Service.find({ resource: this._id });
+    services.forEach(async (service) => await service.deleteOne());
+    next();
+  }
+);
 
 const Resource = model<IResource>("Resource", ResourceSchema);
 export default Resource;

@@ -5,6 +5,7 @@ import { IDateItem, IServiceEventException } from "../../types";
 import Cell from "../../components/calendar/cell";
 import Agenda from "../../components/calendar/agenda";
 import { Outlet, useOutletContext } from "react-router-dom";
+import Loading from "../../components/loading";
 export default function Calendar() {
   const dayLabels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   const {
@@ -12,6 +13,7 @@ export default function Calendar() {
     setSelectedDate,
     dateItems,
     loading,
+    setLoading,
     rescheduleEvent,
     cancelEvent,
   } = useCalendar();
@@ -64,7 +66,7 @@ export default function Calendar() {
         {/* tool bar */}
         <div className="flex justify-between grow items-center">
           <button
-            className="btn"
+            className="btn cursor-pointer"
             onClick={() => setSelectedDate((current) => subMonths(current, 1))}
           >
             {<FaArrowLeft />}
@@ -76,7 +78,7 @@ export default function Calendar() {
             {format(selectedDate, "LLLL yyyy")}
           </p>
           <button
-            className="btn "
+            className="btn cursor-pointer"
             onClick={() => setSelectedDate((current) => addMonths(current, 1))}
           >
             {<FaArrowRight />}
@@ -92,23 +94,34 @@ export default function Calendar() {
               ))}
             </tr>
           </thead>
-          <tbody>
-            <CreateMonthElements
-              dateItems={dateItems}
-              selectedDate={selectedDate}
-              setSelectedDate={setSelectedDate}
-            />
-          </tbody>
+          {loading ? (
+            <tbody>
+              <tr>
+                <td>
+                  <Loading />
+                </td>
+              </tr>
+            </tbody>
+          ) : (
+            <tbody>
+              <CreateMonthElements
+                dateItems={dateItems}
+                selectedDate={selectedDate}
+                setSelectedDate={setSelectedDate}
+              />
+            </tbody>
+          )}
         </table>
         <Agenda dateItems={dateItems} selectedDate={selectedDate} />
       </div>
-      <Outlet context={{ loading, rescheduleEvent, cancelEvent }} />
+      <Outlet context={{ loading, rescheduleEvent, cancelEvent, setLoading }} />
     </main>
   );
 }
 
 type ContextType = {
   loading: boolean;
+  setLoading: React.Dispatch<React.SetStateAction<boolean>>;
   rescheduleEvent: (
     editedExceptionEvent: IServiceEventException,
     originalEventDate: Date

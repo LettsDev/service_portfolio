@@ -1,7 +1,6 @@
 import React, { createContext, useContext, useState } from "react";
-import { IUser } from "../types";
-import { createSession, deleteSession } from "../data/session.data";
-import { getCurrentUser } from "../data/user.data";
+import { IUser, ExtendedError } from "../types";
+import axios from "axios";
 interface AuthContextType {
   user: IUser | null;
   login: ({
@@ -13,11 +12,11 @@ interface AuthContextType {
   }) => Promise<void>;
   logout: () => void;
   isAuthenticated: () => boolean;
+  isAuthorized: (neededCredentials: IUser["auth"]) => boolean;
 }
 
 const AuthContext = createContext<AuthContextType>({} as AuthContextType);
 
-//need to check on load if the user is already logged in, if so then set the user
 export function UseAuth() {
   return useContext(AuthContext);
 }
@@ -32,25 +31,73 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     email: string;
     password: string;
   }) => {
-    const response = await createSession({ email, password });
-    const userResponse = await getCurrentUser();
-    if (response.status >= 400 || userResponse.status >= 400) {
-      throw new Error(`Login error: ${response.statusText}`);
+    try {
+      await axios.post("/api/session", { email, password });
+      //will respond with refresh and accessTokens that axios will automatically attach to subsequent requests
+      const userResponse = await axios.get("/api/me");
+      setUser(userResponse.data);
+    } catch (error) {
+      //axios will throw on non-200 responses
+      if (axios.isAxiosError(error)) {
+        if (error.response) {
+          //the request was made and there was a response
+          throw new ExtendedError(error.message, error.response.status);
+        } else {
+          //there was no response
+          throw new ExtendedError(error.message, 404);
+        }
+      }
+      //not an axios Error
+      console.error(error);
+      throw new Error("client-side login error");
     }
-    console.log(response);
-    setUser(userResponse.data);
   };
 
   const logout = async () => {
-    const response = await deleteSession();
-    if (response.status >= 400) {
-      throw new Error(`Log out error: ${response.statusText}`);
+    try {
+      await axios.delete("/api/session");
+      setUser(null);
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        if (error.response) {
+          //the request was made and there was a response
+          throw new ExtendedError(error.message, error.response.status);
+        } else {
+          //there was no response
+          throw new ExtendedError(error.message, 404);
+        }
+      }
+      console.error(error);
+      throw new Error("client-side logout error");
     }
-    setUser(null);
   };
 
   const isAuthenticated = () => {
     return !!user;
+  };
+
+  const isAuthorized = (neededCredentials: IUser["auth"]) => {
+    if (user) {
+      switch (neededCredentials) {
+        case "ADMIN":
+          if (user.auth !== "ADMIN") {
+            return false;
+          }
+          break;
+        case "ENHANCED":
+          if (user.auth === "USER") {
+            return false;
+          }
+          break;
+        case "USER":
+          if (user.auth !== "USER") {
+            return false;
+          }
+          break;
+      }
+      return true;
+    }
+    return false;
   };
 
   const contextValue: AuthContextType = {
@@ -58,6 +105,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     login,
     logout,
     isAuthenticated,
+    isAuthorized,
   };
 
   return (

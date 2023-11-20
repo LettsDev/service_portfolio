@@ -2,10 +2,12 @@ import { useEffect } from "react";
 import { Outlet } from "react-router-dom";
 import { NavLink } from "react-router-dom";
 import "./App.css";
-import axios from "axios";
 import { UseAuth } from "./context/auth.provider";
+import { useAlert } from "./context/alert.provider";
 import { useNavigate } from "react-router-dom";
+import AlertComponent from "./components/alert";
 function App() {
+  const { alerts } = useAlert();
   const { user, logout, login } = UseAuth();
   const navigate = useNavigate();
   useEffect(() => {
@@ -80,7 +82,7 @@ function App() {
             <div className="bg-neutral-focus text-neutral-content rounded-full w-16">
               {/* TODO put in initials of logged in user */}
               <span className="text-lg">
-                {user ? `${user.first_name} ${user.last_name[0]}` : ""}
+                {user ? `${user.first_name[0]} ${user.last_name[0]}` : ""}
               </span>
             </div>
           </div>
@@ -88,6 +90,11 @@ function App() {
       </div>
 
       <Outlet />
+      <div className="flex flex-col gap-1 px-64">
+        {alerts.map((alert) => (
+          <AlertComponent alert={alert} key={alert.id} />
+        ))}
+      </div>
     </>
   );
 }

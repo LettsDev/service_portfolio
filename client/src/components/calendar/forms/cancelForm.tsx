@@ -1,25 +1,47 @@
 import { useLoaderData, useNavigate } from "react-router-dom";
-import { IServiceEventException } from "../../../types";
+import { ExtendedError, IServiceEventException } from "../../../types";
 import { IsoToDate, toIServiceDated } from "../../../utils/dateConversion";
 import format from "date-fns/format";
 import { formatServiceSchedule } from "../../../utils/calendarUtils";
 import Loading from "../../loading";
 import { useCalendarContext } from "../../../pages/calendar/calendar.page";
+import { useAlert } from "../../../context/alert.provider";
 export default function CancelForm() {
   const exceptionEvent = useLoaderData() as IServiceEventException;
   const service = exceptionEvent.service;
   const datedService = toIServiceDated(service);
-  const { loading, cancelEvent } = useCalendarContext();
+  const { loading, cancelEvent, setLoading } = useCalendarContext();
+  const { addAlert } = useAlert();
   const navigate = useNavigate();
   console.log(exceptionEvent);
   const handleCancel = async () => {
-    const cancelledExceptionEvent = {
-      ...exceptionEvent,
-      is_cancelled: !exceptionEvent.is_cancelled,
-    };
-    await cancelEvent(cancelledExceptionEvent);
-    console.log(exceptionEvent._id);
-    navigate("/calendar");
+    try {
+      const cancelledExceptionEvent = {
+        ...exceptionEvent,
+        is_cancelled: !exceptionEvent.is_cancelled,
+      };
+      await cancelEvent(cancelledExceptionEvent);
+      navigate("/calendar");
+      addAlert({
+        type: "success",
+        message: `Successfully ${
+          exceptionEvent.is_cancelled ? "restored" : "cancelled"
+        } ${service.name} on ${format(
+          IsoToDate(exceptionEvent.exception_date),
+          "PPPP"
+        )}`,
+      });
+    } catch (error) {
+      setLoading(false);
+      navigate("/calendar");
+      addAlert({
+        type: "error",
+        error:
+          error instanceof ExtendedError
+            ? `ERROR: ${error.message} \n status code: ${error.statusCode}`
+            : `an error occurred when cancelling the event. Please try again. Error: ${error}`,
+      });
+    }
   };
   return (
     <>

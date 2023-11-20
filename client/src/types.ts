@@ -15,6 +15,9 @@ export interface IUser extends IResponseBase {
   last_name: string;
   email: string;
   auth: "USER" | "ENHANCED" | "ADMIN";
+  session: string;
+  iat: number;
+  exp: number;
 }
 
 export interface IResource extends IResponseBase {
@@ -109,3 +112,27 @@ export interface IDateItem {
   date: Date;
   events: IServiceEventException[];
 }
+
+interface baseAlert {
+  id?: string;
+  /**
+   * duration : number of seconds
+   */
+  duration?: number;
+}
+
+interface AlertSuccess extends baseAlert {
+  message: string;
+  type: "success";
+}
+
+interface AlertError extends baseAlert {
+  error: string;
+  type: "error";
+}
+
+interface AlertWarning extends baseAlert {
+  message: string;
+  type: "warning";
+}
+export type AlertType = AlertSuccess | AlertError | AlertWarning;

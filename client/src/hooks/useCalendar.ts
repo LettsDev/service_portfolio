@@ -5,16 +5,17 @@ import {
   IDateItem,
   IServiceEventExceptionSubmit,
 } from "../types";
-import fetchWithCatch from "../utils/fetchWithCatch";
+import fetchWithCatch, {
+  refreshServicesAndEvents,
+} from "../utils/fetchWithCatch";
 import { startOfMonth, endOfMonth, isSameDay } from "date-fns";
 import { useLoaderData } from "react-router-dom";
 import {
   IsoToDate,
+  convertFromDateToIsoString,
   dateToIso,
-  getUtcEquivalent,
   toIServiceDated,
 } from "../utils/dateConversion";
-
 import useCalendarEvents from "./useCalendarEvents";
 export default function useCalendar() {
   //These are loaded in based on the current month for the initial calendar view
@@ -22,12 +23,38 @@ export default function useCalendar() {
     initialServices: IService[];
     initialEventExceptions: IServiceEventException[];
   };
+
   const previousSelectedMonthRef = useRef({ month: 0, year: 0 });
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [dateItems, setDateItems] = useState<IDateItem[]>([]);
   const { createDateItems } = useCalendarEvents();
   const [loading, setLoading] = useState(false);
   useEffect(() => {
+    async function load() {
+      if (!initialServices || !initialEventExceptions) {
+        //load services & event exceptions
+        setLoading(true);
+        const { services, serviceEventExceptions } =
+          await refreshServicesAndEvents(
+            convertFromDateToIsoString(startOfMonth(selectedDate)),
+            convertFromDateToIsoString(endOfMonth(selectedDate))
+          );
+        const dates = createDateItems(
+          selectedDate,
+          (services as IService[]).map((service) => toIServiceDated(service)),
+          serviceEventExceptions as IServiceEventException[]
+        );
+        setDateItems(dates);
+        setLoading(false);
+      }
+    }
+    if (!initialServices || !initialEventExceptions) {
+      load();
+
+      return;
+    }
+
+    //if there are no initial services (reload) then load them again
     const dates = createDateItems(
       selectedDate,
       initialServices.map((service) => toIServiceDated(service)),
@@ -35,7 +62,6 @@ export default function useCalendar() {
     );
     setDateItems(dates);
   }, []);
-
   useEffect(() => {
     //When a user changes the month shown, the services that intersect the month and event exceptions are retrieved
     async function fetchServicesAndEventExceptions(newDate: Date) {
@@ -86,6 +112,7 @@ export default function useCalendar() {
     originalEventDate: Date
   ) {
     setLoading(true);
+
     const { _id, ...sanitizedEvent } = editedExceptionEvent;
     const submittedEditedEventException: IServiceEventExceptionSubmit = {
       ...sanitizedEvent,
@@ -120,6 +147,7 @@ export default function useCalendar() {
 
   async function cancelEvent(cancelledExceptionEvent: IServiceEventException) {
     setLoading(true);
+
     const { _id, ...sanitizedEvent } = cancelledExceptionEvent;
     const submittedCancelledEventException: IServiceEventExceptionSubmit = {
       ...sanitizedEvent,
@@ -154,6 +182,7 @@ export default function useCalendar() {
     setSelectedDate,
     dateItems,
     loading,
+    setLoading,
     rescheduleEvent,
     cancelEvent,
   };

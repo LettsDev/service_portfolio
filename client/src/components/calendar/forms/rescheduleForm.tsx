@@ -4,9 +4,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useLoaderData, useNavigate } from "react-router-dom";
 import { UseAuth } from "../../../context/auth.provider";
-import { IServiceEventException } from "../../../types";
+import { IServiceEventException, ExtendedError } from "../../../types";
 import { format, isSameDay } from "date-fns";
 import { formatServiceSchedule } from "../../../utils/calendarUtils";
+import { useAlert } from "../../../context/alert.provider";
 import Loading from "../../loading";
 import {
   toIServiceDated,
@@ -21,6 +22,7 @@ const schema = z.object({
 type ValidationSchema = z.infer<typeof schema>;
 export default function RescheduleForm() {
   const exceptionEvent = useLoaderData() as IServiceEventException;
+  const { addAlert } = useAlert();
   const {
     register,
     handleSubmit,
@@ -31,7 +33,7 @@ export default function RescheduleForm() {
 
   const navigate = useNavigate();
   const { user } = UseAuth();
-  const { loading, rescheduleEvent } = useCalendarContext();
+  const { loading, rescheduleEvent, setLoading } = useCalendarContext();
   const service = exceptionEvent.service;
   const datedService = toIServiceDated(service);
   useEffect(() => {
@@ -42,25 +44,46 @@ export default function RescheduleForm() {
   const onSubmit: SubmitHandler<ValidationSchema> = async ({
     rescheduleExceptionDate,
   }) => {
-    if (
-      isSameDay(
-        fromDatePickerToDate(rescheduleExceptionDate),
-        IsoToDate(exceptionEvent.exception_date)
-      )
-    ) {
-      //trying to change to same day
-      return navigate("/calendar");
+    try {
+      if (
+        isSameDay(
+          fromDatePickerToDate(rescheduleExceptionDate),
+          IsoToDate(exceptionEvent.exception_date)
+        )
+      ) {
+        //trying to change to same day
+        return navigate("/calendar");
+      }
+      const originalEventDate = IsoToDate(exceptionEvent.exception_date);
+      // create new event
+      const editedExceptionEvent: IServiceEventException = {
+        ...exceptionEvent,
+        exception_date: dateToIso(
+          fromDatePickerToDate(rescheduleExceptionDate)
+        ),
+        is_rescheduled: true,
+        created_by: user!,
+      };
+      await rescheduleEvent(editedExceptionEvent, originalEventDate);
+      navigate("/calendar");
+      addAlert({
+        type: "success",
+        message: `Successfully rescheduled ${service.name} to ${format(
+          IsoToDate(editedExceptionEvent.exception_date),
+          "PPPP"
+        )}`,
+      });
+    } catch (error) {
+      setLoading(false);
+      navigate("/calendar");
+      addAlert({
+        type: "error",
+        error:
+          error instanceof ExtendedError
+            ? `ERROR: ${error.message} \n status code: ${error.statusCode}`
+            : `an error occurred when rescheduling the event. Please try again. Error: ${error}`,
+      });
     }
-    const originalEventDate = IsoToDate(exceptionEvent.exception_date);
-    // create new event
-    const editedExceptionEvent: IServiceEventException = {
-      ...exceptionEvent,
-      exception_date: dateToIso(fromDatePickerToDate(rescheduleExceptionDate)),
-      is_rescheduled: true,
-      created_by: user!,
-    };
-    await rescheduleEvent(editedExceptionEvent, originalEventDate);
-    navigate("/calendar");
   };
 
   return (

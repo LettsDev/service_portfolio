@@ -65,5 +65,6 @@ export default function UseResourceTable() {
     newResource,
     deleteResource,
     editResource,
+    setLoading,
   };
 }

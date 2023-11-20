@@ -30,6 +30,7 @@ export default function useLocationTable() {
     console.log(fullNewLocation);
     setLocations([...locations, fullNewLocation]);
     setLoading(false);
+    return fullNewLocation;
   }
 
   async function deleteLocation(id: string) {
@@ -67,5 +68,6 @@ export default function useLocationTable() {
     newLocation,
     deleteLocation,
     editLocation,
+    setLoading,
   };
 }

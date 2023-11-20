@@ -1,5 +1,5 @@
 import axios, { AxiosResponse, AxiosRequestConfig } from "axios";
-import { ExtendedError } from "../types";
+import { ExtendedError, IService, IServiceEventException } from "../types";
 import { redirect } from "react-router-dom";
 
 export default async function fetchWithCatch<T>(
@@ -8,6 +8,7 @@ export default async function fetchWithCatch<T>(
   try {
     const response: AxiosResponse<T> = await axios({
       ...config,
+      timeout: 1000,
       baseURL: "/api/",
     });
     return response.data;
@@ -42,3 +43,18 @@ export const loaderWrapper = async <T>(config: AxiosRequestConfig) => {
     throw err;
   }
 };
+
+export async function refreshServicesAndEvents(start: string, end: string) {
+  const services = await loaderWrapper<IService[]>({
+    url: `service/${start}/${end}`,
+    method: "get",
+  });
+  const serviceEventExceptions = await loaderWrapper<IServiceEventException[]>({
+    url: `serviceEvent/${start}/${end}`,
+    method: "get",
+  });
+  return {
+    services,
+    serviceEventExceptions,
+  };
+}

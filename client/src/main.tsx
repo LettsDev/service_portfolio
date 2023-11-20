@@ -10,9 +10,9 @@ import LoginPage from "./pages/login/login.page.tsx";
 import ErrorPage from "./pages/error.tsx";
 import Home from "./pages/home/home.page.tsx";
 import Calendar from "./pages/calendar/calendar.page.tsx";
-import TablePage from "./pages/table/table.page.tsx";
 import LocationTable from "./components/table/location/locationTable.tsx";
 import ResourceTable from "./components/table/resource/resourceTable.tsx";
+import TablePage from "./pages/table/table.page.tsx";
 import "./index.css";
 import Modal from "./components/modal.tsx";
 import axios from "axios";
@@ -22,8 +22,12 @@ import EditLocationForm from "./components/table/location/forms/editLocationForm
 import NewResourceForm from "./components/table/resource/forms/newResourceForm.tsx";
 import DeleteResourceForm from "./components/table/resource/forms/deleteResourceForm.tsx";
 import { AuthProvider } from "./context/auth.provider.tsx";
+import { AlertProvider } from "./context/alert.provider.tsx";
 import WithAuth from "./pages/withAuth.tsx";
-import { loaderWrapper } from "./utils/fetchWithCatch.ts";
+import {
+  loaderWrapper,
+  refreshServicesAndEvents,
+} from "./utils/fetchWithCatch.ts";
 import EditResourceForm from "./components/table/resource/forms/editResourceForm.tsx";
 import {
   ILocation,
@@ -58,6 +62,10 @@ const router = createBrowserRouter([
       {
         path: "table",
         element: <WithAuth children={<TablePage />} />,
+        // lazy: async () => {
+        //   const TablePage = await import("./pages/table/table.page.tsx");
+        //   return { Component: TablePage.default };
+        // },
         children: [
           {
             path: "locations",
@@ -65,6 +73,7 @@ const router = createBrowserRouter([
             loader: async () => {
               return loaderWrapper({ url: "location", method: "get" });
             },
+
             children: [
               {
                 path: "delete/:id",
@@ -228,13 +237,9 @@ const router = createBrowserRouter([
         loader: async () => {
           const start = convertFromDateToIsoString(startOfMonth(new Date()));
           const end = convertFromDateToIsoString(endOfMonth(new Date()));
-          const services = await loaderWrapper<IService[]>({
-            url: `service/${start}/${end}`,
-            method: "get",
-          });
-          const serviceEventExceptions = await loaderWrapper<
-            IServiceEventException[]
-          >({ url: `serviceEvent/${start}/${end}`, method: "get" });
+          const { services, serviceEventExceptions } =
+            await refreshServicesAndEvents(start, end);
+
           return {
             initialServices: services,
             initialEventExceptions: serviceEventExceptions,
@@ -316,7 +321,9 @@ const router = createBrowserRouter([
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <AuthProvider>
-      <RouterProvider router={router} />
+      <AlertProvider>
+        <RouterProvider router={router} />
+      </AlertProvider>
     </AuthProvider>
   </React.StrictMode>
 );

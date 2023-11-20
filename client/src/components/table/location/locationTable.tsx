@@ -8,8 +8,14 @@ import { ILocation } from "../../../types";
 import Loading from "../../loading";
 export default function LocationTable() {
   const [query, setQuery] = useState("");
-  const { loading, locations, deleteLocation, newLocation, editLocation } =
-    useLocationTable();
+  const {
+    loading,
+    setLoading,
+    locations,
+    deleteLocation,
+    newLocation,
+    editLocation,
+  } = useLocationTable();
   const filteredLocations = () => {
     //issue with useMemo not updating the table with location change
 
@@ -66,6 +72,7 @@ export default function LocationTable() {
           deleteLocation,
           newLocation,
           editLocation,
+          setLoading,
         }}
       />
     </div>
@@ -73,6 +80,7 @@ export default function LocationTable() {
 }
 type ContextType = {
   loading: boolean;
+  setLoading: React.Dispatch<React.SetStateAction<boolean>>;
   locations: ILocation[];
   deleteLocation: (id: string) => Promise<void>;
   newLocation: (data: Pick<ILocation, "name">) => Promise<ILocation>;

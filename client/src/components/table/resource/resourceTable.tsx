@@ -11,8 +11,14 @@ import {
   IResourceSubmitEdit,
 } from "../../../types";
 export default function ResourceTable() {
-  const { loading, resources, deleteResource, newResource, editResource } =
-    UseResourceTable();
+  const {
+    loading,
+    setLoading,
+    resources,
+    deleteResource,
+    newResource,
+    editResource,
+  } = UseResourceTable();
   const [query, setQuery] = useState("");
 
   const filteredResources = () => {
@@ -69,6 +75,7 @@ export default function ResourceTable() {
           deleteResource,
           newResource,
           editResource,
+          setLoading,
         }}
       />
     </div>
@@ -77,6 +84,7 @@ export default function ResourceTable() {
 
 type ContextType = {
   loading: boolean;
+  setLoading: React.Dispatch<React.SetStateAction<boolean>>;
   resources: IResource[];
   deleteResource: (id: string) => Promise<void>;
   newResource: (data: IResourceSubmit) => Promise<IResource>;

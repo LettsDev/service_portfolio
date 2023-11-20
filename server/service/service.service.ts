@@ -1,7 +1,7 @@
 import { CreateServiceInput } from "../schema/service.schema";
 import { FilterQuery, QueryOptions, UpdateQuery } from "mongoose";
 import Service from "../models/serviceModel";
-import { IService } from "../types";
+import { ExtendedError, IService } from "../types";
 
 export async function createService(input: CreateServiceInput) {
   return Service.create(input.body);
@@ -32,7 +32,12 @@ export async function deleteService(
   query: FilterQuery<IService>,
   options: QueryOptions = { lean: true }
 ) {
-  return Service.findByIdAndRemove(query, options).populate("resource").exec();
+  const service = await Service.findOne(query);
+  if (!service) {
+    throw new ExtendedError("No service found", 404);
+  }
+  service.deleteOne();
+  return service;
 }
 
 export async function allServices(

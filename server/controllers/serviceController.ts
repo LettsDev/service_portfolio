@@ -51,15 +51,7 @@ const serviceController = (() => {
   const remove = asyncWrapper(
     async (req: Request<DeleteServiceInput["params"]>, res: Response) => {
       const id = req.params.serviceId;
-      const service = await findService({ id });
-
-      if (!service) {
-        throw new ExtendedError("Service not found", 404);
-      }
-
       const removedService = await deleteService({ _id: id });
-      //remove event exceptions
-      await deleteServiceExceptionEventsByService({ service: service._id });
       res.send(removedService);
     }
   );

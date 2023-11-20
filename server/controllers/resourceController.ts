@@ -51,12 +51,6 @@ const resourceController = (() => {
       res: Response
     ) => {
       const id = req.params.resourceId;
-      const resource = await findResource({ id });
-
-      if (!resource) {
-        throw new ExtendedError("No resource found", 404);
-      }
-
       const deletedResource = await deleteResource({ _id: id });
       res.send(deletedResource);
     }

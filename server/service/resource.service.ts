@@ -1,7 +1,7 @@
 import { FilterQuery, QueryOptions, UpdateQuery } from "mongoose";
 import { CreateResourceInput } from "../schema/resource.schema";
 import Resource from "../models/resourceModel";
-import { IResource } from "../types";
+import { ExtendedError, IResource } from "../types";
 
 export async function createResource(input: CreateResourceInput) {
   return Resource.create(input.body);
@@ -34,11 +34,16 @@ export async function deleteResource(
   query: FilterQuery<IResource>,
   options: QueryOptions = { lean: true }
 ) {
-  return Resource.findByIdAndRemove(query, options)
+  const resource = await Resource.findOne(query)
     .populate("location")
     .populate("created_by")
     .populate("numServices")
     .exec();
+  if (!resource) {
+    throw new ExtendedError("No resource found", 404);
+  }
+  resource.deleteOne();
+  return resource;
 }
 
 export async function allResource(options: QueryOptions = { lean: true }) {

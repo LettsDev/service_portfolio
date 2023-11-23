@@ -10,14 +10,14 @@ interface AuthContextType {
     email: string;
     password: string;
   }) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
   isAuthenticated: () => boolean;
   isAuthorized: (neededCredentials: IUser["auth"]) => boolean;
 }
 
 const AuthContext = createContext<AuthContextType>({} as AuthContextType);
 
-export function UseAuth() {
+export function useAuth() {
   return useContext(AuthContext);
 }
 
@@ -41,7 +41,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (axios.isAxiosError(error)) {
         if (error.response) {
           //the request was made and there was a response
-          throw new ExtendedError(error.message, error.response.status);
+          throw new ExtendedError(error.response.data, error.response.status);
         } else {
           //there was no response
           throw new ExtendedError(error.message, 404);
@@ -83,19 +83,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           if (user.auth !== "ADMIN") {
             return false;
           }
-          break;
+          return true;
+
         case "ENHANCED":
           if (user.auth === "USER") {
             return false;
           }
-          break;
+          return true;
+
         case "USER":
-          if (user.auth !== "USER") {
-            return false;
-          }
-          break;
+          return true;
       }
-      return true;
     }
     return false;
   };

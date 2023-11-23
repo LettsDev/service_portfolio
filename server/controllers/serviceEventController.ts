@@ -18,6 +18,25 @@ import {
 import asyncWrapper from "../utils/asyncWrapper";
 import { IServiceEventException } from "../types";
 
+const fullEventOption = {
+  lean: true,
+  populate: [
+    {
+      path: "service",
+      model: "Service",
+      populate: [
+        {
+          path: "resource",
+          model: "Resource",
+          populate: { path: "location", model: "Location" },
+        },
+        { path: "created_by", model: "User" },
+      ],
+    },
+    { path: "created_by", model: "User" },
+  ],
+};
+
 const serviceEventController = (() => {
   //creating an exception event to be stored
   async function create(
@@ -27,29 +46,18 @@ const serviceEventController = (() => {
     try {
       const body = req.body;
       // used
-      const existingEvent = await findServiceEventException({
-        service: body.service,
-        start_date: body.start_date,
-      });
+      const existingEvent = await findServiceEventException(
+        {
+          service: body.service,
+          start_date: body.start_date,
+        },
+        fullEventOption
+      );
       if (existingEvent) {
         const editedEvent = await updateServiceEventException(
           existingEvent._id,
           body,
-          {
-            lean: true,
-            populate: [
-              {
-                path: "service",
-                model: "Service",
-                populate: {
-                  path: "resource",
-                  model: "Resource",
-                  populate: { path: "location", model: "Location" },
-                },
-              },
-              { path: "created_by", model: "User" },
-            ],
-          }
+          fullEventOption
         );
         return res.send(editedEvent);
       }
@@ -59,11 +67,14 @@ const serviceEventController = (() => {
         {
           path: "service",
           model: "Service",
-          populate: {
-            path: "resource",
-            model: "Resource",
-            populate: { path: "location", model: "Location" },
-          },
+          populate: [
+            {
+              path: "resource",
+              model: "Resource",
+              populate: { path: "location", model: "Location" },
+            },
+            { path: "created_by", model: "User" },
+          ],
         },
         { path: "created_by", model: "User" },
       ]);
@@ -97,14 +108,7 @@ const serviceEventController = (() => {
       const updatedEvent = await updateServiceEventException(
         { _id: id },
         update,
-        {
-          lean: true,
-          new: true,
-          populate: [
-            { path: "service", model: "Service" },
-            { path: "created_by", model: "User" },
-          ],
-        }
+        fullEventOption
       );
       if (updatedEvent) {
         return res.send(updatedEvent);
@@ -128,21 +132,7 @@ const serviceEventController = (() => {
       }
       const deletedEvent = await deleteServiceEventException(
         { _id: eventId },
-        {
-          lean: true,
-          populate: [
-            {
-              path: "service",
-              model: "Service",
-              populate: {
-                path: "resource",
-                model: "Resource",
-                populate: { path: "location", model: "Location" },
-              },
-            },
-            { path: "created_by", model: "User" },
-          ],
-        }
+        fullEventOption
       );
       if (deletedEvent) {
         return res.send(deletedEvent);
@@ -168,21 +158,7 @@ const serviceEventController = (() => {
             { exception_date: { $gte: start_date, $lte: end_date } },
           ],
         },
-        {
-          lean: true,
-          populate: [
-            {
-              path: "service",
-              model: "Service",
-              populate: {
-                path: "resource",
-                model: "Resource",
-                populate: { path: "location", model: "Location" },
-              },
-            },
-            { path: "created_by", model: "User" },
-          ],
-        }
+        fullEventOption
       );
       if (events.length === 0) {
         res.send([]);
@@ -200,13 +176,7 @@ const serviceEventController = (() => {
     const serviceId = req.params.serviceId;
     const foundEvents = await allServiceEventException(
       { service: serviceId },
-      {
-        lean: true,
-        populate: [
-          { path: "service", model: "Service" },
-          { path: "created_by", model: "User" },
-        ],
-      }
+      fullEventOption
     );
     if (foundEvents.length === 0) {
       return res.sendStatus(404);
@@ -223,21 +193,7 @@ const serviceEventController = (() => {
     try {
       const foundEventException = await findServiceEventException(
         { service: serviceId, start_date: startDate },
-        {
-          lean: true,
-          populate: [
-            {
-              path: "service",
-              model: "Service",
-              populate: {
-                path: "resource",
-                model: "Resource",
-                populate: { path: "location", model: "Location" },
-              },
-            },
-            { path: "created_by", model: "User" },
-          ],
-        }
+        fullEventOption
       );
 
       if (!foundEventException) {

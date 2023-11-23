@@ -1,19 +1,42 @@
 import { Link } from "react-router-dom";
-export default function TableRowButtons({ id }: { id: string }) {
+
+type props = {
+  id: string;
+  editDisabled: boolean;
+  deleteDisabled: boolean;
+};
+
+export default function TableRowButtons({
+  id,
+  editDisabled,
+  deleteDisabled,
+}: props) {
   return (
     <div className="join join-vertical lg:join-horizontal ">
-      <Link
-        to={`edit/${id}`}
-        className="btn join-item bg-primary hover:bg-primary-focus text-white border-none"
-      >
-        Edit
-      </Link>
-      <Link
-        to={`delete/${id}`}
-        className="btn join-item bg-secondary hover:bg-secondary-focus border-none text-white"
-      >
-        Delete
-      </Link>
+      {editDisabled ? (
+        <button type="button" disabled className="btn btn-primary join-item">
+          Edit
+        </button>
+      ) : (
+        <Link
+          to={`edit/${id}`}
+          className="btn join-item btn-primary text-white "
+        >
+          Edit
+        </Link>
+      )}
+      {deleteDisabled ? (
+        <button type="button" disabled className="btn btn-primary join-item ">
+          Delete
+        </button>
+      ) : (
+        <Link
+          to={`delete/${id}`}
+          className="btn join-item btn-secondary text-white"
+        >
+          Delete
+        </Link>
+      )}
     </div>
   );
 }

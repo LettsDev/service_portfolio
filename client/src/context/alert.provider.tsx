@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useCallback, useContext, useState } from "react";
 import { AlertType } from "../types";
 
 type AlertContextType = {
@@ -18,14 +18,14 @@ export function AlertProvider({ children }: { children: React.ReactNode }) {
   // alerts (with different statuses (success, error))
   const [alerts, setAlerts] = useState<AlertType[]>([]);
 
-  const addAlert = (newAlert: AlertType) => {
+  const addAlert = useCallback((newAlert: AlertType) => {
     newAlert.id = crypto.randomUUID();
-    setAlerts((prevAlerts) => [...prevAlerts, newAlert]);
     if (typeof newAlert.duration === "undefined") {
       newAlert.duration = 5;
     }
+    setAlerts((prevAlerts) => [...prevAlerts, newAlert]);
     setTimeout(() => removeAlert(newAlert.id!), newAlert.duration * 1000);
-  };
+  }, []);
 
   const removeAlert = (id: string) => {
     setAlerts((prevAlerts) => prevAlerts.filter((alert) => alert.id !== id));

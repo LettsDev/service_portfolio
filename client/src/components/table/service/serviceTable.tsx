@@ -1,12 +1,15 @@
 import { useState } from "react";
-import { Outlet, Link, useOutletContext } from "react-router-dom";
+import { Outlet, useOutletContext } from "react-router-dom";
 import Search from "../search";
 import useServiceTable from "../../../hooks/useServiceTable";
 import Loading from "../../loading";
 import ServiceRow from "./serviceRow";
 import { IService, IServiceSubmit, IServiceSubmitEdit } from "../../../types";
+import NewButton from "../newButton";
+import { useAuth } from "../../../context/auth.provider";
 export default function ServiceTable() {
   const [query, setQuery] = useState("");
+  const { isAuthorized } = useAuth();
   const { loading, services, newService, editService, removeService } =
     useServiceTable();
 
@@ -23,17 +26,10 @@ export default function ServiceTable() {
   return (
     <div className="mt-4">
       <div className="flex justify-center gap-2">
-        <div
-          data-tip="Add Service"
-          className="tooltip tooltip-left tooltip-primary"
-        >
-          <Link
-            className="btn text-xl bg-primary hover:bg-primary-focus text-white"
-            to="new"
-          >
-            +
-          </Link>
-        </div>
+        <NewButton
+          isDisabled={!isAuthorized("ENHANCED")}
+          tooltipText="new service"
+        />
         <Search setQuery={setQuery} />
       </div>
       <table className="table table-fixed table-md mt-2 min-w-[563px]">

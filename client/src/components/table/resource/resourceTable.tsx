@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { Link, Outlet, useOutletContext } from "react-router-dom";
+import { Outlet, useOutletContext } from "react-router-dom";
 import Search from "../search";
 import UseResourceTable from "../../../hooks/useResourceTable";
-
+import { useAuth } from "../../../context/auth.provider";
 import Loading from "../../loading";
 import ResourceRow from "./resourceRow";
 import {
@@ -10,7 +10,9 @@ import {
   IResourceSubmit,
   IResourceSubmitEdit,
 } from "../../../types";
+import NewButton from "../newButton";
 export default function ResourceTable() {
+  const { isAuthorized } = useAuth();
   const {
     loading,
     setLoading,
@@ -31,17 +33,10 @@ export default function ResourceTable() {
   return (
     <div className="mt-4">
       <div className="flex justify-center gap-2">
-        <div
-          data-tip="Add Resource"
-          className="tooltip tooltip-left tooltip-primary"
-        >
-          <Link
-            className="btn text-xl bg-primary hover:bg-primary-focus text-white"
-            to="new"
-          >
-            +
-          </Link>
-        </div>
+        <NewButton
+          isDisabled={!isAuthorized("ENHANCED")}
+          tooltipText="new resource"
+        />
         <Search setQuery={setQuery} />
       </div>
       <table className="table table-fixed table-md mt-2 min-w-[563px]">

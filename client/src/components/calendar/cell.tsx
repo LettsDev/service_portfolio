@@ -35,7 +35,7 @@ export default function Cell({
           if (index < 3) {
             return (
               <div
-                className="w-1.5 h-1.5 bg-primary-content rounded"
+                className="w-1.5 h-1.5 bg-secondary rounded"
                 key={event.service.name}
               ></div>
             );

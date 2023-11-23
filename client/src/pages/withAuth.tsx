@@ -1,19 +1,32 @@
 import React from "react";
-import { UseAuth } from "../context/auth.provider";
-import { Navigate } from "react-router-dom";
+import { useAuth } from "../context/auth.provider";
+import { useAlert } from "../context/alert.provider";
+import { Navigate, useLocation } from "react-router-dom";
 import { IUser } from "../types";
 const WithAuth = ({
   children,
-  authorityNeeded,
+  authorityNeeded = "USER",
 }: {
   children: React.ReactNode;
-  authorityNeeded: IUser["auth"];
+  authorityNeeded?: IUser["auth"];
 }) => {
-  const { isAuthenticated, isAuthorized } = UseAuth();
+  const { isAuthenticated, isAuthorized } = useAuth();
 
-  if (isAuthenticated() && isAuthorized(authorityNeeded)) {
-    return children;
+  const location = useLocation();
+  const { addAlert } = useAlert();
+
+  if (!isAuthenticated()) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
   }
-  return <Navigate to="/login" />;
+  if (!isAuthorized(authorityNeeded)) {
+    console.log("not auth");
+    addAlert({
+      type: "warning",
+      message: "You do not have the necessary authority for this action",
+    });
+    return <Navigate to=".." />;
+  }
+
+  return children;
 };
 export default WithAuth;

@@ -15,7 +15,7 @@ import ResourceTable from "./components/table/resource/resourceTable.tsx";
 import TablePage from "./pages/table/table.page.tsx";
 import "./index.css";
 import Modal from "./components/modal.tsx";
-import axios from "axios";
+// import axios from "axios";
 import DeleteLocationForm from "./components/table/location/forms/deleteLocationForm.tsx";
 import NewLocationForm from "./components/table/location/forms/newLocationForm.tsx";
 import EditLocationForm from "./components/table/location/forms/editLocationForm.tsx";
@@ -51,11 +51,11 @@ import CancelForm from "./components/calendar/forms/cancelForm.tsx";
 const router = createBrowserRouter([
   {
     element: <App />,
-    loader: async () =>
-      axios.post("/api/session", {
-        email: "test@gmail.com",
-        password: "65f073f6-1897-4f4c-a17b-d910d02fc5da",
-      }),
+    // loader: async () =>
+    //   axios.post("/api/session", {
+    //     email: "test@gmail.com",
+    //     password: "65f073f6-1897-4f4c-a17b-d910d02fc5da",
+    //   }),
     children: [
       { path: "home", element: <WithAuth children={<Home />} /> },
       { path: "login", element: <LoginPage /> },
@@ -84,17 +84,27 @@ const router = createBrowserRouter([
                   });
                 },
                 element: (
-                  <Modal showModal={true}>
-                    <DeleteLocationForm />
-                  </Modal>
+                  <WithAuth
+                    children={
+                      <Modal showModal={true}>
+                        <DeleteLocationForm />
+                      </Modal>
+                    }
+                    authorityNeeded="ADMIN"
+                  />
                 ),
               },
               {
                 path: "new",
                 element: (
-                  <Modal showModal={true}>
-                    <NewLocationForm />
-                  </Modal>
+                  <WithAuth
+                    children={
+                      <Modal showModal={true}>
+                        <NewLocationForm />
+                      </Modal>
+                    }
+                    authorityNeeded="ADMIN"
+                  />
                 ),
               },
               {
@@ -106,9 +116,14 @@ const router = createBrowserRouter([
                   });
                 },
                 element: (
-                  <Modal showModal={true}>
-                    <EditLocationForm />
-                  </Modal>
+                  <WithAuth
+                    children={
+                      <Modal showModal={true}>
+                        <EditLocationForm />
+                      </Modal>
+                    }
+                    authorityNeeded="ADMIN"
+                  />
                 ),
               },
             ],
@@ -130,9 +145,14 @@ const router = createBrowserRouter([
                 },
 
                 element: (
-                  <Modal showModal={true}>
-                    <NewResourceForm />
-                  </Modal>
+                  <WithAuth
+                    children={
+                      <Modal showModal={true}>
+                        <NewResourceForm />
+                      </Modal>
+                    }
+                    authorityNeeded="ENHANCED"
+                  />
                 ),
               },
               {
@@ -144,9 +164,14 @@ const router = createBrowserRouter([
                   });
                 },
                 element: (
-                  <Modal showModal={true}>
-                    <DeleteResourceForm />
-                  </Modal>
+                  <WithAuth
+                    children={
+                      <Modal showModal={true}>
+                        <DeleteResourceForm />
+                      </Modal>
+                    }
+                    authorityNeeded="ENHANCED"
+                  />
                 ),
               },
               {
@@ -163,9 +188,14 @@ const router = createBrowserRouter([
                   return { locations, resource };
                 },
                 element: (
-                  <Modal showModal={true}>
-                    <EditResourceForm />
-                  </Modal>
+                  <WithAuth
+                    children={
+                      <Modal showModal={true}>
+                        <EditResourceForm />
+                      </Modal>
+                    }
+                    authorityNeeded="ENHANCED"
+                  />
                 ),
               },
             ],
@@ -183,9 +213,14 @@ const router = createBrowserRouter([
               {
                 path: "new",
                 element: (
-                  <Modal showModal={true}>
-                    <NewServiceForm />
-                  </Modal>
+                  <WithAuth
+                    children={
+                      <Modal showModal={true}>
+                        <NewServiceForm />
+                      </Modal>
+                    }
+                    authorityNeeded="ENHANCED"
+                  />
                 ),
                 loader: async () => {
                   return loaderWrapper<IResource[]>({
@@ -197,9 +232,14 @@ const router = createBrowserRouter([
               {
                 path: "edit/:id",
                 element: (
-                  <Modal showModal={true}>
-                    <EditServiceForm />
-                  </Modal>
+                  <WithAuth
+                    children={
+                      <Modal showModal={true}>
+                        <EditServiceForm />
+                      </Modal>
+                    }
+                    authorityNeeded="ENHANCED"
+                  />
                 ),
                 loader: async ({ params }) => {
                   const resources = await loaderWrapper<IResource[]>({
@@ -216,9 +256,14 @@ const router = createBrowserRouter([
               {
                 path: "delete/:id",
                 element: (
-                  <Modal showModal={true}>
-                    <DeleteServiceForm />
-                  </Modal>
+                  <WithAuth
+                    children={
+                      <Modal showModal={true}>
+                        <DeleteServiceForm />
+                      </Modal>
+                    }
+                    authorityNeeded="ENHANCED"
+                  />
                 ),
                 loader: async ({ params }) => {
                   return loaderWrapper<IService>({
@@ -233,7 +278,7 @@ const router = createBrowserRouter([
       },
       {
         path: "calendar",
-        element: <Calendar />,
+        element: <WithAuth children={<Calendar />} />,
         loader: async () => {
           const start = convertFromDateToIsoString(startOfMonth(new Date()));
           const end = convertFromDateToIsoString(endOfMonth(new Date()));
@@ -273,9 +318,14 @@ const router = createBrowserRouter([
               return event;
             },
             element: (
-              <Modal showModal={true}>
-                <RescheduleForm />
-              </Modal>
+              <WithAuth
+                children={
+                  <Modal showModal={true}>
+                    <RescheduleForm />
+                  </Modal>
+                }
+                authorityNeeded="ENHANCED"
+              />
             ),
           },
           {
@@ -305,9 +355,14 @@ const router = createBrowserRouter([
               return event;
             },
             element: (
-              <Modal showModal={true}>
-                <CancelForm />
-              </Modal>
+              <WithAuth
+                children={
+                  <Modal showModal={true}>
+                    <CancelForm />
+                  </Modal>
+                }
+                authorityNeeded="ENHANCED"
+              />
             ),
           },
         ],

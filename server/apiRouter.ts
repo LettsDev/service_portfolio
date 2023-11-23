@@ -85,7 +85,7 @@ router.get(
 );
 router.post(
   "/location",
-  [requireEnhanced, validate(createLocationSchema)],
+  [requireAdmin, validate(createLocationSchema)],
   locationController.create
 );
 router.put(
@@ -114,13 +114,13 @@ router.post(
 
 router.put(
   "/resource/:resourceId",
-  [requireAdmin, validate(updateResourceSchema)],
+  [requireEnhanced, validate(updateResourceSchema)],
   resourceController.edit
 );
 
 router.delete(
   "/resource/:resourceId",
-  [requireAdmin, validate(deleteResourceSchema)],
+  [requireEnhanced, validate(deleteResourceSchema)],
   resourceController.remove
 );
 router.get(
@@ -146,12 +146,12 @@ router.post(
 );
 router.put(
   "/service/:serviceId",
-  [requireAdmin, validate(updateServiceSchema)],
+  [requireEnhanced, validate(updateServiceSchema)],
   serviceController.edit
 );
 router.delete(
   "/service/:serviceId",
-  [requireAdmin, validate(deleteServiceSchema)],
+  [requireEnhanced, validate(deleteServiceSchema)],
   serviceController.remove
 );
 // needed to change base as it was matching with the date query route
@@ -186,7 +186,7 @@ router.put(
 );
 router.delete(
   "/serviceEvent/:serviceEventId",
-  [requireAdmin, validate(deleteServiceEventExceptionSchema)],
+  [requireEnhanced, validate(deleteServiceEventExceptionSchema)],
   serviceEventController.remove
 );
 

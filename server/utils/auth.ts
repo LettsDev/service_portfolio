@@ -32,7 +32,7 @@ export function signJWT(payload: object, options?: jwt.SignOptions) {
   }
 }
 
-export function verifyAuthority(minLevel: number, userAuthLevel: string) {
+export function isVerified(minLevel: number, userAuthLevel: string) {
   const getUserAuthNumber = (userAuthLevel: string) => {
     switch (userAuthLevel) {
       case "ADMIN":

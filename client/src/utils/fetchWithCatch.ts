@@ -17,8 +17,6 @@ export default async function fetchWithCatch<T>(
     if (axios.isAxiosError(error)) {
       if (error.response) {
         //the request was made and there was a response
-        console.error(error.message);
-
         throw new ExtendedError(error.message, error.response.status);
       } else {
         //there was no response
@@ -27,20 +25,37 @@ export default async function fetchWithCatch<T>(
     } else {
       //handle other type of error
       console.error(error);
-      throw error;
+      throw new Error("client-side login error");
     }
   }
 }
 
 export const loaderWrapper = async <T>(config: AxiosRequestConfig) => {
   try {
-    const data = await fetchWithCatch<T>(config);
-    return data;
-  } catch (err) {
-    if (err instanceof ExtendedError && err.statusCode === 401) {
-      return redirect("/login");
+    const response: AxiosResponse<T> = await axios({
+      ...config,
+      timeout: 1000,
+      baseURL: "/api/",
+    });
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      if (error.response) {
+        //the request was made and there was a response
+        if (error.response.status === 401) {
+          //client timed out and needs to log in again
+          redirect("/login");
+          return null;
+        }
+
+        throw new ExtendedError(error.message, error.response.status);
+      }
+      //there was no response
+      throw new ExtendedError(error.message, 404);
     }
-    throw err;
+    //other error
+    console.error(error);
+    throw error;
   }
 };
 

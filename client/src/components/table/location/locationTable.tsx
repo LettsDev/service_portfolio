@@ -3,9 +3,10 @@ import { Outlet, useOutletContext } from "react-router-dom";
 import Search from "../search";
 import useLocationTable from "../../../hooks/useLocationTable";
 import LocationRow from "./locationRow";
-import { Link } from "react-router-dom";
 import { ILocation } from "../../../types";
 import Loading from "../../loading";
+import { useAuth } from "../../../context/auth.provider";
+import NewButton from "../newButton";
 export default function LocationTable() {
   const [query, setQuery] = useState("");
   const {
@@ -16,6 +17,7 @@ export default function LocationTable() {
     newLocation,
     editLocation,
   } = useLocationTable();
+  const { isAuthorized } = useAuth();
   const filteredLocations = () => {
     //issue with useMemo not updating the table with location change
 
@@ -27,17 +29,10 @@ export default function LocationTable() {
   return (
     <div className="mt-4">
       <div className="flex justify-center gap-2">
-        <div
-          data-tip="Add Location"
-          className="tooltip tooltip-left tooltip-primary"
-        >
-          <Link
-            className="btn text-xl bg-primary hover:bg-primary-focus text-white"
-            to="new"
-          >
-            +
-          </Link>
-        </div>
+        <NewButton
+          isDisabled={!isAuthorized("ADMIN")}
+          tooltipText="add location"
+        />
         <Search setQuery={setQuery} />
       </div>
       <table className="table table-fixed table-md mt-2 min-w-[563px]">

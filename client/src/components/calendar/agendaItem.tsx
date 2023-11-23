@@ -3,9 +3,11 @@ import { formatServiceSchedule } from "../../utils/calendarUtils";
 import { Link } from "react-router-dom";
 import { IsoToDate } from "../../utils/dateConversion";
 import { format } from "date-fns";
+import { useAuth } from "../../context/auth.provider";
 export default function AgendaItem({ ev }: { ev: IServiceEventException }) {
   const { is_cancelled, is_rescheduled } = ev;
   const { interval, frequency, start_date, completion_date } = ev.service;
+  const { isAuthorized, user } = useAuth();
   return (
     <tr className="hover cursor-default">
       <td>
@@ -70,29 +72,59 @@ export default function AgendaItem({ ev }: { ev: IServiceEventException }) {
 
       <td colSpan={is_cancelled || is_rescheduled ? 1 : 2}>
         {is_cancelled ? (
-          // TODO cancelled styling
           <div className="flex flex-col gap-1">
-            <Link
-              to={`cancel/${ev.service._id}/${ev.start_date}`}
-              className="btn btn-primary btn-sm"
-            >
-              restore
-            </Link>
+            {isAuthorized("ADMIN") ||
+            (isAuthorized("ENHANCED") &&
+              ev.service.created_by._id === user!._id) ? (
+              <Link
+                to={`cancel/${ev.service._id}/${ev.start_date}`}
+                className="btn btn-primary btn-sm"
+              >
+                restore
+              </Link>
+            ) : (
+              <button type="button" disabled className="btn btn-primary btn-sm">
+                restore
+              </button>
+            )}
           </div>
         ) : (
           <div className="flex flex-col gap-2">
-            <Link
-              to={`reschedule/${ev.service._id}/${ev.start_date}`}
-              className="btn btn-primary btn-sm"
-            >
-              reschedule
-            </Link>
-            <Link
-              to={`cancel/${ev.service._id}/${ev.start_date}`}
-              className="btn btn-secondary btn-sm"
-            >
-              cancel
-            </Link>
+            {isAuthorized("ADMIN") ||
+            (isAuthorized("ENHANCED") &&
+              ev.service.created_by._id === user!._id) ? (
+              <>
+                <Link
+                  to={`reschedule/${ev.service._id}/${ev.start_date}`}
+                  className="btn btn-primary btn-sm"
+                >
+                  reschedule
+                </Link>
+                <Link
+                  to={`cancel/${ev.service._id}/${ev.start_date}`}
+                  className="btn btn-secondary btn-sm"
+                >
+                  cancel
+                </Link>
+              </>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  disabled
+                  className="btn btn-primary btn-sm"
+                >
+                  reschedule
+                </button>
+                <button
+                  type="button"
+                  disabled
+                  className="btn btn-primary btn-sm"
+                >
+                  cancel
+                </button>
+              </>
+            )}
           </div>
         )}
       </td>

@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { ILocation, ExtendedError } from "../../../../types";
 import { useNavigate, useLoaderData } from "react-router-dom";
 import { useResourceContext } from "../resourceTable";
-import { UseAuth } from "../../../../context/auth.provider";
+import { useAuth } from "../../../../context/auth.provider";
 import { useAlert } from "../../../../context/alert.provider";
 import Loading from "../../../loading";
 const schema = z.object({
@@ -20,7 +20,7 @@ export default function NewResourceForm() {
   const locationLoaderData = useLoaderData() as ILocation[];
   const navigate = useNavigate();
   const { newResource, setLoading, loading } = useResourceContext();
-  const { user } = UseAuth();
+  const { user } = useAuth();
   const { addAlert } = useAlert();
   const {
     register,

@@ -4,6 +4,8 @@ import Loading from "../../loading";
 import TableRowButtons from "../tableRowButtons";
 import fetchWithCatch from "../../../utils/fetchWithCatch";
 import { toIServiceDated } from "../../../utils/dateConversion";
+import { useAuth } from "../../../context/auth.provider";
+
 const ResourceRowInner = lazy(() => import("./resourceRowInner"));
 
 type Props = {
@@ -12,7 +14,7 @@ type Props = {
 export default function ResourceRow({ resource }: Props) {
   const [open, setOpen] = useState(false);
   const [services, setServices] = useState<IServiceDated[]>([]);
-
+  const { isAuthorized, user } = useAuth();
   async function handleOpen() {
     setOpen(!open);
     const loadedServices = await fetchWithCatch<IService[]>({
@@ -46,7 +48,7 @@ export default function ResourceRow({ resource }: Props) {
               <p className="badge text-xs md:text-sm cursor-default">{`last updated: ${new Date(
                 resource.updatedAt
               ).toLocaleDateString()}`}</p>
-              <p className="badge text-xs md:text-sm cursor-default">{`created by:${resource.created_by.first_name} ${resource.created_by.last_name}`}</p>
+              <p className="badge text-xs md:text-sm cursor-default">{`created by: ${resource.created_by.first_name} ${resource.created_by.last_name}`}</p>
             </div>
           </td>
           <td>
@@ -55,7 +57,23 @@ export default function ResourceRow({ resource }: Props) {
             </Suspense>
           </td>
           <td>
-            <TableRowButtons id={resource._id} />
+            <TableRowButtons
+              id={resource._id}
+              editDisabled={
+                !(
+                  (user!._id === resource.created_by._id &&
+                    isAuthorized("ENHANCED")) ||
+                  isAuthorized("ADMIN")
+                )
+              }
+              deleteDisabled={
+                !(
+                  (isAuthorized("ENHANCED") &&
+                    user!._id === resource.created_by._id) ||
+                  isAuthorized("ADMIN")
+                )
+              }
+            />
           </td>
         </tr>
       )}

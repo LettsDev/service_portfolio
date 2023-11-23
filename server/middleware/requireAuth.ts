@@ -1,5 +1,5 @@
 import { Response, Request, NextFunction } from "express";
-import { verifyAuthority } from "../utils/auth";
+import { isVerified } from "../utils/auth";
 import { get } from "lodash";
 
 export function requireUser(req: Request, res: Response, next: NextFunction) {
@@ -20,7 +20,7 @@ export function requireAdmin(req: Request, res: Response, next: NextFunction) {
   }
   const auth = get(user, "auth", "");
 
-  if (!verifyAuthority(3, auth)) {
+  if (!isVerified(3, auth)) {
     return res.sendStatus(403);
   }
 
@@ -38,7 +38,7 @@ export function requireEnhanced(
   }
   const auth = get(user, "auth", "");
 
-  if (!verifyAuthority(2, auth)) {
+  if (!isVerified(2, auth)) {
     return res.sendStatus(403);
   }
 

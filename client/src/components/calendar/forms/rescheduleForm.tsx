@@ -3,7 +3,7 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useLoaderData, useNavigate } from "react-router-dom";
-import { UseAuth } from "../../../context/auth.provider";
+import { useAuth } from "../../../context/auth.provider";
 import { IServiceEventException, ExtendedError } from "../../../types";
 import { format, isSameDay } from "date-fns";
 import { formatServiceSchedule } from "../../../utils/calendarUtils";
@@ -32,7 +32,7 @@ export default function RescheduleForm() {
   } = useForm<ValidationSchema>({ resolver: zodResolver(schema) });
 
   const navigate = useNavigate();
-  const { user } = UseAuth();
+  const { user } = useAuth();
   const { loading, rescheduleEvent, setLoading } = useCalendarContext();
   const service = exceptionEvent.service;
   const datedService = toIServiceDated(service);

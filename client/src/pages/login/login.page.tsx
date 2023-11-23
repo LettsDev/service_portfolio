@@ -1,9 +1,10 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { UseAuth } from "../../context/auth.provider";
-import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/auth.provider";
+import { useNavigate, useLocation } from "react-router-dom";
+import { ExtendedError } from "../../types";
 
 const schema = z.object({
   email: z.string().email({ message: "an email is required" }),
@@ -11,6 +12,7 @@ const schema = z.object({
 });
 type ValidationSchema = z.infer<typeof schema>;
 export default function LoginPage() {
+  const [loginError, setLoginError] = useState("");
   const {
     register,
     handleSubmit,
@@ -18,30 +20,34 @@ export default function LoginPage() {
     formState: { errors },
     formState,
   } = useForm<ValidationSchema>({ resolver: zodResolver(schema) });
-  const { login, isAuthenticated } = UseAuth();
+  const { login } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from?.pathname || "/home";
   useEffect(() => {
     if (formState.isSubmitSuccessful) {
       reset();
     }
   }, [formState, reset]);
 
-  useEffect(() => {
-    (async () => {
-      const auth = await isAuthenticated();
-      if (auth) {
-        navigate(-1);
-      }
-    })();
-  }, [isAuthenticated, navigate]);
-
   const onSubmit: SubmitHandler<ValidationSchema> = async ({
     email,
     password,
   }) => {
-    await login({ email, password }).then(() => {
-      navigate("/home");
-    });
+    try {
+      await login({ email, password });
+      navigate(from, { replace: true });
+    } catch (error) {
+      if (error instanceof ExtendedError) {
+        if (error.statusCode === 401) {
+          setLoginError(error.message);
+          console.error(error);
+          return;
+        }
+      }
+      //some unknown error
+      console.error(error);
+    }
   };
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -76,6 +82,7 @@ export default function LoginPage() {
           )}
         </label>
       </div>
+      <p className="text-lg text-error">{loginError}</p>
       <button type="submit" className="btn btn-primary">
         log in
       </button>

@@ -14,7 +14,7 @@ const sessionController = (() => {
     const user = await validatePassword(req.body);
     //user is JSON object
     if (!user) {
-      return res.status(401).send("invalid email or password");
+      return res.status(401).send("Invalid email or password.");
     }
 
     const session = await createSession(

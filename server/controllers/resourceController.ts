@@ -19,8 +19,12 @@ import {
 
 const resourceController = (() => {
   const all = asyncWrapper(async (req: Request, res: Response) => {
-    const resources = await allResource();
-
+    const resources = await allResource({
+      populate: [
+        { path: "location", model: "Location" },
+        { path: "created_by", model: "User" },
+      ],
+    });
     if (resources.length === 0) {
       res.send([]);
       return;

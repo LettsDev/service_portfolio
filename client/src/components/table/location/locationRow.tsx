@@ -2,12 +2,12 @@ import { useState, Suspense, lazy } from "react";
 import { ILocation } from "../../../types";
 import Loading from "../../loading";
 import TableRowButtons from "../tableRowButtons";
-
+import { useAuth } from "../../../context/auth.provider";
 const LocationRowInner = lazy(() => import("./locationRowInner"));
 
 export default function LocationRow({ location }: { location: ILocation }) {
   const [open, setOpen] = useState(false);
-
+  const { isAuthorized } = useAuth();
   function handleOpen() {
     setOpen(!open);
   }
@@ -43,7 +43,11 @@ export default function LocationRow({ location }: { location: ILocation }) {
             }
           </td>
           <td>
-            <TableRowButtons id={location._id} />
+            <TableRowButtons
+              id={location._id}
+              editDisabled={!isAuthorized("ADMIN")}
+              deleteDisabled={!isAuthorized("ADMIN")}
+            />
           </td>
         </tr>
       )}

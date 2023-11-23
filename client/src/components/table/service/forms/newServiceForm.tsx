@@ -4,7 +4,7 @@ import { IResource, IServiceSubmit } from "../../../../types";
 import { useLoaderData, useNavigate } from "react-router-dom";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { UseAuth } from "../../../../context/auth.provider";
+import { useAuth } from "../../../../context/auth.provider";
 import { formatISO, format } from "date-fns";
 import type { ValidationSchema } from "../../../../schemas/serviceSchemas";
 import { serviceSchema, helperInfo } from "../../../../schemas/serviceSchemas";
@@ -13,7 +13,7 @@ export default function NewServiceForm() {
   const { newService } = useServiceContext();
 
   const resourcesLoaderData = useLoaderData() as IResource[];
-  const { user } = UseAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const {
     register,

@@ -12,7 +12,7 @@ export default function useLocationTable() {
     setLoading(true);
     setLocations(loadedLocations);
     setLoading(false);
-  }, []);
+  }, [loadedLocations]);
 
   async function newLocation(data: Pick<ILocation, "name">) {
     setLoading(true);

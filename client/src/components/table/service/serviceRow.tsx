@@ -2,8 +2,10 @@ import { useState } from "react";
 import { IServiceDated } from "../../../types";
 import TableRowButtons from "../tableRowButtons";
 import { formatServiceSchedule } from "../../../utils/calendarUtils";
+import { useAuth } from "../../../context/auth.provider";
 export default function ServiceRow({ service }: { service: IServiceDated }) {
   const [open, setOpen] = useState(false);
+  const { user, isAuthorized } = useAuth();
   return (
     <>
       <tr
@@ -43,7 +45,23 @@ export default function ServiceRow({ service }: { service: IServiceDated }) {
             </p>
           </td>
           <td>
-            <TableRowButtons id={service._id} />
+            <TableRowButtons
+              id={service._id}
+              editDisabled={
+                !(
+                  (user!._id === service.created_by._id &&
+                    isAuthorized("ENHANCED")) ||
+                  isAuthorized("ADMIN")
+                )
+              }
+              deleteDisabled={
+                !(
+                  (isAuthorized("ENHANCED") &&
+                    user!._id === service.created_by._id) ||
+                  isAuthorized("ADMIN")
+                )
+              }
+            />
           </td>
         </tr>
       )}

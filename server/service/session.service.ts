@@ -27,18 +27,14 @@ export async function reIssueAccessToken({
   refreshToken: string;
 }) {
   const { decoded } = verifyJWT(refreshToken);
-
   if (!decoded || !get(decoded, "session")) return false;
-
   const currentSession = await Session.findById(get(decoded, "session"));
   if (!currentSession || !currentSession.valid) return false;
-
   const user = await findUser({ _id: currentSession.user });
   if (!user) return false;
-
   const accessToken = signJWT(
     { ...user, session: currentSession._id },
-    { expiresIn: "15m" }
+    { expiresIn: "1h" }
   );
   return accessToken;
 }

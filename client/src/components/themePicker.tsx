@@ -22,7 +22,6 @@ export default function ThemePicker({
     ev.stopPropagation();
     setTheme(theme);
     localStorage.setItem("theme", theme);
-    console.log("clicked");
   }
 
   return (

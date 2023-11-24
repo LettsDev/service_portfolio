@@ -57,7 +57,7 @@ export async function findUser(
   query: FilterQuery<IUser>,
   options: QueryOptions = {}
 ) {
-  return User.findById(query.id, {}, options);
+  return User.findById(query._id, {}, options);
 }
 
 export async function allUsers(options: QueryOptions = {}) {

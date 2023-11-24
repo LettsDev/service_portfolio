@@ -25,14 +25,14 @@ const sessionController = (() => {
 
     const accessToken = signJWT(
       { ...user, session: session._id },
-      { expiresIn: "15m" }
+      { expiresIn: "1h" }
     );
     const refreshToken = signJWT(
       { ...user, session: session._id },
-      { expiresIn: "15m" }
+      { expiresIn: "7d" }
     );
     res.cookie("accessToken", accessToken, {
-      maxAge: 900000, //15 minutes
+      maxAge: 36e5, //1 hour
       httpOnly: true,
       domain: process.env.DOMAIN as string,
       path: "/",
@@ -40,7 +40,7 @@ const sessionController = (() => {
       secure: process.env.SECURE === "true",
     });
     res.cookie("refreshToken", refreshToken, {
-      maxAge: 3.14e10, //1 Year
+      maxAge: 36.048e8, //1 week
       httpOnly: true,
       domain: process.env.DOMAIN as string,
       path: "/",

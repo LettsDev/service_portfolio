@@ -2,23 +2,24 @@ import jwt from "jsonwebtoken";
 import "dotenv/config";
 const secret = process.env.JWTSECRET;
 
-export function verifyJWT(token: string) {
+export function verifyJWT(token: string | undefined) {
   try {
     if (secret) {
-      const decoded = jwt.verify(token, secret);
-      return {
-        valid: true,
-        expired: false,
-        decoded,
-      };
-    } else {
-      throw Error("missing secret key");
+      if (token) {
+        const decoded = jwt.verify(token, secret);
+        return {
+          valid: true,
+          expired: false,
+          decoded,
+        };
+      }
+      throw Error("no token");
     }
+    throw Error("missing secret key env variable");
   } catch (e: any) {
-    console.error(e);
     return {
       valid: false,
-      expired: e.message === "jwt expired",
+      expired: true,
       decoded: null,
     };
   }
@@ -26,10 +27,13 @@ export function verifyJWT(token: string) {
 
 export function signJWT(payload: object, options?: jwt.SignOptions) {
   if (secret) {
-    return jwt.sign(payload, secret, { ...options, algorithm: "HS256" });
-  } else {
-    console.log("no secret");
+    try {
+      return jwt.sign(payload, secret, { ...options, algorithm: "HS256" });
+    } catch (error) {
+      console.error(error);
+    }
   }
+  console.error("no JWT secret");
 }
 
 export function isVerified(minLevel: number, userAuthLevel: string) {

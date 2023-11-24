@@ -12,28 +12,22 @@ const deserializeUser = async (
   const accessToken =
     get(req, "cookies.accessToken") ||
     get(req, "headers.authorization", "").replace(/^Bearer\s/, "");
-
   const refreshToken =
     get(req, "cookies.refreshToken") ||
     (get(req, "headers.x-refresh") as string);
 
-  if (!accessToken) {
+  if (!refreshToken) {
     return next();
   }
-
-  const { decoded, expired } = verifyJWT(accessToken);
-  if (decoded) {
-    res.locals.user = decoded;
-    return next();
-  }
-
-  if (expired && refreshToken) {
+  //no access token(or expired / not valid) -> reissue access token
+  const accessTokenResult = verifyJWT(accessToken as string);
+  if (accessTokenResult.expired || !accessTokenResult.valid) {
+    // reIssueAccessToken will verify: refresh token , valid session
     const newAccessToken = await reIssueAccessToken({ refreshToken });
-
     if (newAccessToken) {
       res.setHeader("x-access-token", newAccessToken);
       res.cookie("accessToken", newAccessToken, {
-        maxAge: 90000, //15 minutes
+        maxAge: 36e5, //1 hour
         httpOnly: true,
         domain: process.env.DOMAIN as string,
         path: "/",
@@ -42,8 +36,12 @@ const deserializeUser = async (
       });
     }
     const result = verifyJWT(newAccessToken as string);
-
     res.locals.user = result.decoded;
+    return next();
+  }
+  //happy path -> have refresh and access
+  if (accessTokenResult.decoded) {
+    res.locals.user = accessTokenResult.decoded;
     return next();
   }
   return next();

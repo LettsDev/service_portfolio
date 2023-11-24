@@ -15,7 +15,7 @@ export default function LocationRow({ location }: { location: ILocation }) {
     <>
       <tr
         onClick={handleOpen}
-        className="cursor-pointer hover:bg-accent hover:text-white"
+        className="cursor-pointer hover:bg-secondary hover:text-secondary-content"
       >
         <td className="font-medium">{location.name}</td>
         <td>{location.numResources}</td>
@@ -24,7 +24,7 @@ export default function LocationRow({ location }: { location: ILocation }) {
       {open && (
         <tr>
           <td>
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-2 ">
               <p className="badge text-xs md:text-sm">
                 created: {new Date(location.createdAt).toLocaleDateString()}
               </p>

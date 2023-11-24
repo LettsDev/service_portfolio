@@ -2,7 +2,7 @@ import { IResource, IService, IServiceDated } from "../../../types";
 import { useState, Suspense, lazy } from "react";
 import Loading from "../../loading";
 import TableRowButtons from "../tableRowButtons";
-import fetchWithCatch from "../../../utils/fetchWithCatch";
+import useFetchWithCatch from "../../../hooks/useFetchWithCatch";
 import { toIServiceDated } from "../../../utils/dateConversion";
 import { useAuth } from "../../../context/auth.provider";
 
@@ -12,6 +12,7 @@ type Props = {
   resource: IResource;
 };
 export default function ResourceRow({ resource }: Props) {
+  const { fetchWithCatch } = useFetchWithCatch();
   const [open, setOpen] = useState(false);
   const [services, setServices] = useState<IServiceDated[]>([]);
   const { isAuthorized, user } = useAuth();

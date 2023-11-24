@@ -43,11 +43,15 @@ export const loaderWrapper = async <T>(config: AxiosRequestConfig) => {
       if (error.response) {
         //the request was made and there was a response
         if (error.response.status === 401) {
-          //client timed out and needs to log in again
+          //authentication error
           redirect("/login");
           return null;
         }
-
+        if (error.response.status === 403) {
+          //authorization error
+          redirect("..");
+          return null;
+        }
         throw new ExtendedError(error.message, error.response.status);
       }
       //there was no response

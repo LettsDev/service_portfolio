@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
 import { useLoaderData } from "react-router-dom";
 import { ILocation } from "../types";
-import fetchWithCatch from "../utils/fetchWithCatch";
+
+import useFetchWithCatch from "./useFetchWithCatch";
 
 export default function useLocationTable() {
+  const { fetchWithCatch } = useFetchWithCatch();
   const [loading, setLoading] = useState(true);
   const [locations, setLocations] = useState<ILocation[]>([]);
   const loadedLocations = useLoaderData() as ILocation[];

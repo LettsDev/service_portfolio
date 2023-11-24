@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { IResource, IResourceSubmit, IResourceSubmitEdit } from "../types";
 import { useLoaderData } from "react-router-dom";
-import fetchWithCatch from "../utils/fetchWithCatch";
+import useFetchWithCatch from "./useFetchWithCatch";
 export default function UseResourceTable() {
+  const { fetchWithCatch } = useFetchWithCatch();
   const [loading, setLoading] = useState(true);
   const [resources, setResources] = useState<IResource[]>([]);
 

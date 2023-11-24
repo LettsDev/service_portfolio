@@ -15,7 +15,6 @@ import ResourceTable from "./components/table/resource/resourceTable.tsx";
 import TablePage from "./pages/table/table.page.tsx";
 import "./index.css";
 import Modal from "./components/modal.tsx";
-// import axios from "axios";
 import DeleteLocationForm from "./components/table/location/forms/deleteLocationForm.tsx";
 import NewLocationForm from "./components/table/location/forms/newLocationForm.tsx";
 import EditLocationForm from "./components/table/location/forms/editLocationForm.tsx";
@@ -51,21 +50,12 @@ import CancelForm from "./components/calendar/forms/cancelForm.tsx";
 const router = createBrowserRouter([
   {
     element: <App />,
-    // loader: async () =>
-    //   axios.post("/api/session", {
-    //     email: "test@gmail.com",
-    //     password: "65f073f6-1897-4f4c-a17b-d910d02fc5da",
-    //   }),
     children: [
       { path: "home", element: <WithAuth children={<Home />} /> },
       { path: "login", element: <LoginPage /> },
       {
         path: "table",
         element: <WithAuth children={<TablePage />} />,
-        // lazy: async () => {
-        //   const TablePage = await import("./pages/table/table.page.tsx");
-        //   return { Component: TablePage.default };
-        // },
         children: [
           {
             path: "locations",

@@ -13,7 +13,7 @@ export default function TablePage() {
             <li
               key={table}
               className={
-                "tab tab-lg " +
+                "tab tab-lg btn " +
                 (location.pathname === `/table/${table}` ? "tab-active" : "")
               }
             >

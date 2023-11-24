@@ -7,9 +7,11 @@ import {
   IServiceSubmitEdit,
   IServiceDated,
 } from "../types";
-import fetchWithCatch from "../utils/fetchWithCatch";
+import useFetchWithCatch from "./useFetchWithCatch";
 import { toIServiceDated } from "../utils/dateConversion";
+
 export default function useServiceTable() {
+  const { fetchWithCatch } = useFetchWithCatch();
   const [loading, setLoading] = useState(true);
   const [services, setServices] = useState<IServiceDated[]>([]);
   const loadedServices = useLoaderData() as IService[];

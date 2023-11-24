@@ -40,7 +40,7 @@ const sessionController = (() => {
       secure: process.env.SECURE === "true",
     });
     res.cookie("refreshToken", refreshToken, {
-      maxAge: 36.048e8, //1 week
+      maxAge: 6.048e8, //1 week
       httpOnly: true,
       domain: process.env.DOMAIN as string,
       path: "/",

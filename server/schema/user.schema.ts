@@ -1,5 +1,4 @@
 import { object, string, TypeOf, z } from "zod";
-import mongoose from "mongoose";
 
 const params = {
   params: object({
@@ -27,10 +26,6 @@ const payload = {
     auth: z.enum(["ADMIN", "USER", "ENHANCED"], {
       required_error: "an auth level is required",
     }),
-    location: string().transform((val) => {
-      const id = new mongoose.Types.ObjectId(val);
-      return id;
-    }),
   }).refine((data) => data.password === data.passwordConfirmation, {
     message: "Passwords do not match",
     path: ["passwordConfirmation"],
@@ -54,10 +49,6 @@ const updatePayload = {
     }).email("Not a valid email"),
     auth: z.enum(["ADMIN", "USER", "ELEVATED"], {
       required_error: "an auth level is required",
-    }),
-    location: string().transform((val) => {
-      const id = new mongoose.Types.ObjectId(val);
-      return id;
     }),
   }),
 };

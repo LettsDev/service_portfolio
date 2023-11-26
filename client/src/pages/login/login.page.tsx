@@ -5,6 +5,7 @@ import * as z from "zod";
 import { useAuth } from "../../context/auth.provider";
 import { useNavigate, useLocation } from "react-router-dom";
 import { ExtendedError } from "../../types";
+import { Link } from "react-router-dom";
 
 const schema = z.object({
   email: z.string().email({ message: "an email is required" }),
@@ -51,7 +52,7 @@ export default function LoginPage() {
   };
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <h1 className="text-xl font-bold mb-2">Login</h1>
+      <h1 className="text-xl font-bold mb-4">Login</h1>
       <div className="form-control w-full max-w-sm ">
         <input
           type="text"
@@ -83,9 +84,14 @@ export default function LoginPage() {
         </label>
       </div>
       <p className="text-lg text-error">{loginError}</p>
-      <button type="submit" className="btn btn-primary">
-        log in
-      </button>
+      <div className="flex justify-between">
+        <button type="submit" className="btn btn-primary">
+          log in
+        </button>
+        <Link to="/register" className="link">
+          register new account
+        </Link>
+      </div>
     </form>
   );
 }

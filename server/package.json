@@ -5,7 +5,7 @@
   "main": "server.ts",
   "scripts": {
     "test": "jest --coverage --detectOpenHandles",
-    "dev": "concurrently \"npm run server\" \"npx tsc --watch\" \"cd ../client && npm run dev \"",
+    "dev": "concurrently \"npm run server \" \"npx tsc --watch\" \"cd ../client && npm run dev \"",
     "server": "nodemon build/server.js"
   },
   "author": "Jared Letts",

@@ -13,6 +13,19 @@ interface AuthContextType {
   logout: () => Promise<void>;
   isAuthenticated: () => boolean;
   isAuthorized: (neededCredentials: IUser["auth"]) => boolean;
+  registerUser: ({
+    email,
+    password,
+    first_name,
+    last_name,
+  }: {
+    email: string;
+    password: string;
+    first_name: string;
+    last_name: string;
+    passwordConfirmation: string;
+    auth: string;
+  }) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({} as AuthContextType);
@@ -72,6 +85,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const registerUser = async (data: {
+    email: string;
+    password: string;
+    first_name: string;
+    last_name: string;
+    passwordConfirmation: string;
+    auth: string;
+  }) => {
+    try {
+      await axios.post("/api/user", data);
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        if (error.response) {
+          //the request was made and there was a response
+          throw new ExtendedError(error.message, error.response.status);
+        } else {
+          //there was no response
+          throw new ExtendedError(error.message, 404);
+        }
+      }
+      console.error(error);
+      throw new Error("client-side registration error");
+    }
+  };
+
   const isAuthenticated = () => {
     return !!user;
   };
@@ -104,6 +142,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     logout,
     isAuthenticated,
     isAuthorized,
+    registerUser,
   };
 
   return (

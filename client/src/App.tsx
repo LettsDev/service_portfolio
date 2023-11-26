@@ -28,7 +28,7 @@ function App() {
   }
 
   return (
-    <main data-theme={theme}>
+    <main data-theme={theme} className="h-screen">
       {isAuthenticated() ? (
         <div className="navbar bg-base-100">
           <div className="navbar-start">
@@ -95,9 +95,14 @@ function App() {
             </div>
           </div>
         </div>
-      ) : null}
+      ) : (
+        <header className="py-4 px-4 bg-base-300 min-h-[4rem]">
+          <h1 className="text-xl cursor-default">Resource Manager</h1>
+        </header>
+      )}
 
       <Outlet />
+
       <div className="flex flex-col gap-1 px-64">
         {alerts.map((alert) => (
           <AlertComponent alert={alert} key={alert.id} />

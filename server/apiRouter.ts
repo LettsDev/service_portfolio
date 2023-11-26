@@ -59,11 +59,7 @@ router.post(
 );
 router.delete("/session", requireUser, sessionController.deleteUserSession);
 // ****************User****************
-router.post(
-  "/user",
-  [requireAdmin, validate(createUserSchema)],
-  userController.create
-);
+router.post("/user", [validate(createUserSchema)], userController.create);
 router.get("/user/:userId", validate(getUserSchema), userController.get);
 router.put(
   "/user/:userId",

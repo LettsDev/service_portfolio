@@ -47,12 +47,14 @@ import {
 import RescheduleForm from "./components/calendar/forms/rescheduleForm.tsx";
 import { createEvent } from "./utils/calendarUtils.ts";
 import CancelForm from "./components/calendar/forms/cancelForm.tsx";
+import Register from "./pages/register/register.page.tsx";
 const router = createBrowserRouter([
   {
     element: <App />,
     children: [
       { path: "home", element: <WithAuth children={<Home />} /> },
       { path: "login", element: <LoginPage /> },
+      { path: "register", element: <Register /> },
       {
         path: "table",
         element: <WithAuth children={<TablePage />} />,

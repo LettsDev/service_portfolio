@@ -6,7 +6,7 @@ export default function TablePage() {
 
   return (
     <>
-      <div className="flex justify-center w-full ">
+      <div className="flex justify-center w-full pb-4 pt-2">
         {/* table nav */}
         <ul className="tabs tabs-boxed">
           {tables.map((table) => (

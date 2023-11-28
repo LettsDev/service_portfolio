@@ -277,7 +277,7 @@ export default function NewServiceForm() {
         </div>
       </div>
 
-      <div className="flex">
+      <div className="flex flex-col sm:flex-row">
         {/* ************************* startDate  ************************* */}
         {/* ************************* startDate ONCE || DAILY ************************* */}
         <div

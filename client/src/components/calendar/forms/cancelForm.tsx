@@ -4,6 +4,7 @@ import { IsoToDate, toIServiceDated } from "../../../utils/dateConversion";
 import format from "date-fns/format";
 import { formatServiceSchedule } from "../../../utils/calendarUtils";
 import Loading from "../../loading";
+import Stat from "../../table/stat";
 import { useCalendarContext } from "../../../pages/calendar/calendar.page";
 import { useAlert } from "../../../context/alert.provider";
 export default function CancelForm() {
@@ -13,6 +14,7 @@ export default function CancelForm() {
   const { loading, cancelEvent, setLoading } = useCalendarContext();
   const { addAlert } = useAlert();
   const navigate = useNavigate();
+
   console.log(exceptionEvent);
   const handleCancel = async () => {
     try {
@@ -49,31 +51,47 @@ export default function CancelForm() {
         <Loading />
       ) : (
         <>
-          <h1 className="text-xl font-bold mb-2">
-            {exceptionEvent.is_cancelled ? "Restore Event" : "Cancel Event"}
+          <h1 className="text-lg font-bold mb-2">
+            {exceptionEvent.is_cancelled
+              ? `Restore ${service.name}`
+              : `Cancel ${service.name} `}
           </h1>
-          <div className="rounded border p-4 mb-2">
-            <p>{service.name}</p>
-            <p>{`resource(location): ${service.resource.name}(${service.resource.location.name})`}</p>
+          <div className="rounded border mb-2 text-sm sm:text-base p-2 form-control gap-1 ">
+            <Stat
+              label="resource(location)"
+              info={`${service.resource.name}(${service.resource.location.name})`}
+            />
 
-            <p>{`created: ${format(
-              IsoToDate(exceptionEvent.createdAt),
-              "yyyy-MM-dd"
-            )}`}</p>
-            <p>
-              {`created by: ${exceptionEvent.created_by.first_name} ${exceptionEvent.created_by.last_name}`}
-            </p>
+            <Stat
+              label="created"
+              info={`${format(
+                IsoToDate(exceptionEvent.createdAt),
+                "yyyy-MM-dd"
+              )}`}
+            />
 
-            <p>{`schedule: ${formatServiceSchedule({
-              interval: service.interval,
-              frequency: service.frequency,
-              start_date: datedService.start_date,
-              completion_date: datedService.completion_date,
-            })}`}</p>
-            <p className="font-bold">{`event date: ${format(
-              IsoToDate(exceptionEvent.exception_date),
-              "PPPP"
-            )}`}</p>
+            <Stat
+              label="created by"
+              info={`${exceptionEvent.created_by.first_name} ${exceptionEvent.created_by.last_name}`}
+            />
+
+            <Stat
+              label="schedule"
+              info={`${formatServiceSchedule({
+                interval: service.interval,
+                frequency: service.frequency,
+                start_date: datedService.start_date,
+                completion_date: datedService.completion_date,
+              })}`}
+            />
+
+            <Stat
+              label="event date"
+              info={`${format(
+                IsoToDate(exceptionEvent.exception_date),
+                "PPPP"
+              )}`}
+            />
           </div>
 
           <button

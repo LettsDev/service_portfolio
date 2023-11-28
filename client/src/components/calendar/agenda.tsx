@@ -7,14 +7,11 @@ type AgendaProps = {
 };
 export default function Agenda({ dateItems, selectedDate }: AgendaProps) {
   return (
-    <table className="table">
+    <table className="table table-fixed">
       <thead>
         <tr>
-          <td>Service</td>
-          <td>Resource</td>
-          <td>Location</td>
-          <td></td>
-          <td></td>
+          <td className="mx-0.5">Service</td>
+          <td className="mx-0.5">Resource(Location)</td>
         </tr>
       </thead>
       <tbody>

@@ -16,9 +16,9 @@ export default function DeleteServiceForm() {
     <>
       <h1 className="text-xl font-bold mb-2">Delete Service</h1>
       <h2>Are you sure you want to delete the following service?</h2>
-      <p className="badge badge-neutral">{loaderData.name}</p>
+      <p className="badge badge-neutral mt-2">{loaderData.name}</p>
 
-      <form className="mt-2" onSubmit={(ev) => onSubmit(ev)}>
+      <form className="mt-4" onSubmit={(ev) => onSubmit(ev)}>
         <button className="btn btn-primary " type="submit">
           Delete
         </button>

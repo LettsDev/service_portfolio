@@ -8,9 +8,9 @@ export default function ResourceRowInner({
   return (
     <ul className="flex flex-col gap-2 justify-center">
       {datedServices.map((service) => (
-        <li key={service._id}>
+        <li key={service._id} className="cursor-default">
           <div
-            className="tooltip tooltip-top dark:tooltip-accent cursor-default"
+            className="tooltip tooltip-top tooltip-accent scale-75 sm:scale-100"
             data-tip={formatServiceSchedule({
               interval: service.interval,
               frequency: service.frequency,
@@ -18,7 +18,7 @@ export default function ResourceRowInner({
               completion_date: service.completion_date,
             })}
           >
-            <div className="badge badge-neutral dark:badge-accent">
+            <div className="card card-bordered bg-base-300 rounded-box p-2 text-base-content text-xs sm:text-base">
               {service.name}
             </div>
           </div>

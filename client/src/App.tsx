@@ -28,9 +28,9 @@ function App() {
   }
 
   return (
-    <main data-theme={theme} className="h-screen">
+    <main data-theme={theme} className="h-screen font-sans">
       {isAuthenticated() ? (
-        <div className="navbar bg-base-100">
+        <div className="navbar bg-base-300 font-serif">
           <div className="navbar-start">
             <div className="dropdown">
               <label tabIndex={0} className="btn btn-ghost lg:hidden">
@@ -61,7 +61,10 @@ function App() {
                 </li>
               </ul>
             </div>
-            <NavLink to="/home" className="btn btn-ghost normal-case text-xl">
+            <NavLink
+              to="/home"
+              className="btn btn-ghost normal-case md:text-xl"
+            >
               Resource Manager
             </NavLink>
           </div>
@@ -87,7 +90,7 @@ function App() {
               }`}
               onClick={handleLogout}
             >
-              <div className="bg-neutral text-neutral-content rounded-full w-16">
+              <div className="bg-neutral text-neutral-content rounded-full md:w-16 w-12">
                 <span className="text-lg">
                   {user ? `${user.first_name[0]}${user.last_name[0]}` : ""}
                 </span>
@@ -103,7 +106,7 @@ function App() {
 
       <Outlet />
 
-      <div className="flex flex-col gap-1 px-64">
+      <div className="flex flex-col gap-1 px-2">
         {alerts.map((alert) => (
           <AlertComponent alert={alert} key={alert.id} />
         ))}

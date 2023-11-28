@@ -36,20 +36,22 @@ export default function DeleteResourceForm() {
       {loading ? (
         <Loading />
       ) : (
-        <form className="mt-2" onSubmit={(ev) => onSubmit(ev)}>
+        <>
           <h1 className="text-xl font-bold mb-2">Delete Resource</h1>
           <h2>Are you sure you want to delete the following resource?</h2>
-          <p className="badge badge-neutral">{loaderData.name}</p>
+          <p className="badge badge-neutral mt-2">{loaderData.name}</p>
 
           <div className="divider"></div>
 
           <p>
             All of the services assigned to the resource will also be deleted.
           </p>
-          <button className="btn btn-primary " type="submit">
-            Delete
-          </button>
-        </form>
+          <form className="mt-4" onSubmit={(ev) => onSubmit(ev)}>
+            <button className="btn btn-primary " type="submit">
+              Delete
+            </button>
+          </form>
+        </>
       )}
     </>
   );

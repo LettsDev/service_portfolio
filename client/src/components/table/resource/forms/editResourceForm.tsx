@@ -72,7 +72,7 @@ export default function EditResourceForm() {
           <div className="form-control w-full max-w-sm ">
             <input
               type="text"
-              placeholder={loaderData.resource.name}
+              defaultValue={loaderData.resource.name}
               className={`input input-bordered w-full max-w-sm ${
                 errors.name ? "input-error" : ""
               }`}

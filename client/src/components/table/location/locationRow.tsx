@@ -3,6 +3,8 @@ import { ILocation } from "../../../types";
 import Loading from "../../loading";
 import TableRowButtons from "../tableRowButtons";
 import { useAuth } from "../../../context/auth.provider";
+import { format } from "date-fns";
+import Stat from "../stat";
 const LocationRowInner = lazy(() => import("./locationRowInner"));
 
 export default function LocationRow({ location }: { location: ILocation }) {
@@ -15,24 +17,24 @@ export default function LocationRow({ location }: { location: ILocation }) {
     <>
       <tr
         onClick={handleOpen}
-        className="cursor-pointer hover:bg-secondary hover:text-secondary-content"
+        className="cursor-pointer hover:bg-accent hover:text-accent-content"
       >
-        <td className="font-medium">{location.name}</td>
+        <td>{location.name}</td>
         <td>{location.numResources}</td>
         <td></td>
       </tr>
       {open && (
-        <tr>
+        <tr className="bg-base-200">
           <td>
             <div className="flex flex-col gap-2 ">
-              <p className="badge text-xs md:text-sm">
-                created: {new Date(location.createdAt).toLocaleDateString()}
-              </p>
-              <p className="badge text-xs md:text-sm">
-                {`last updated: ${new Date(
-                  location.updatedAt
-                ).toLocaleDateString()}`}
-              </p>
+              <Stat
+                label="created"
+                info={format(new Date(location.createdAt), "PP")}
+              />
+              <Stat
+                label="updated"
+                info={format(new Date(location.updatedAt), "PP")}
+              />
             </div>
           </td>
           <td>
@@ -42,7 +44,7 @@ export default function LocationRow({ location }: { location: ILocation }) {
               </Suspense>
             }
           </td>
-          <td>
+          <td className="text-center">
             <TableRowButtons
               id={location._id}
               editDisabled={!isAuthorized("ADMIN")}

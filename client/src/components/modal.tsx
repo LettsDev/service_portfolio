@@ -23,7 +23,7 @@ export default function Modal({ showModal, children }: Props) {
   return (
     <dialog
       ref={ref}
-      className="modal modal-bottom sm:modal-middle"
+      className="modal max-w-sm sm:max-w-none"
       onCancel={handleClose}
     >
       <div className="modal-box">

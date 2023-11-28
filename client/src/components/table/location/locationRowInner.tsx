@@ -16,12 +16,12 @@ export default function LocationRowInner({ id }: { id: string }) {
   return (
     <ul className="flex flex-col gap-2 justify-center ">
       {resources.map((resource) => (
-        <li key={resource._id}>
+        <li key={resource._id} className="cursor-default">
           <div
-            className="tooltip tooltip-right dark:tooltip-accent"
-            data-tip={`Notes: ${resource.notes}`}
+            className="tooltip tooltip-top tooltip-accent text-accent-content text-xs"
+            data-tip={`${resource.notes}`}
           >
-            <div className="badge badge-neutral dark:badge-accent">
+            <div className="card card-bordered bg-base-300 rounded-box p-2 text-base-content">
               {resource.name}
             </div>
           </div>

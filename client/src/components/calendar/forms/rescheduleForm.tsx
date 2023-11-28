@@ -9,6 +9,7 @@ import { format, isSameDay } from "date-fns";
 import { formatServiceSchedule } from "../../../utils/calendarUtils";
 import { useAlert } from "../../../context/alert.provider";
 import Loading from "../../loading";
+import Stat from "../../table/stat";
 import {
   toIServiceDated,
   IsoToDate,
@@ -92,38 +93,60 @@ export default function RescheduleForm() {
         <Loading />
       ) : (
         <form onSubmit={handleSubmit(onSubmit)} className="form-control p-2">
-          <h1 className="text-xl font-bold mb-2">Reschedule Event</h1>
-          <div className="rounded border p-4 mb-2">
-            <p>{service.name}</p>
-            <p>{`resource(location): ${service.resource.name}(${service.resource.location.name})`}</p>
+          <h1 className="text-lg font-bold mb-2">{`Reschedule ${service.name}`}</h1>
+          <div className="rounded border p-4 mb-2 form-control gap-2">
+            <Stat
+              label="resource(location)"
+              info={`${service.resource.name}(${service.resource.location.name})`}
+            />
 
-            <p>{`created: ${format(
-              IsoToDate(exceptionEvent.createdAt),
-              "yyyy-MM-dd"
-            )}`}</p>
-            <p>
-              {`created by: ${exceptionEvent.created_by.first_name} ${exceptionEvent.created_by.last_name}`}
-            </p>
+            <Stat
+              label="created"
+              info={`${format(
+                IsoToDate(exceptionEvent.createdAt),
+                "yyyy-MM-dd"
+              )}`}
+            />
 
-            <p>{`schedule: ${formatServiceSchedule({
-              interval: service.interval,
-              frequency: service.frequency,
-              start_date: datedService.start_date,
-              completion_date: datedService.completion_date,
-            })}`}</p>
-            <p className="font-bold">{`event date: ${format(
-              IsoToDate(exceptionEvent.exception_date),
-              "PPPP"
-            )}`}</p>
+            <Stat
+              label="created by"
+              info={`${exceptionEvent.created_by.first_name} ${exceptionEvent.created_by.last_name}`}
+            />
+
+            <Stat
+              label="schedule"
+              info={`${formatServiceSchedule({
+                interval: service.interval,
+                frequency: service.frequency,
+                start_date: datedService.start_date,
+                completion_date: datedService.completion_date,
+              })}`}
+            />
+
+            <Stat
+              label="event date"
+              info={`${format(
+                IsoToDate(exceptionEvent.exception_date),
+                "PPPP"
+              )}`}
+            />
+
+            {exceptionEvent.is_rescheduled ? (
+              <Stat
+                label="already rescheduled from"
+                info={`${format(
+                  IsoToDate(exceptionEvent.start_date),
+                  "yyyy-MM-dd"
+                )}`}
+              />
+            ) : // <p className="pl-1">{`already rescheduled from: ${format(
+            //   IsoToDate(exceptionEvent.start_date),
+            //   "yyyy-MM-dd"
+            // )}`}</p>
+            undefined}
           </div>
-          {exceptionEvent.is_rescheduled ? (
-            <p className="pl-1">{`already rescheduled from: ${format(
-              IsoToDate(exceptionEvent.start_date),
-              "yyyy-MM-dd"
-            )}`}</p>
-          ) : undefined}
           <label htmlFor="date" className="label">
-            reschedule event to:
+            reschedule event
           </label>
           <input
             id="date"

@@ -61,10 +61,10 @@ export default function Calendar() {
     return month;
   };
   return (
-    <main className="flex justify-center">
-      <div className="flex flex-col max-w-sm ">
+    <div className="flex justify-center mt-2">
+      <div className="flex flex-col max-w-sm md:max-w-md">
         {/* tool bar */}
-        <div className="flex justify-between grow items-center">
+        <div className="flex justify-between grow items-center mx-2">
           <button
             className="btn cursor-pointer"
             onClick={() => setSelectedDate((current) => subMonths(current, 1))}
@@ -84,7 +84,7 @@ export default function Calendar() {
             {<FaArrowRight />}
           </button>
         </div>
-        <table className="table-fixed w-full">
+        <table className="table-fixed w-full mx-s">
           <thead>
             <tr>
               {dayLabels.map((label) => (
@@ -115,7 +115,7 @@ export default function Calendar() {
         <Agenda dateItems={dateItems} selectedDate={selectedDate} />
       </div>
       <Outlet context={{ loading, rescheduleEvent, cancelEvent, setLoading }} />
-    </main>
+    </div>
   );
 }
 

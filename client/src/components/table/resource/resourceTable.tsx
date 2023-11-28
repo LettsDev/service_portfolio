@@ -31,7 +31,7 @@ export default function ResourceTable() {
     );
   };
   return (
-    <div className="mt-4">
+    <div className="">
       <div className="flex justify-center gap-2">
         <NewButton
           isDisabled={!isAuthorized("ENHANCED")}
@@ -39,17 +39,17 @@ export default function ResourceTable() {
         />
         <Search setQuery={setQuery} />
       </div>
-      <table className="table table-fixed table-md mt-2 min-w-[563px]">
+      <table className="table table-fixed mt-2 table-sm md:table-lg ">
         <thead>
-          <tr>
+          <tr className="">
             <th>Name</th>
             <th>Location</th>
             <th>Number of Services</th>
           </tr>
         </thead>
         {loading ? (
-          <tbody className="">
-            <tr className="">
+          <tbody>
+            <tr>
               <td>
                 <Loading />
               </td>

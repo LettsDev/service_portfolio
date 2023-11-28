@@ -14,14 +14,11 @@ export default function TableRowButtons({
   return (
     <div className="join join-vertical lg:join-horizontal ">
       {editDisabled ? (
-        <button type="button" disabled className="btn btn-primary join-item">
+        <button type="button" disabled className="btn btn-primary join-item ">
           Edit
         </button>
       ) : (
-        <Link
-          to={`edit/${id}`}
-          className="btn join-item btn-primary text-white "
-        >
+        <Link to={`edit/${id}`} className="btn join-item btn-primary  ">
           Edit
         </Link>
       )}
@@ -30,10 +27,7 @@ export default function TableRowButtons({
           Delete
         </button>
       ) : (
-        <Link
-          to={`delete/${id}`}
-          className="btn join-item btn-secondary text-white"
-        >
+        <Link to={`delete/${id}`} className="btn join-item btn-secondary ">
           Delete
         </Link>
       )}

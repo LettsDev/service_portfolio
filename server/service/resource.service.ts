@@ -46,11 +46,11 @@ export async function deleteResource(
   return resource;
 }
 
-export async function allResource(options: QueryOptions = { lean: true }) {
+export async function allResources(options: QueryOptions = { lean: true }) {
   return Resource.find({}, {}, options)
+    .populate("numServices")
     .populate("location")
     .populate("created_by")
-    .populate("numServices")
     .exec();
 }
 

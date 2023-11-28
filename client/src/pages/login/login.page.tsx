@@ -51,47 +51,49 @@ export default function LoginPage() {
     }
   };
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
-      <h1 className="text-xl font-bold mb-4">Login</h1>
-      <div className="form-control w-full max-w-sm ">
-        <input
-          type="text"
-          placeholder="email"
-          {...register("email")}
-          className="input input-bordered w-full max-w-sm"
-        />
-        <label className="label">
-          {errors.email && (
-            <span className="label-text-alt text-warning">
-              {errors.email.message}
-            </span>
-          )}
-        </label>
-      </div>
-      <div className="form-control w-full max-w-sm ">
-        <input
-          type="password"
-          placeholder="password"
-          {...register("password")}
-          className="input input-bordered w-full max-w-sm"
-        />
-        <label className="label">
-          {errors.password && (
-            <span className="label-text-alt text-warning">
-              {errors.password.message}
-            </span>
-          )}
-        </label>
-      </div>
-      <p className="text-lg text-error">{loginError}</p>
-      <div className="flex justify-between">
-        <button type="submit" className="btn btn-primary">
-          log in
-        </button>
-        <Link to="/register" className="link">
-          register new account
-        </Link>
-      </div>
-    </form>
+    <div className="flex md:justify-center md:items-center grow h-3/4">
+      <form onSubmit={handleSubmit(onSubmit)} className="p-2 w-full max-w-md">
+        <h1 className="text-xl font-bold mb-4">Login</h1>
+        <div className="form-control w-full  ">
+          <input
+            type="text"
+            placeholder="email"
+            {...register("email")}
+            className="input input-bordered w-full "
+          />
+          <label className="label">
+            {errors.email && (
+              <span className="label-text-alt text-warning">
+                {errors.email.message}
+              </span>
+            )}
+          </label>
+        </div>
+        <div className="form-control w-full  ">
+          <input
+            type="password"
+            placeholder="password"
+            {...register("password")}
+            className="input input-bordered w-full "
+          />
+          <label className="label">
+            {errors.password && (
+              <span className="label-text-alt text-warning">
+                {errors.password.message}
+              </span>
+            )}
+          </label>
+        </div>
+        <p className="text-lg text-error">{loginError}</p>
+        <div className="flex justify-between items-end">
+          <button type="submit" className="btn btn-primary">
+            log in
+          </button>
+          <Link to="/register" className="link">
+            register new account
+          </Link>
+        </div>
+      </form>
+    </div>
   );
 }

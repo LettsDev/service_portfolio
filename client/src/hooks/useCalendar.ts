@@ -131,8 +131,12 @@ export default function useCalendar() {
     const dateItemIndex = dateItems.findIndex((dateItem) =>
       isSameDay(dateItem.date, originalEventDate)
     );
+    // should this be the first time the event is scheduled we do not have the _id for the event
     const eventIndex = dateItems[dateItemIndex].events.findIndex(
-      (eventException) => eventException._id === editedExceptionEvent._id
+      (eventException) =>
+        eventException._id === editedExceptionEvent._id ||
+        (eventException.service._id === editedExceptionEvent.service._id &&
+          eventException.start_date === editedExceptionEvent.start_date)
     );
     const editedDateItems = dateItems;
     //remove the old event

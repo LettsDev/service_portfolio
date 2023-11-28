@@ -3,8 +3,9 @@ import { useLocation } from "../locationTable";
 import { useParams, useNavigate, useLoaderData } from "react-router-dom";
 import { ILocation } from "../../../../types";
 import Loading from "../../../loading";
-
+import { useAlert } from "../../../../context/alert.provider";
 export default function DeleteLocationForm() {
+  const { addAlert } = useAlert();
   const { id } = useParams();
   const [location, setLocation] = useState<ILocation>();
   const { loading, deleteLocation } = useLocation();
@@ -16,27 +17,37 @@ export default function DeleteLocationForm() {
   const onSubmit = async (ev: React.FormEvent) => {
     ev.preventDefault();
     console.log(id);
-    await deleteLocation(id!).then(() => navigate("/table/locations"));
+    await deleteLocation(id!);
+    navigate("/table/locations");
+    addAlert({
+      type: "success",
+      message: `Successfully deleted: ${loaderData.name}`,
+    });
   };
 
-  if (loading) return <Loading />;
   return (
     <>
-      <h1 className="text-xl font-bold mb-2">Delete Location</h1>
-      <h2>Are you sure you want to delete the following location?</h2>
-      <p className="badge badge-neutral">{location?.name}</p>
+      {loading ? (
+        <Loading />
+      ) : (
+        <>
+          <h1 className="text-xl font-bold mb-2">Delete Location</h1>
+          <p>Are you sure you want to delete the following location?</p>
+          <p className="badge badge-neutral mt-2">{location?.name}</p>
 
-      <div className="divider"></div>
+          <div className="divider"></div>
 
-      <p>
-        All of the resources assigned to the location, as well as the services
-        attached to the resources will also be deleted.
-      </p>
-      <form className="mt-2" onSubmit={(ev) => onSubmit(ev)}>
-        <button className="btn btn-primary " type="submit">
-          Delete
-        </button>
-      </form>
+          <p>
+            All of the resources assigned to the location, as well as the
+            services attached to the resources will also be deleted.
+          </p>
+          <form className="mt-4" onSubmit={(ev) => onSubmit(ev)}>
+            <button className="btn btn-primary " type="submit">
+              Delete
+            </button>
+          </form>
+        </>
+      )}
     </>
   );
 }

@@ -9,19 +9,15 @@ export default function NewButton({
   return (
     <>
       {isDisabled ? (
-        <button
-          type="button"
-          className="btn db-primary text-xl text-white"
-          disabled
-        >
+        <button type="button" className="btn btn-primary text-xl" disabled>
           +
         </button>
       ) : (
         <div
           data-tip={tooltipText}
-          className="tooltip tooltip-left tooltip-primary"
+          className="tooltip tooltip-right sm:tooltip-left tooltip-primary"
         >
-          <Link className="btn text-xl btn-primary text-white" to="new">
+          <Link className="btn text-xl btn-primary" to="new">
             +
           </Link>
         </div>

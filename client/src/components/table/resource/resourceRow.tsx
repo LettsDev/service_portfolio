@@ -5,7 +5,8 @@ import TableRowButtons from "../tableRowButtons";
 import useFetchWithCatch from "../../../hooks/useFetchWithCatch";
 import { toIServiceDated } from "../../../utils/dateConversion";
 import { useAuth } from "../../../context/auth.provider";
-
+import Stat from "../stat";
+import { format } from "date-fns";
 const ResourceRowInner = lazy(() => import("./resourceRowInner"));
 
 type Props = {
@@ -31,7 +32,7 @@ export default function ResourceRow({ resource }: Props) {
     <>
       <tr
         onClick={handleOpen}
-        className="cursor-pointer hover:bg-accent hover:text-white"
+        className="cursor-pointer hover:bg-accent hover:text-accent-content"
       >
         <td>{resource.name}</td>
         <td>{resource.location.name}</td>
@@ -39,25 +40,34 @@ export default function ResourceRow({ resource }: Props) {
         <td></td>
       </tr>
       {open && (
-        <tr>
-          {resource.notes ? <td>{`Note: ${resource.notes}`}</td> : <td />}
-          <td>
+        <tr className="bg-base-200">
+          <td className="px-[0.3rem] sm:px-4">
+            {resource.notes ? (
+              <Stat label="Notes" info={resource.notes} />
+            ) : null}
+          </td>
+          <td className="px-[0.3rem] sm:px-4">
             <div className="flex flex-col gap-2">
-              <p className="badge text-xs md:text-sm cursor-default">{`created: ${new Date(
-                resource.createdAt
-              ).toLocaleDateString()}`}</p>
-              <p className="badge text-xs md:text-sm cursor-default">{`last updated: ${new Date(
-                resource.updatedAt
-              ).toLocaleDateString()}`}</p>
-              <p className="badge text-xs md:text-sm cursor-default">{`created by: ${resource.created_by.first_name} ${resource.created_by.last_name}`}</p>
+              <Stat
+                label="created"
+                info={format(new Date(resource.createdAt), "PP")}
+              />
+              <Stat
+                label="updated"
+                info={format(new Date(resource.updatedAt), "PP")}
+              />
+              <Stat
+                label="created by"
+                info={`${resource.created_by.first_name} ${resource.created_by.last_name}`}
+              />
             </div>
           </td>
-          <td>
+          <td className="px-[0.3rem] sm:px-4">
             <Suspense fallback={<Loading />}>
               <ResourceRowInner datedServices={services} />
             </Suspense>
           </td>
-          <td>
+          <td className="px-[0.3rem] sm:px-4 text-center">
             <TableRowButtons
               id={resource._id}
               editDisabled={

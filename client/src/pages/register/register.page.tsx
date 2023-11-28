@@ -90,7 +90,7 @@ export default function Register() {
   };
 
   return (
-    <main className="flex md:justify-center md:items-center grow h-3/4">
+    <div className="flex md:justify-center md:items-center grow h-3/4">
       <form
         onSubmit={handleSubmit(submitHandler)}
         className="p-2 w-full max-w-md"
@@ -208,6 +208,6 @@ export default function Register() {
           </Link>
         </div>
       </form>
-    </main>
+    </div>
   );
 }

@@ -68,7 +68,7 @@ export default function EditLocationForm() {
           <div className="form-control w-full max-w-sm ">
             <input
               type="text"
-              placeholder={location ? location.name : "location Name"}
+              defaultValue={loaderData.name}
               className={`input input-bordered w-full max-w-sm ${
                 errors.name ? "input-error" : ""
               }`}

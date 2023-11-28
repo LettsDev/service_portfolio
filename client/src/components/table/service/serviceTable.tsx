@@ -24,7 +24,7 @@ export default function ServiceTable() {
     );
 
   return (
-    <div className="mt-4">
+    <div className="">
       <div className="flex justify-center gap-2">
         <NewButton
           isDisabled={!isAuthorized("ENHANCED")}
@@ -32,7 +32,7 @@ export default function ServiceTable() {
         />
         <Search setQuery={setQuery} />
       </div>
-      <table className="table table-fixed table-md mt-2 min-w-[563px]">
+      <table className="table table-fixed sm:table-md md:table-lg mt-2">
         <thead className="">
           <tr>
             <th>Name</th>

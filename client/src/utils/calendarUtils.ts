@@ -26,48 +26,39 @@ export const formatServiceSchedule = ({
 >) => {
   switch (frequency) {
     case "ONCE":
-      return `ONCE on ${start_date
-        .toString()
-        .split(" ")
-        .slice(0, 4)
-        .join(" ")}`;
+      return `Once on ${format(new Date(start_date), "PP")}
+        `;
+
     case "DAILY":
       return `  ${
-        interval > 1 ? `EVERY ${interval} days` : "EVERYDAY"
-      }, starting ${start_date
-        .toString()
-        .split(" ")
-        .slice(0, 4)
-        .join(" ")} till ${completion_date
-        .toString()
-        .split(" ")
-        .slice(0, 4)
-        .join(" ")}`;
+        interval > 1 ? `Every ${interval} days` : "Everyday"
+      }, starting ${format(new Date(start_date), "PP")} till ${format(
+        new Date(completion_date),
+        "PP"
+      )}`;
+
     case "WEEKLY":
       return `${format(
         setDay(new Date(new Date().getFullYear(), 1, 1), interval),
         "cccc"
-      )}s, starting week of ${start_date
-        .toString()
-        .split(" ")
-        .slice(0, 4)
-        .join(" ")} till week of ${completion_date
-        .toString()
-        .split(" ")
-        .slice(0, 4)
-        .join(" ")}`;
+      )}s, starting week of ${format(
+        new Date(start_date),
+        "PP"
+      )} till week of ${format(new Date(completion_date), "PP")}`;
+
     case "MONTHLY":
       return `${format(
         new Date(`2023-1-${interval}`),
         "do"
       )} of every month, starting ${format(
         start_date,
-        "LLLL,yyyy"
+        "LLLL, yyyy"
       )} till ${format(completion_date, "LLLL, yyyy")} `;
+
     case "ANNUALLY":
       return `${format(
         setDayOfYear(start_date, interval),
-        "MMMM,do"
+        "MMMM, do"
       )} starting ${start_date.getFullYear()} till ${completion_date.getFullYear()} `;
     default:
       break;

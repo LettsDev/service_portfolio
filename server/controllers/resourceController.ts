@@ -13,18 +13,14 @@ import {
   findResource,
   updateResource,
   deleteResource,
-  allResource,
+  allResources,
   queryByLocationResources,
 } from "../service/resource.service";
 
 const resourceController = (() => {
   const all = asyncWrapper(async (req: Request, res: Response) => {
-    const resources = await allResource({
-      populate: [
-        { path: "location", model: "Location" },
-        { path: "created_by", model: "User" },
-      ],
-    });
+    const resources = await allResources();
+    console.log(resources);
     if (resources.length === 0) {
       res.send([]);
       return;

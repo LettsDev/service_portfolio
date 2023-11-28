@@ -1,4 +1,11 @@
-import { add, isBefore, isSameDay, setDay } from "date-fns";
+import {
+  add,
+  isBefore,
+  isSameDay,
+  setDay,
+  set,
+  getDaysInMonth,
+} from "date-fns";
 import { IServiceEventException, IDateItem, IServiceDated } from "../types";
 import {
   createEmptyDateItems,
@@ -10,6 +17,7 @@ import {
   createEvent,
   lowerCalendarWeekOverlap,
   upperCalendarWeekOverlap,
+  getMonthlyInterval,
 } from "../utils/calendarUtils";
 import { IsoToDate } from "../utils/dateConversion";
 export default function useCalendarEvents() {
@@ -121,9 +129,19 @@ export default function useCalendarEvents() {
       case "MONTHLY":
         for (
           let date = getMonthlyStartDate(service.start_date, service.interval);
-          isBefore(date, service.completion_date) ||
-          isSameDay(date, service.completion_date);
-          date = add(date, { months: 1 })
+          isBefore(
+            date,
+            set(service.completion_date, {
+              date: getDaysInMonth(service.completion_date),
+            })
+          ) ||
+          isSameDay(
+            date,
+            set(service.completion_date, {
+              date: getDaysInMonth(service.completion_date),
+            })
+          );
+          date = getMonthlyInterval(add(date, { months: 1 }), service.interval)
         ) {
           //does the date occur during the time range?
           if (withinRange(date, lowerDateRange, upperDateRange)) {

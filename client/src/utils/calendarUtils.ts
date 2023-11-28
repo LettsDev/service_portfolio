@@ -192,6 +192,14 @@ export const getMonthlyStartDate = (start_date: Date, interval: number) => {
   return start_date;
 };
 
+export const getMonthlyInterval = (month: Date, interval: number) => {
+  // date-fns setting date does not play nice with feb in leap years
+  if (isLeapYear(month) && month.getMonth() === 1 && interval > 29) {
+    return set(month, { date: 29 });
+  }
+
+  return set(month, { date: interval });
+};
 export const getAnnuallyStartDate = (start_date: Date, interval: number) => {
   const dayOfYear = getDayOfYear(start_date);
   if (dayOfYear !== interval) {

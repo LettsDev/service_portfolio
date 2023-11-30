@@ -1,4 +1,4 @@
-import "dotenv/config";
+require("dotenv").config();
 import createServer from "./utils/createServer";
 import { DBConnect, memoryConnect } from "./utils/DB";
 import createMockData from "./tests/mock/createMockData";

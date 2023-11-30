@@ -1,6 +1,6 @@
 export default function Footer() {
   return (
-    <footer className="fixed bg-neutral text-neutral-content flex justify-end items-center text-lg bottom-0 w-full p-4">
+    <footer className="sticky bg-neutral text-neutral-content flex justify-end items-center text-lg bottom-0 w-full p-4">
       <a
         href="https://github.com/LettsDev/service_portfolio"
         className="flex items-center  gap-2"

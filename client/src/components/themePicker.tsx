@@ -47,7 +47,6 @@ export default function ThemePicker({
         className="menu dropdown-content z-[1] p-2  bg-base-100 w-32 mt-4 gap-1"
         onClick={(e) => {
           e.stopPropagation();
-          console.log("clicked menu");
         }}
       >
         {themes.map((theme) => (
@@ -58,7 +57,6 @@ export default function ThemePicker({
             className="bg-transparent"
             onClick={(ev) => {
               ev.stopPropagation();
-              console.log("clicked menu");
             }}
           >
             <button

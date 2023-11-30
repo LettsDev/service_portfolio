@@ -16,7 +16,6 @@ export default function Agenda({ dateItems, selectedDate }: AgendaProps) {
       </thead>
       <tbody>
         {dateItems
-
           .filter(
             (dateItem) => dateItem.date.getDate() === selectedDate.getDate()
           )

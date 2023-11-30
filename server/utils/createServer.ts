@@ -26,9 +26,8 @@ function createServer() {
   app.get("/health", (req, res) => {
     return res.sendStatus(200);
   });
-  // TODO create error handling middleware that the controller will pass errors to
   app.use(handleErrors);
-  //   app.use(express.static(path.join(__dirname, "client", "dist")));
+  app.use(express.static(path.join(__dirname, "client", "dist")));
 
   app.use(function (req, res, next) {
     next(createHttpError(404));

@@ -31,7 +31,7 @@ export default function ResourceTable() {
     );
   };
   return (
-    <div className="">
+    <div className="sm:px-6 md:px-8 lg:px-12 flex flex-col items-center">
       <div className="flex justify-center gap-2">
         <NewButton
           isDisabled={!isAuthorized("ENHANCED")}
@@ -39,9 +39,9 @@ export default function ResourceTable() {
         />
         <Search setQuery={setQuery} />
       </div>
-      <table className="table table-fixed mt-2 table-sm md:table-lg ">
-        <thead>
-          <tr className="">
+      <table className="table table-fixed sm:table-sm md:table-md lg:table-lg mt-4 max-w-5xl ">
+        <thead className="text-sm sm:text-base">
+          <tr>
             <th>Name</th>
             <th>Location</th>
             <th>Number of Services</th>

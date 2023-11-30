@@ -15,7 +15,7 @@ export default function Cell({
 
   return (
     <td
-      className={`cursor-pointer text-center align-top p-1 rounded-full  ${
+      className={`cursor-pointer text-center p-1 rounded-full lg:text-xl lg:h-20  ${
         selectedDate.getDate() === dateItem.date.getDate() &&
         selectedDate.getMonth() === dateItem.date.getMonth()
           ? " bg-primary text-primary-content"
@@ -26,7 +26,11 @@ export default function Cell({
         dateItem.date.getFullYear() === new Date().getFullYear()
           ? "font-bold"
           : ""
-      } `}
+      } ${
+        dateItem.date.getMonth() !== selectedDate.getMonth()
+          ? "opacity-60"
+          : null
+      }`}
       onClick={handleClick}
     >
       <div>{dateItem.date.getDate()}</div>
@@ -35,7 +39,7 @@ export default function Cell({
           if (index < 3) {
             return (
               <div
-                className="w-1.5 h-1.5 bg-secondary rounded"
+                className="w-1.5 h-1.5 bg-secondary rounded sm:w-2 sm:h-2"
                 key={event.service.name}
               ></div>
             );

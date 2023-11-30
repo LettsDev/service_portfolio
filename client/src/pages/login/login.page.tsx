@@ -53,7 +53,7 @@ export default function LoginPage() {
   return (
     <div className="flex md:justify-center md:items-center grow h-3/4">
       <form onSubmit={handleSubmit(onSubmit)} className="p-2 w-full max-w-md">
-        <h1 className="text-xl font-bold mb-4">Login</h1>
+        <h1 className="text-xl font-bold mb-4 cursor-default">Login</h1>
         <div className="form-control w-full  ">
           <input
             type="text"

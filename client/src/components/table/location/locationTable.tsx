@@ -19,15 +19,13 @@ export default function LocationTable() {
   } = useLocationTable();
   const { isAuthorized } = useAuth();
   const filteredLocations = () => {
-    //issue with useMemo not updating the table with location change
-
     return locations.filter((location) =>
       location.name.toLowerCase().includes(query.toLowerCase())
     );
   };
 
   return (
-    <div className="">
+    <div className="sm:px-6 md:px-8 lg:px-12 flex flex-col items-center">
       <div className="flex justify-center gap-2">
         <NewButton
           isDisabled={!isAuthorized("ADMIN")}
@@ -35,8 +33,8 @@ export default function LocationTable() {
         />
         <Search setQuery={setQuery} />
       </div>
-      <table className="table table-fixed sm:table-md md:table-lg mt-2">
-        <thead className="">
+      <table className="table table-fixed sm:table-sm md:table-md lg:table-lg mt-4 max-w-5xl">
+        <thead className="text-sm sm:text-base">
           <tr>
             <th>Name</th>
             <th>Number Of Resources</th>
@@ -45,8 +43,8 @@ export default function LocationTable() {
           </tr>
         </thead>
         {loading ? (
-          <tbody className="">
-            <tr className="">
+          <tbody>
+            <tr>
               <td>
                 <Loading />
               </td>

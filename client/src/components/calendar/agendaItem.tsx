@@ -1,16 +1,16 @@
 import { IServiceEventException } from "../../types";
 import { formatServiceSchedule } from "../../utils/calendarUtils";
-import { Link } from "react-router-dom";
 import { IsoToDate } from "../../utils/dateConversion";
 import { format } from "date-fns";
 import { useAuth } from "../../context/auth.provider";
+import AgendaButton from "./agendaButton";
 export default function AgendaItem({ ev }: { ev: IServiceEventException }) {
   const { is_cancelled, is_rescheduled } = ev;
   const { interval, frequency, start_date, completion_date } = ev.service;
   const { isAuthorized, user } = useAuth();
   return (
     <>
-      <tr className="hover cursor-default ">
+      <tr className="hover cursor-default">
         <td className="mx-0.5">
           <div
             className="tooltip tooltip-right  sm:tooltip-top tooltip-accent text-accent-content text-xs "
@@ -77,20 +77,14 @@ export default function AgendaItem({ ev }: { ev: IServiceEventException }) {
               {isAuthorized("ADMIN") ||
               (isAuthorized("ENHANCED") &&
                 ev.service.created_by._id === user!._id) ? (
-                <Link
+                <AgendaButton
+                  type="link"
                   to={`cancel/${ev.service._id}/${ev.start_date}`}
-                  className="btn btn-primary btn-sm"
-                >
-                  restore
-                </Link>
+                  text="restore"
+                  isPrimary
+                />
               ) : (
-                <button
-                  type="button"
-                  disabled
-                  className="btn btn-primary btn-sm"
-                >
-                  restore
-                </button>
+                <AgendaButton type="button" text="restore" />
               )}
             </div>
           ) : (
@@ -99,35 +93,23 @@ export default function AgendaItem({ ev }: { ev: IServiceEventException }) {
               (isAuthorized("ENHANCED") &&
                 ev.service.created_by._id === user!._id) ? (
                 <>
-                  <Link
+                  <AgendaButton
+                    type="link"
                     to={`reschedule/${ev.service._id}/${ev.start_date}`}
-                    className="btn btn-primary "
-                  >
-                    {is_rescheduled ? "schedule" : "reschedule"}
-                  </Link>
-                  <Link
+                    text={is_rescheduled ? "schedule" : "reschedule"}
+                    isPrimary
+                  />
+                  <AgendaButton
+                    type="link"
                     to={`cancel/${ev.service._id}/${ev.start_date}`}
-                    className="btn btn-secondary"
-                  >
-                    cancel
-                  </Link>
+                    text="cancel"
+                    isPrimary={false}
+                  />
                 </>
               ) : (
                 <>
-                  <button
-                    type="button"
-                    disabled
-                    className="btn btn-primary btn-sm"
-                  >
-                    schedule
-                  </button>
-                  <button
-                    type="button"
-                    disabled
-                    className="btn btn-primary btn-sm"
-                  >
-                    cancel
-                  </button>
+                  <AgendaButton type="button" text="schedule" />
+                  <AgendaButton type="button" text="cancel" />
                 </>
               )}
             </div>

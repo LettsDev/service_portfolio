@@ -61,10 +61,10 @@ export default function Calendar() {
     return month;
   };
   return (
-    <div className="flex justify-center mt-2">
-      <div className="flex flex-col max-w-sm md:max-w-md">
+    <div className="flex justify-center mt-4">
+      <div className="flex flex-col max-w-sm sm:max-w-md md:max-w-lg lg:max-w-2xl ">
         {/* tool bar */}
-        <div className="flex justify-between grow items-center mx-2">
+        <div className="flex justify-between grow items-center mx-2 sm:mx-4 lg:mx-8">
           <button
             className="btn cursor-pointer"
             onClick={() => setSelectedDate((current) => subMonths(current, 1))}
@@ -72,7 +72,7 @@ export default function Calendar() {
             {<FaArrowLeft />}
           </button>
           <p
-            className=" font-bold cursor-pointer p-3 text-lg family-serif"
+            className=" font-bold cursor-pointer p-3 text-lg font-serif lg:text-2xl"
             onClick={() => setSelectedDate(new Date())}
           >
             {format(selectedDate, "LLLL yyyy")}
@@ -84,7 +84,7 @@ export default function Calendar() {
             {<FaArrowRight />}
           </button>
         </div>
-        <table className="table-fixed w-full mx-s">
+        <table className="table-fixed w-full">
           <thead>
             <tr>
               {dayLabels.map((label) => (

@@ -1,21 +1,7 @@
-import { zonedTimeToUtc } from "date-fns-tz";
 import { IService, IServiceDated } from "../types";
-
-const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-
-export function toUtc(date: Date) {
-  return zonedTimeToUtc(date, timeZone);
-}
-export function getUtcEquivalent(selectedDate: Date) {
-  const year = selectedDate.getFullYear();
-  const month = selectedDate.getMonth();
-  const date = selectedDate.getDate();
-  return new Date(Date.UTC(year, month, date));
-}
 
 export function convertFromDateToIsoString(date: Date) {
   return date.toISOString();
-  // return zonedTimeToUtc(date, timeZone).toISOString();
 }
 
 export function dateToIso(date: Date) {
@@ -44,9 +30,6 @@ export function toIService(datedService: IServiceDated): IService {
     start_date: dateToIso(datedService.start_date),
     completion_date: dateToIso(datedService.completion_date),
   };
-}
-export function formDateStringToIso(formDateString: string) {
-  //formDateString -> "yyyy-mm-dd"
 }
 
 export function daysIntoYear(date: Date) {

@@ -58,6 +58,7 @@ const router = createBrowserRouter([
       {
         path: "table",
         element: <WithAuth children={<TablePage />} />,
+        // element: <TablePage />,
         children: [
           {
             path: "locations",
@@ -122,7 +123,7 @@ const router = createBrowserRouter([
           },
           {
             path: "resources",
-            element: <ResourceTable />,
+            element: <WithAuth children={<ResourceTable />} />,
             loader: async () => {
               return loaderWrapper({
                 url: "resource",
@@ -194,7 +195,7 @@ const router = createBrowserRouter([
           },
           {
             path: "services",
-            element: <ServiceTable />,
+            element: <WithAuth children={<ServiceTable />} />,
             loader: async () => {
               return loaderWrapper<IService[]>({
                 url: "service",

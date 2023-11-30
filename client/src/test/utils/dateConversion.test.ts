@@ -2,20 +2,11 @@ import { expect, it, describe } from "vitest";
 import {
   IsoToDate,
   dateToIso,
-  getUtcEquivalent,
   toIServiceDated,
 } from "../../utils/dateConversion";
 import { IService } from "../../types";
 
 describe("dateConversion functions", () => {
-  describe("getUtcEquivalent function", () => {
-    it("should return the correct date", () => {
-      const date = new Date("2023-11-09");
-      const result = getUtcEquivalent(date);
-      expect(result).toEqual(new Date(Date.UTC(2023, 10, 8)));
-    });
-  });
-
   describe("IsoToDate function", () => {
     it("should return the correct date", () => {
       const ISO = new Date("2023-11-09").toISOString();
@@ -42,6 +33,9 @@ describe("dateConversion functions", () => {
           email: "john@example.com",
           auth: "USER",
           __v: 0,
+          session: "null",
+          iat: 1,
+          exp: 4,
           createdAt: "2023-10-01T00:00:00.000Z",
           updatedAt: "2023-10-01T00:00:00.000Z",
         },
@@ -63,6 +57,9 @@ describe("dateConversion functions", () => {
             email: "john@example.com",
             auth: "USER",
             __v: 0,
+            session: "null",
+            iat: 1,
+            exp: 4,
             createdAt: "2023-10-01T00:00:00.000Z",
             updatedAt: "2023-10-01T00:00:00.000Z",
           },

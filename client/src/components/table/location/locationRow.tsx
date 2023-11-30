@@ -1,17 +1,28 @@
-import { useState, Suspense, lazy } from "react";
-import { ILocation } from "../../../types";
+import { useState } from "react";
+import { ILocation, IResource } from "../../../types";
 import Loading from "../../loading";
 import TableRowButtons from "../tableRowButtons";
 import { useAuth } from "../../../context/auth.provider";
 import { format } from "date-fns";
 import Stat from "../stat";
-const LocationRowInner = lazy(() => import("./locationRowInner"));
+import useFetchWithCatch from "../../../hooks/useFetchWithCatch";
+import LocationRowInner from "./locationRowInner";
 
 export default function LocationRow({ location }: { location: ILocation }) {
+  const { fetchWithCatch } = useFetchWithCatch();
   const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [resources, setResources] = useState<IResource[]>([]);
   const { isAuthorized } = useAuth();
-  function handleOpen() {
+  async function handleOpen() {
     setOpen(!open);
+    setLoading(true);
+    const loadedResources = await fetchWithCatch<IResource[]>({
+      method: "get",
+      url: `resource/query_location/${location._id}`,
+    });
+    setResources(loadedResources);
+    setLoading(false);
   }
   return (
     <>
@@ -38,11 +49,7 @@ export default function LocationRow({ location }: { location: ILocation }) {
             </div>
           </td>
           <td>
-            {
-              <Suspense fallback={<Loading />}>
-                <LocationRowInner id={location._id} />
-              </Suspense>
-            }
+            {loading ? <Loading /> : <LocationRowInner resources={resources} />}
           </td>
           <td className="text-center">
             <TableRowButtons

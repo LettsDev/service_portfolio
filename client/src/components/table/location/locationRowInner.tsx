@@ -1,18 +1,9 @@
-import { queryByLocationResources } from "../../../data/resource.data";
 import { IResource } from "../../../types";
-import { useEffect, useState } from "react";
-export default function LocationRowInner({ id }: { id: string }) {
-  const [resources, setResources] = useState<IResource[]>([]);
-
-  useEffect(() => {
-    async function loadResources() {
-      const response = await queryByLocationResources(id);
-      return response.data;
-    }
-
-    loadResources().then((data) => setResources(data));
-  }, []);
-
+export default function LocationRowInner({
+  resources,
+}: {
+  resources: IResource[];
+}) {
   return (
     <ul className="flex flex-col gap-2 justify-center ">
       {resources.map((resource) => (

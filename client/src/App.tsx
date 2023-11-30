@@ -8,7 +8,7 @@ import { useAlert } from "./context/alert.provider";
 import { useNavigate } from "react-router-dom";
 import AlertComponent from "./components/alert";
 import ThemePicker, { themes } from "./components/themePicker";
-import Footer from "./pages/footer/footer.page";
+import Footer from "./components/footer";
 function App() {
   const { alerts } = useAlert();
   const { user, logout, isAuthenticated } = useAuth();
@@ -30,7 +30,7 @@ function App() {
 
   return (
     <>
-      <main data-theme={theme} className="h-screen font-sans">
+      <main data-theme={theme} className="min-h-screen font-sans">
         {isAuthenticated() ? (
           <div className="navbar bg-accent text-accent-content font-serif">
             <div className="navbar-start">
@@ -71,7 +71,7 @@ function App() {
               </NavLink>
             </div>
             <div className="navbar-center hidden lg:flex">
-              <ul className="menu menu-horizontal px-1 text-lg">
+              <ul className="menu menu-horizontal px-1 text-lg  text-primary-content">
                 <li>
                   <NavLink to="/calendar">Calendar</NavLink>
                 </li>

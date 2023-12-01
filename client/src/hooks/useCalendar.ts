@@ -147,6 +147,7 @@ export default function useCalendar() {
         IsoToDate(submittedEditedEventException.exception_date)
       )
     );
+    //move to new location
     editedDateItems[movedToDateIndex].events.push(editedEvent);
     setDateItems(editedDateItems);
     setLoading(false);
@@ -182,7 +183,6 @@ export default function useCalendar() {
     setDateItems(editedDateItems);
     setLoading(false);
   }
-
   return {
     selectedDate,
     setSelectedDate,

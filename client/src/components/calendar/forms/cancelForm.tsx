@@ -22,6 +22,7 @@ export default function CancelForm() {
         ...exceptionEvent,
         is_cancelled: !exceptionEvent.is_cancelled,
       };
+
       await cancelEvent(cancelledExceptionEvent);
       navigate("/calendar");
       addAlert({

@@ -12,7 +12,7 @@ import {
   isLeapYear,
 } from "date-fns";
 import { IDateItem, IServiceEventException, IServiceDated } from "../types";
-import { toIService } from "./dateConversion";
+import { dateToIso, toIService } from "./dateConversion";
 
 // **************************** Formatting Service Schedules ****************************
 export const formatServiceSchedule = ({
@@ -110,11 +110,11 @@ export const createEvent = (
     _id: crypto.randomUUID(),
     service: toIService(service),
     exception_date: date
-      ? date.toISOString()
-      : new Date(service.start_date).toISOString(),
+      ? dateToIso(date)
+      : dateToIso(new Date(service.start_date)),
     start_date: date
-      ? date.toISOString()
-      : new Date(service.start_date).toISOString(),
+      ? dateToIso(date)
+      : dateToIso(new Date(service.start_date)),
     created_by: service.created_by,
     ...base,
   };

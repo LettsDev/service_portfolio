@@ -1,6 +1,6 @@
 export default function Footer() {
   return (
-    <footer className="sticky bg-neutral text-neutral-content flex justify-end items-center text-lg bottom-0 w-full p-4">
+    <footer className="absolute bottom-0 bg-neutral text-neutral-content flex justify-end items-center text-lg  w-full p-2">
       <a
         href="https://github.com/LettsDev/service_portfolio"
         className="flex items-center  gap-2"
@@ -8,7 +8,7 @@ export default function Footer() {
         LettsDev 2023
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          className="h-auto w-8"
+          className="h-auto w-6"
           viewBox="0 0 100 100"
         >
           <path

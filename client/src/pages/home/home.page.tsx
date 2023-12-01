@@ -10,7 +10,7 @@ import detailUrl from "../../assets/model_detail.png";
 import flowUrl from "../../assets/model_flow.png";
 export default function Home() {
   return (
-    <div className="p-4 lg:flex lg:flex-col lg:items-center">
+    <div className="p-4 lg:flex lg:flex-col lg:items-center mb-8">
       <header>
         <h1 className="text-3xl font-bold">Documentation</h1>
       </header>

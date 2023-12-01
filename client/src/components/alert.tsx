@@ -24,7 +24,10 @@ export default function AlertComponent({ alert }: { alert: AlertType }) {
   switch (alert.type) {
     case "error":
       return (
-        <div role="alert" className="alert alert-error text-xs sm:text-base">
+        <div
+          role="alert"
+          className="alert alert-error text-xs sm:text-base p-3"
+        >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className="stroke-current shrink-0 h-6 w-6"
@@ -43,7 +46,10 @@ export default function AlertComponent({ alert }: { alert: AlertType }) {
       );
     case "success":
       return (
-        <div role="alert" className="alert alert-success text-xs sm:text-base">
+        <div
+          role="alert"
+          className="alert alert-success text-xs sm:text-base p-3"
+        >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className="stroke-current shrink-0 h-6 w-6"
@@ -62,7 +68,10 @@ export default function AlertComponent({ alert }: { alert: AlertType }) {
       );
     case "warning":
       return (
-        <div role="alert" className="alert alert-warning text-xs sm:text-base">
+        <div
+          role="alert"
+          className="alert alert-warning text-xs sm:text-base p-3"
+        >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className="stroke-current shrink-0 h-6 w-6"

@@ -16,7 +16,7 @@ import {
   findServiceEventException,
 } from "../service/serviceEventException.service";
 import asyncWrapper from "../utils/asyncWrapper";
-import { IServiceEventException } from "../types";
+import { isSameDay } from "date-fns";
 
 const fullEventOption = {
   lean: true,
@@ -54,6 +54,17 @@ const serviceEventController = (() => {
         fullEventOption
       );
       if (existingEvent) {
+        if (
+          isSameDay(new Date(body.start_date), new Date(body.exception_date)) &&
+          !body.is_cancelled
+        ) {
+          //check to see if the event is even necessary -> the event has been moved back to it's original date and it isn't cancelled
+          const deletedEvent = await deleteServiceEventException(
+            existingEvent._id,
+            fullEventOption
+          );
+          return res.send(deletedEvent);
+        }
         const editedEvent = await updateServiceEventException(
           existingEvent._id,
           body,
@@ -79,9 +90,6 @@ const serviceEventController = (() => {
         { path: "created_by", model: "User" },
       ]);
       console.log("created new event", serviceEvent);
-      // TODO have a check to see if the event has been reset and can be deleted
-      // - no longer rescheduled (start_date === exception_date)
-      // - no longer cancelled (but also not rescheduled)
       return res.send(serviceEvent);
     } catch (error) {
       console.error(error);
@@ -105,12 +113,14 @@ const serviceEventController = (() => {
       if (!foundEvent) {
         return res.sendStatus(404);
       }
+
       const updatedEvent = await updateServiceEventException(
         { _id: id },
         update,
         fullEventOption
       );
       if (updatedEvent) {
+        console.log("updated event: ", updatedEvent);
         return res.send(updatedEvent);
       }
       throw Error("DB error updating the user");

@@ -21,7 +21,7 @@ export default function AgendaItem({ ev }: { ev: IServiceEventException }) {
               completion_date: IsoToDate(completion_date),
             })}
           >
-            <div className="card card-bordered bg-base-300 rounded-box p-2 text-base-content ">
+            <div className="card card-bordered bg-base-300 rounded-box p-2 text-base-content scale-75 sm:scale100">
               {ev.service.name}
             </div>
           </div>
@@ -35,7 +35,7 @@ export default function AgendaItem({ ev }: { ev: IServiceEventException }) {
                 : undefined
             }
           >
-            <div className="card card-bordered bg-base-300 rounded-box p-2 text-base-content ">
+            <div className="card card-bordered bg-base-300 rounded-box p-2 text-base-content scale-75 sm:scale100">
               {`${ev.service.resource.name}(${ev.service.resource.location.name})`}
             </div>
           </div>
@@ -49,7 +49,7 @@ export default function AgendaItem({ ev }: { ev: IServiceEventException }) {
           >
             {is_cancelled ? (
               <div
-                className="badge badge-warning tooltip tooltip-warning scale-90"
+                className="badge badge-warning tooltip tooltip-warning scale-75 sm:scale100"
                 data-tip={`cancelled by ${ev.created_by.first_name} ${
                   ev.created_by.last_name
                 } on ${format(IsoToDate(ev.updatedAt), "yyyy-MM-dd")}`}
@@ -71,7 +71,10 @@ export default function AgendaItem({ ev }: { ev: IServiceEventException }) {
           </td>
         ) : null}
 
-        <td colSpan={is_cancelled || is_rescheduled ? 1 : 2}>
+        <td
+          colSpan={is_cancelled || is_rescheduled ? 1 : 2}
+          className={`${is_cancelled ? "p-2" : "p-4"} sm:p-3`}
+        >
           {is_cancelled ? (
             <div className="flex flex-col gap-1">
               {isAuthorized("ADMIN") ||

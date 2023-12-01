@@ -1,4 +1,3 @@
-// import { useEffect } from "react";
 import { useEffect, useState } from "react";
 import { Outlet } from "react-router-dom";
 import { NavLink } from "react-router-dom";
@@ -30,7 +29,7 @@ function App() {
 
   return (
     <>
-      <main data-theme={theme} className="min-h-screen font-sans">
+      <div data-theme={theme} className="min-h-screen font-sans relative">
         {isAuthenticated() ? (
           <div className="navbar bg-accent text-accent-content font-serif">
             <div className="navbar-start">
@@ -116,7 +115,7 @@ function App() {
           ))}
         </div>
         <Footer />
-      </main>
+      </div>
     </>
   );
 }

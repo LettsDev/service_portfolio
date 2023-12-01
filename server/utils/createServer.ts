@@ -31,13 +31,13 @@ function createServer() {
   app.use(express.static(path.join(__dirname, "..", "dist")));
 
   app.use("/api", ApiRouter);
-  app.get("/", (req, res) => {
-    console.log("request received", req.headers);
-    return res.sendFile(path.join(__dirname, "..", "dist", "index.html"));
-  });
   app.get("/health", (req, res) => {
     console.log("health check OK");
     return res.sendStatus(200);
+  });
+  app.get("*", (req, res) => {
+    console.log("request received", req.headers);
+    return res.sendFile(path.join(__dirname, "..", "dist", "index.html"));
   });
   app.use(handleErrors);
 

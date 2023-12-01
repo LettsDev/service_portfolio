@@ -68,6 +68,7 @@ export default function Calendar() {
           <button
             className="btn cursor-pointer"
             onClick={() => setSelectedDate((current) => subMonths(current, 1))}
+            aria-label="go back a month"
           >
             {<FaArrowLeft />}
           </button>
@@ -79,6 +80,7 @@ export default function Calendar() {
           </p>
           <button
             className="btn cursor-pointer"
+            aria-label="go forward a month"
             onClick={() => setSelectedDate((current) => addMonths(current, 1))}
           >
             {<FaArrowRight />}

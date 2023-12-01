@@ -25,12 +25,8 @@ export default function ThemePicker({
   }
 
   return (
-    <div className=" dropdown ">
-      <label
-        htmlFor="theme-button"
-        tabIndex={0}
-        className="btn btn-ghost rounded-btn"
-      >
+    <div className=" dropdown dropdown-end " title="change theme">
+      <div role="button" tabIndex={0} className="btn btn-ghost">
         Theme
         <svg
           width="12px"
@@ -41,34 +37,36 @@ export default function ThemePicker({
         >
           <path d="M1799 349l242 241-1017 1017L7 590l242-241 775 775 775-775z"></path>
         </svg>
-      </label>
-      <ul
+      </div>
+      <div
         id="theme-button"
-        className="menu dropdown-content z-[1] p-2  bg-base-100 w-32 mt-4 gap-1"
+        tabIndex={0}
+        className="dropdown-content bg-base-200 text-base-content rounded-box top-px h-[28.6rem] max-h-[calc(100vh-10rem)] w-56 overflow-y-auto border border-white/5 shadow-2xl outline outline-1 outline-black/5 mt-20"
         onClick={(e) => {
           e.stopPropagation();
         }}
       >
-        {themes.map((theme) => (
-          <li
-            data-value={theme}
-            key={theme}
-            data-theme={theme}
-            className="bg-transparent"
-            onClick={(ev) => {
-              ev.stopPropagation();
-            }}
-          >
+        <div className="p-3 flex flex-col gap-3">
+          {themes.map((theme) => (
             <button
-              type="button"
+              className="outline-base-content text-start outline-offset-4 rounded-btn p-3 font-sans bg-base-100 text-base-content"
+              data-set-theme={theme}
               onClick={(ev) => handleClick(ev, theme)}
-              className="cursor-pointer btn btn-sm btn-primary hover:btn-secondary"
+              data-theme={theme}
+              key={theme}
             >
-              {theme}
+              <span className="grid grid-cols-6">
+                <span className="">{theme}</span>
+                <span className="flex  gap-1 h-full shrink-0 col-start-6">
+                  <span className="bg-primary w-2 rounded-badge"></span>
+                  <span className="bg-secondary w-2 rounded-badge"></span>
+                  <span className="bg-accent w-2 rounded-badge"></span>
+                </span>
+              </span>
             </button>
-          </li>
-        ))}
-      </ul>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }

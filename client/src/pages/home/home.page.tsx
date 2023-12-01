@@ -185,33 +185,31 @@ export default function Home() {
         </section>
         <section id="start">
           <MidHeader text="Getting Started" />
-          <p className="pb-2 indent-1">
-            To start a preview dev server:
-            <ol className="list-decimal list-inside">
-              <li>
-                fork from{" "}
-                <a
-                  className="underline"
-                  href="https://github.com/LettsDev/service_portfolio"
-                >
-                  this
-                </a>{" "}
-                repository
-              </li>
-              <li>
-                Add .env{" "}
-                <a className="underline" href="#config">
-                  configuration file
-                </a>
-              </li>
-              <li>open terminal in the /server directory</li>
-              <li>run the following command</li>
-              <CodeBlock text="npm run dev" />
-              <p className="py-2 indent-1 ">
-                Use Node.js version v20.6.1 or higher.
-              </p>
-            </ol>
-          </p>
+          <p className="pb-2 indent-1">To start a preview dev server:</p>
+          <ol className="list-decimal list-inside">
+            <li>
+              fork from{" "}
+              <a
+                className="underline"
+                href="https://github.com/LettsDev/service_portfolio"
+              >
+                this
+              </a>{" "}
+              repository
+            </li>
+            <li>
+              Add .env{" "}
+              <a className="underline" href="#config">
+                configuration file
+              </a>
+            </li>
+            <li>open terminal in the /server directory</li>
+            <li>run the following command</li>
+            <CodeBlock text="npm run dev" />
+            <p className="py-2 indent-1 ">
+              Use Node.js version v20.6.1 or higher.
+            </p>
+          </ol>
         </section>
         <section id="user_guide">
           <MidHeader text="User Guide" />

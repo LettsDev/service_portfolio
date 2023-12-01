@@ -1,5 +1,5 @@
 import { IResource, IService, IServiceDated } from "../../../types";
-import { useState, Suspense, lazy } from "react";
+import { useState } from "react";
 import Loading from "../../loading";
 import TableRowButtons from "../tableRowButtons";
 import useFetchWithCatch from "../../../hooks/useFetchWithCatch";
@@ -7,7 +7,7 @@ import { toIServiceDated } from "../../../utils/dateConversion";
 import { useAuth } from "../../../context/auth.provider";
 import Stat from "../stat";
 import { format } from "date-fns";
-const ResourceRowInner = lazy(() => import("./resourceRowInner"));
+import ResourceRowInner from "./resourceRowInner";
 
 type Props = {
   resource: IResource;
@@ -15,10 +15,12 @@ type Props = {
 export default function ResourceRow({ resource }: Props) {
   const { fetchWithCatch } = useFetchWithCatch();
   const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [services, setServices] = useState<IServiceDated[]>([]);
   const { isAuthorized, user } = useAuth();
   async function handleOpen() {
     setOpen(!open);
+    setLoading(true);
     const loadedServices = await fetchWithCatch<IService[]>({
       url: `service_query/resource/${resource._id}`,
       method: "get",
@@ -27,6 +29,7 @@ export default function ResourceRow({ resource }: Props) {
       toIServiceDated(service)
     );
     setServices(datedServices);
+    setLoading(false);
   }
   return (
     <>
@@ -63,9 +66,11 @@ export default function ResourceRow({ resource }: Props) {
             </div>
           </td>
           <td className="px-[0.3rem] sm:px-4">
-            <Suspense fallback={<Loading />}>
+            {loading ? (
+              <Loading />
+            ) : (
               <ResourceRowInner datedServices={services} />
-            </Suspense>
+            )}
           </td>
           <td className="px-[0.3rem] sm:px-4 text-center">
             <TableRowButtons

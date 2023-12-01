@@ -47,7 +47,11 @@ export default function DeleteResourceForm() {
             All of the services assigned to the resource will also be deleted.
           </p>
           <form className="mt-4" onSubmit={(ev) => onSubmit(ev)}>
-            <button className="btn btn-primary " type="submit">
+            <button
+              className="btn btn-primary "
+              type="submit"
+              disabled={loading}
+            >
               Delete
             </button>
           </form>

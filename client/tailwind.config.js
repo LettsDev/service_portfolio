@@ -9,7 +9,7 @@ module.exports = {
   },
   daisyui: {
     themes: [
-      "light",
+      "corporate",
       "dark",
       "dracula",
       "cyberpunk",

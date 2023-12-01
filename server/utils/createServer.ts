@@ -18,7 +18,7 @@ function createServer() {
   app.use(express.urlencoded({ extended: true }));
   app.use((req, res, next) => {
     res.setHeader(
-      "Content-Security-Policy-Report-Only",
+      "Content-Security-Policy",
       "default-src 'self'; style-src 'self' 'unsafe-inline' fonts.googleapis.com; script-src 'self' 'unsafe-eval'; font-src 'self' fonts.gstatic.com;"
     );
 

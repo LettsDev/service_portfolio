@@ -97,6 +97,7 @@ export default function CancelForm() {
 
           <button
             type="button"
+            disabled={loading}
             className="btn btn-secondary"
             onClick={handleCancel}
           >

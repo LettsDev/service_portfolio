@@ -26,7 +26,7 @@ export default function AlertComponent({ alert }: { alert: AlertType }) {
       return (
         <div
           role="alert"
-          className="alert alert-error text-xs sm:text-base p-3"
+          className="alert alert-error text-xs sm:text-base p-3 my-3"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -48,7 +48,7 @@ export default function AlertComponent({ alert }: { alert: AlertType }) {
       return (
         <div
           role="alert"
-          className="alert alert-success text-xs sm:text-base p-3"
+          className="alert alert-success text-xs sm:text-base p-3 my-3"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -70,7 +70,7 @@ export default function AlertComponent({ alert }: { alert: AlertType }) {
       return (
         <div
           role="alert"
-          className="alert alert-warning text-xs sm:text-base p-3"
+          className="alert alert-warning text-xs sm:text-base p-3 my-3"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"

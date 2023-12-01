@@ -166,7 +166,11 @@ export default function RescheduleForm() {
             )}
           </label>
           <div className=" mt-2">
-            <button type="submit" className="btn btn-primary">
+            <button
+              type="submit"
+              className="btn btn-primary"
+              disabled={!!loading}
+            >
               Submit
             </button>
           </div>

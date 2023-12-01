@@ -42,7 +42,11 @@ export default function DeleteLocationForm() {
             services attached to the resources will also be deleted.
           </p>
           <form className="mt-4" onSubmit={(ev) => onSubmit(ev)}>
-            <button className="btn btn-primary " type="submit">
+            <button
+              className="btn btn-primary "
+              type="submit"
+              disabled={loading}
+            >
               Delete
             </button>
           </form>

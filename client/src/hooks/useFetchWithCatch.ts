@@ -10,7 +10,7 @@ export default function useFetchWithCatch() {
     try {
       const response: AxiosResponse<T> = await axios({
         ...config,
-        timeout: 1000,
+        // timeout: 1000,
         baseURL: "/api/",
       });
       return response.data;

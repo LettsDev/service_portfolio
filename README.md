@@ -51,7 +51,7 @@ Depending on the role of the user, they will have different permissions as to re
 
 ## Getting Started
 
-!**link to hosting**!
+An open and running preview of the app is [here](https://resource-manager.fly.dev/home)
 
 To start a preview dev server:
 

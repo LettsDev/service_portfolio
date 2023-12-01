@@ -16,18 +16,30 @@ function createServer() {
   app.use(logger("dev"));
 
   app.use(express.urlencoded({ extended: true }));
+  app.use((req, res, next) => {
+    res.setHeader(
+      "Content-Security-Policy-Report-Only",
+      "default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-eval';"
+    );
 
-  app.use(cors({ credentials: true }));
+    next();
+  });
+  app.use(cors());
   app.use(cookieParser());
   app.use(deserializeUser);
   //routers
+  app.use(express.static(path.join(__dirname, "..", "dist")));
 
   app.use("/api", ApiRouter);
+  app.get("/", (req, res) => {
+    console.log("request received", req.headers);
+    return res.sendFile(path.join(__dirname, "..", "dist", "index.html"));
+  });
   app.get("/health", (req, res) => {
+    console.log("health check OK");
     return res.sendStatus(200);
   });
   app.use(handleErrors);
-  app.use(express.static(path.join(__dirname, "client", "dist")));
 
   app.use(function (req, res, next) {
     next(createHttpError(404));

@@ -41,7 +41,7 @@ export default function ThemePicker({
       <div
         id="theme-button"
         tabIndex={0}
-        className="dropdown-content bg-base-200 text-base-content rounded-box top-px h-[28.6rem] max-h-[calc(100vh-10rem)] w-56 overflow-y-auto border border-white/5 shadow-2xl outline outline-1 outline-black/5 mt-20"
+        className="dropdown-content bg-base-200 text-base-content rounded-box top-px h-[28.6rem] max-h-[calc(100vh-10rem)] w-56 overflow-y-auto border border-white/5 shadow-2xl outline outline-1 outline-black/5 mt-20 z-50"
         onClick={(e) => {
           e.stopPropagation();
         }}

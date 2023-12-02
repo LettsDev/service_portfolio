@@ -1,9 +1,9 @@
 export default function Footer() {
   return (
-    <footer className="absolute bottom-0 bg-neutral text-neutral-content flex justify-end items-center text-lg  w-full p-2">
+    <footer className="fixed bottom-0 bg-neutral text-neutral-content flex justify-end items-center text-lg  w-full p-2">
       <a
         href="https://github.com/LettsDev/service_portfolio"
-        className="flex items-center  gap-2"
+        className="flex items-center gap-2"
       >
         LettsDev 2023
         <svg

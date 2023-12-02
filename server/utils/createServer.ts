@@ -19,7 +19,7 @@ function createServer() {
   app.use((req, res, next) => {
     res.setHeader(
       "Content-Security-Policy",
-      "default-src 'self'; style-src 'self' 'unsafe-inline' fonts.googleapis.com; script-src 'self' 'unsafe-eval'; font-src 'self' fonts.gstatic.com;"
+      "default-src 'self'; style-src 'self' 'unsafe-inline' fonts.googleapis.com; script-src 'self' 'unsafe-eval'; font-src 'self' fonts.gstatic.com; img-src 'self' www.w3.org;"
     );
 
     next();

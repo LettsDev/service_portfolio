@@ -29,7 +29,7 @@ function App() {
 
   return (
     <>
-      <div data-theme={theme} className="min-h-screen font-sans relative">
+      <div data-theme={theme} className="min-h-screen font-sans pb-20 relative">
         {isAuthenticated() ? (
           <div className="navbar bg-accent text-accent-content font-serif">
             <div className="navbar-start">
@@ -103,7 +103,7 @@ function App() {
           </div>
         ) : (
           <header className="py-4 px-4 bg-accent text-accent-content min-h-[4rem]">
-            <h1 className="text-xl cursor-default">Resource Manager</h1>
+            <span className="text-xl cursor-default">Resource Manager</span>
           </header>
         )}
 

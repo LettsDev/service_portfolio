@@ -138,9 +138,9 @@ export default function NewServiceForm() {
             <select
               className="select select-bordered"
               {...register("resource")}
-              defaultValue="placeholder"
+              defaultValue=""
             >
-              <option value="placeholder" disabled>
+              <option value="" disabled>
                 Please select a resource
               </option>
               {resourcesLoaderData
@@ -166,9 +166,9 @@ export default function NewServiceForm() {
             <select
               className="select select-bordered"
               {...register("frequency")}
-              defaultValue="placeholder"
+              defaultValue=""
             >
-              <option value="placeholder" disabled>
+              <option value="" disabled>
                 Please select a frequency
               </option>
               {["ONCE", "DAILY", "WEEKLY", "MONTHLY", "ANNUALLY"].map(

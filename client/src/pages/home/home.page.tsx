@@ -12,10 +12,9 @@ export default function Home() {
   return (
     <div className="p-4 lg:flex lg:flex-col lg:items-center mb-8">
       <header>
-        <h1 className="text-3xl font-bold">Documentation</h1>
+        <h1 className="text-3xl font-bold mb-3">Documentation</h1>
       </header>
       <nav className="lg:w-xl">
-        <MidHeader text="Table of Contents" />
         <ul className="text-sx md:text-sm flex flex-col gap-2">
           <li>
             <a className="underline" href="#introduction">

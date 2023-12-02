@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -6,12 +6,15 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import { useAuth } from "../../context/auth.provider";
 import { useAlert } from "../../context/alert.provider";
 import { ExtendedError } from "../../types";
+import Loading from "../../components/loading";
 const schema = z
   .object({
     email: z.string().email({ message: "an email is required" }),
     first_name: z.string().min(1, { message: "a first name is required" }),
     last_name: z.string().min(1, { message: "a last name is required" }),
-    password: z.string().min(4, { message: "a password is required" }),
+    password: z
+      .string()
+      .min(4, { message: "a password must be minimum 4 characters" }),
     passwordConfirmation: z
       .string()
       .min(4, { message: "the passwords must match" }),
@@ -36,6 +39,7 @@ const schema = z
 type ValidationSchema = z.infer<typeof schema>;
 
 export default function Register() {
+  const [loading, setLoading] = useState(false);
   const { registerUser } = useAuth();
   const { addAlert } = useAlert();
   const navigate = useNavigate();
@@ -62,6 +66,7 @@ export default function Register() {
     auth,
   }) => {
     try {
+      setLoading(true);
       await registerUser({
         email,
         password,
@@ -70,6 +75,7 @@ export default function Register() {
         passwordConfirmation,
         auth,
       });
+      setLoading(false);
       addAlert({
         type: "success",
         message: "successfully created a new account",
@@ -77,7 +83,7 @@ export default function Register() {
       navigate("/login");
     } catch (error) {
       console.error(error);
-
+      setLoading(false);
       addAlert({
         type: "error",
         error:
@@ -201,10 +207,10 @@ export default function Register() {
         </div>
         <div className="flex w-full gap-1">
           <button type="submit" className="btn  btn-primary grow">
-            Submit
+            {loading ? <Loading /> : "Submit"}
           </button>
           <Link to="/login" className="btn  btn-secondary grow">
-            Cancel
+            {loading ? <Loading /> : "Cancel"}
           </Link>
         </div>
       </form>

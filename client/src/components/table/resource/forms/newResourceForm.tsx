@@ -10,7 +10,7 @@ import { useAlert } from "../../../../context/alert.provider";
 import Loading from "../../../loading";
 const schema = z.object({
   name: z.string().min(1, { message: "A name is required" }),
-  location: z.string().min(1, { message: "A location is required" }),
+  location: z.string().min(2, { message: "A location is required" }),
   notes: z.string().optional(),
 });
 type ValidationSchema = z.infer<typeof schema>;
@@ -104,9 +104,9 @@ export default function NewResourceForm() {
             <select
               className="select select-bordered"
               {...register("location")}
-              defaultValue="placeholder"
+              defaultValue=""
             >
-              <option value="placeholder">Please select a location</option>
+              <option value="">Please select a location</option>
               {locations.map((local) => (
                 <option key={local._id} value={local._id}>
                   {local.name}

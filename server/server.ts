@@ -19,9 +19,9 @@ if (nodeEnv === "production" && process.env.HOST_NAME && process.env.PORT) {
     console.log("cannot find DB URL");
   }
 } else {
-  app.listen(process.env.APIPORT, async () => {
+  app.listen(process.env.PORT, async () => {
     console.log(
-      `server listening on port: http://localhost:${process.env.APIPORT}`
+      `server listening on port: http://localhost:${process.env.PORT}`
     );
     await memoryConnect();
     await createMockData();

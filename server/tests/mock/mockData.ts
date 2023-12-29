@@ -31,6 +31,27 @@ export const users: Omit<
     auth: "USER",
     password: "65f073f6-1897-4f4c-a17b-d910d02fc5da",
   },
+  {
+    first_name: "sample",
+    last_name: "user",
+    auth: "USER",
+    email: "sample_user@test.com",
+    password: "sample123",
+  },
+  {
+    first_name: "enhanced",
+    last_name: "user",
+    auth: "ENHANCED",
+    email: "sample_enhance@test.com",
+    password: "sample123",
+  },
+  {
+    first_name: "admin",
+    last_name: "user",
+    auth: "ADMIN",
+    email: "sample_admin@test.com",
+    password: "sample123",
+  },
 ];
 
 export const resources: IResource[] = [

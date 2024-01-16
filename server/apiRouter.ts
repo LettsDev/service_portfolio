@@ -150,7 +150,6 @@ router.delete(
   [requireEnhanced, validate(deleteServiceSchema)],
   serviceController.remove
 );
-// needed to change base as it was matching with the date query route
 router.get(
   "/service_query/resource/:resourceId",
   [requireUser, validate(queryByResourceSchema)],
